@@ -1,0 +1,31 @@
+{
+    "name": "NativeFTManager.Editor.AAOCompat",
+    "rootNamespace": "NativeFTManager.AAOCompat",
+    "references": [
+        "nadena.dev.ndmf",
+        "NativeFTManager.Runtime",
+        "NativeFTManager.Editor",
+        "VRC.SDKBase",
+        "VRC.SDK3A",
+        "com.anatawa12.avatar-optimizer.api.editor"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [
+        "KX_AAO_API"
+    ],
+    "versionDefines": [
+        {
+            "name": "com.anatawa12.avatar-optimizer",
+            "expression": "[1.6.0,2.0.0)",
+            "define": "KX_AAO_API"
+        }
+    ],
+    "noEngineReferences": false
+}

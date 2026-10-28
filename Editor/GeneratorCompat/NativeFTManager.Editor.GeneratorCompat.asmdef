@@ -1,0 +1,31 @@
+{
+    "name": "NativeFTManager.Editor.GeneratorCompat",
+    "rootNamespace": "NativeFTManager.GeneratorCompat",
+    "references": [
+        "nadena.dev.ndmf",
+        "NativeFTManager.Runtime",
+        "NativeFTManager.Editor",
+        "VRC.SDKBase",
+        "VRC.SDK3A",
+        "ARKitBlendShapeGenerator.Runtime"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [
+        "KX_ARKIT_GENERATOR"
+    ],
+    "versionDefines": [
+        {
+            "name": "com.qazx7412.kx-vrc-arkit-blendshape-generator",
+            "expression": "[0.2.0,1.0.0)",
+            "define": "KX_ARKIT_GENERATOR"
+        }
+    ],
+    "noEngineReferences": false
+}

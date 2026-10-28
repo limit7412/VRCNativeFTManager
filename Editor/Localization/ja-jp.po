@@ -1,0 +1,122 @@
+msgid ""
+msgstr ""
+"Language: ja-jp\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+# 共通
+msgid "common.ok"
+msgstr "OK"
+
+msgid "common.cancel"
+msgstr "キャンセル"
+
+msgid "dialog.title"
+msgstr "Kx VRC NativeFT Manager"
+
+# ビルド時の警告
+msgid "warning.duplicate_component"
+msgstr "Kx VRC NativeFT Managerが複数あります"
+
+msgid "warning.duplicate_component:description"
+msgstr "{0}の設定だけを使い、残りは無視しました。"
+
+# 重複コンポーネントの自動排除
+msgid "guard.log.duplicate"
+msgstr "1つのアバターにKx VRC NativeFT Managerを複数追加できません。重複しているコンポーネントを削除します。"
+
+msgid "guard.dialog.duplicate_removed"
+msgstr "1つのアバターにKx VRC NativeFT Managerは1つだけ置けるため、重複していたコンポーネントを削除しました。"
+
+# インスペクタ
+msgid "inspector.description"
+msgstr "ネイティブフェイストラッキングのトグルと表情補正を、ビルド時にアバターへ組み込みます。\n設定項目は今後のバージョンで追加します。"
+
+# 更新の確認
+msgid "update.available.vpm"
+msgstr "新しいバージョン {0} が公開されています。\nVCC/ALCOMから更新してください。"
+
+msgid "update.available.booth"
+msgstr "新しいバージョン {0} が公開されています。\nReleasesから最新版を入手し、Assets配下の既存フォルダを削除してから入れ直してください。"
+
+msgid "update.available.unknown"
+msgstr "新しいバージョン {0} が公開されています。"
+
+msgid "update.open_releases"
+msgstr "Releasesを開く"
+
+msgid "update.dismiss"
+msgstr "このバージョンは通知しない"
+
+msgid "update.settings.enabled"
+msgstr "更新を確認する"
+
+msgid "update.settings.description"
+msgstr "GitHubのReleasesへ1日1回まで問い合わせ、新しいバージョンが出ていればインスペクタに知らせます。\n確認は既定で行います。切ると問い合わせを行いません。"
+
+msgid "update.available.booth_updatable"
+msgstr "新しいバージョン {0} が公開されています。\nこのウィンドウから更新できます。"
+
+msgid "update.run"
+msgstr "更新する"
+
+msgid "update.confirm"
+msgstr "バージョン {0} へ更新します。\n{1} の中身が新しいものへ置き換わり、この操作は取り消せません。フォルダの中を書き換えている場合は、先に控えを取ってください。"
+
+msgid "update.announce.message"
+msgstr "新しいバージョン {0} が公開されています。\nいま更新しますか？\n\n更新すると Assets/AtelierKairox/VRCNativeFTManager の中身が置き換わり、この操作は取り消せません。"
+
+msgid "update.announce.update"
+msgstr "更新する"
+
+msgid "update.announce.later"
+msgstr "あとで"
+
+msgid "update.completed"
+msgstr "バージョン {0} へ更新しました。"
+
+msgid "update.incomplete"
+msgstr "バージョン {0} への更新が完了しませんでした。更新前の内容は {1} に控えてあります。"
+
+msgid "update.error.unsupported"
+msgstr "このプロジェクトでは自動更新を行えません。Releasesから最新版を入手して入れ直してください。"
+
+msgid "update.error.release_missing"
+msgstr "バージョン {0} のリリースを取得できませんでした。"
+
+msgid "update.error.asset_missing"
+msgstr "リリースに {0} が添付されていません。"
+
+msgid "update.error.download"
+msgstr "ダウンロードに失敗しました: {0}"
+
+msgid "update.error.digest"
+msgstr "ダウンロードしたファイルがGitHubの示すダイジェストと一致しません。更新を中止しました。"
+
+msgid "update.error.archive"
+msgstr "ダウンロードしたファイルを読めませんでした: {0}"
+
+msgid "update.error.contents"
+msgstr "ダウンロードしたパッケージの中身が想定と違うため中止しました。"
+
+msgid "update.error.version"
+msgstr "配布されているパッケージの版がバージョン {0} と一致しないため中止しました。"
+
+msgid "update.error.scan"
+msgstr "手元のファイルを調べられなかったため中止しました: {0}"
+
+msgid "update.error.import"
+msgstr "取り込みに失敗しました: {0}\n更新前の内容は {1} に控えてあります。"
+
+msgid "update.error.import_cancelled"
+msgstr "取り込みが中止されました。\n更新前の内容は {0} に控えてあります。"
+
+msgid "update.error.backup"
+msgstr "更新前の内容を控えられなかったため中止しました: {0}"
+
+msgid "update.error.delete"
+msgstr "古いファイルを削除できなかったため、取り込みを中止しました。\n削除できなかったもの: {0}\n更新前の内容は {1} に控えてあります。"
+
+msgid "update.error.playing"
+msgstr "再生中は更新できません。再生を止めてからやり直してください。"
