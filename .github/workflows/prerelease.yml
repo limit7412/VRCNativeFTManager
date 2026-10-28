@@ -162,7 +162,8 @@ jobs:
           # 最新の安定版タグ(X.Y.Z形式)を起点にする。
           # package.jsonのversionはリリース時にタグから上書きされる運用のため、
           # 安定版タグがある間は起点に使わない。
-          LATEST=$(git tag --list | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -n 1)
+          # 一致するタグが無いとgrepが1で終わり、pipefailで止まるため`|| true`で受ける
+          LATEST=$(git tag --list | { grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' || true; } | sort -V | tail -n 1)
           if [ -n "$LATEST" ]; then
             # 次のパッチバージョンを次期バージョンとする
             NEXT="${LATEST%.*}.$(( ${LATEST##*.} + 1 ))"
