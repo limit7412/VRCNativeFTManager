@@ -1,0 +1,24 @@
+{
+    "name": "NativeFTManager.Editor",
+    "rootNamespace": "NativeFTManager",
+    "references": [
+        "nadena.dev.ndmf",
+        "nadena.dev.ndmf.runtime",
+        "nadena.dev.ndmf.vrchat",
+        "nadena.dev.modular-avatar.core",
+        "VRC.SDKBase",
+        "VRC.SDK3A",
+        "NativeFTManager.Runtime"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
