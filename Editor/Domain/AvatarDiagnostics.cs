@@ -61,6 +61,12 @@ namespace NativeFTManager.Domain
 
         /// <summary>公開パラメーターと同名で、他のMA Parametersにあるもの</summary>
         public IReadOnlyList<string> ConflictingParameters = new string[0];
+
+        /// <summary>本製品が作る同期パラメーターのbit数</summary>
+        public int PublishedSyncedBits;
+
+        /// <summary>本製品以外の同期パラメーターのbit数の見込み（DescriptorのExpression ParametersとMA Parameters）</summary>
+        public int OtherSyncedBits;
     }
 
     /// <summary>
@@ -130,6 +136,16 @@ namespace NativeFTManager.Domain
                 diagnostics.Add(new Diagnostic(
                     DiagnosticCodes.ParameterConflict,
                     string.Join(", ", facts.ConflictingParameters)));
+            }
+
+            int totalBits = facts.PublishedSyncedBits + facts.OtherSyncedBits;
+            if (facts.PublishedSyncedBits > 0 && totalBits > BuildEstimate.SyncedBitLimit)
+            {
+                diagnostics.Add(new Diagnostic(
+                    DiagnosticCodes.SyncedBitsExceeded,
+                    totalBits,
+                    BuildEstimate.SyncedBitLimit,
+                    facts.PublishedSyncedBits));
             }
 
             return diagnostics;
