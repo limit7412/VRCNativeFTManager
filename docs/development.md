@@ -35,4 +35,4 @@ CIでも実行されるが（[ci.md](ci.md)）、Unityライセンスのsecret�
 任意依存の型に触るコードは、対応する連携用アセンブリにだけ置く。
 本体のアセンブリから参照すると、その依存が無いプロジェクトでコンパイルが通らなくなる。
 連携用アセンブリの判定はasmdefの `versionDefines` と `defineConstraints` で行う。
-GeneratorCompatの版の範囲は、Generatorが連携に必要な定数を公開する版（仕様書16章のP1）のリリースで確定する。それまでは仮の値を置いている。
+GeneratorCompatの版の範囲は、Generatorが連携に必要な定数（`FaceTrackingSetNames`）を公開する版（仕様書16章のP1）のリリースで確定する。今の `[0.2.1,1.0.0)` は、P1を含む次のリリースを0.2.1と見込んだ仮の値である。

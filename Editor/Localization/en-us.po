@@ -31,7 +31,7 @@ msgstr "An avatar can only have one Kx VRC NativeFT Manager, so the duplicate co
 
 # Inspector
 msgid "inspector.description"
-msgstr "Adds native face tracking toggles and expression corrections to the avatar at build time.\nSettings will be added in upcoming versions."
+msgstr "Adds native face tracking toggles to the avatar at build time.\nThe Face Tracking submenu of the Expressions Menu switches face tracking, eyes and mouth."
 
 # Update check
 msgid "update.available.vpm"
@@ -120,3 +120,189 @@ msgstr "Stopped before importing because old files could not be deleted.\nCould 
 
 msgid "update.error.playing"
 msgstr "Cannot update while in play mode. Exit play mode and try again."
+
+# M1: inspector
+msgid "common.on"
+msgstr "On"
+
+msgid "common.off"
+msgstr "Off"
+
+msgid "inspector.section.status"
+msgstr "Status"
+
+msgid "inspector.status.sets"
+msgstr "Blendshapes Sets"
+
+msgid "inspector.status.sets_value"
+msgstr "{0} (keys assigned: {1})"
+
+msgid "inspector.status.use_all_tracking_keys"
+msgstr "Use All Tracking Keys"
+
+msgid "inspector.status.generator"
+msgstr "ARKit BlendShape Generator"
+
+msgid "inspector.status.generator_none"
+msgstr "Not found"
+
+msgid "inspector.status.generator_unsupported"
+msgstr "Version without integration support"
+
+msgid "inspector.status.generator_present"
+msgstr "Found (Blendshapes Set output is off)"
+
+msgid "inspector.status.generator_set_write"
+msgstr "Found (Blendshapes Set output is on)"
+
+msgid "inspector.preset"
+msgstr "Preset"
+
+msgid "inspector.preset.tooltip"
+msgstr "Group of settings. In this version every preset has the same toggles; ARKit is used to warn when the Generator is missing"
+
+msgid "inspector.generator_integration"
+msgstr "Generator Integration"
+
+msgid "inspector.generator_integration.tooltip"
+msgstr "When Auto, the Blendshapes Set output of Kx VRC ARKit BlendShape Generator on the avatar is enabled during the build only. The Generator settings in the scene are not changed"
+
+msgid "inspector.section.toggles"
+msgstr "Toggles"
+
+msgid "inspector.toggle.show_in_menu"
+msgstr "Menu"
+
+msgid "inspector.toggle.show_in_menu.tooltip"
+msgstr "Adds the toggle to the Expressions Menu with a synced parameter. A hidden toggle always keeps its default value"
+
+msgid "inspector.toggle.default_value"
+msgstr "Default"
+
+msgid "inspector.toggle.default_value.tooltip"
+msgstr "Default value of the parameter"
+
+msgid "inspector.toggle.saved"
+msgstr "Saved"
+
+msgid "inspector.toggle.saved.tooltip"
+msgstr "Keeps the value across worlds"
+
+msgid "inspector.section.descriptor"
+msgstr "Avatar Descriptor (at build time)"
+
+msgid "inspector.set_use_all_tracking_keys"
+msgstr "Enable Use All Tracking Keys"
+
+msgid "inspector.set_use_all_tracking_keys.tooltip"
+msgstr "Without it, only the 10 basic eye keys are tracked"
+
+msgid "inspector.viseme_dampen"
+msgstr "Viseme Dampen"
+
+msgid "inspector.viseme_dampen.tooltip"
+msgstr "Viseme Dampen mode written to the Avatar Descriptor at build time. DoNotChange keeps the Descriptor value"
+
+msgid "inspector.viseme_dampen_amount"
+msgstr "Amount"
+
+msgid "inspector.section.details"
+msgstr "Details"
+
+msgid "inspector.lerp_speed"
+msgstr "Lerp Speed"
+
+msgid "inspector.lerp_speed.tooltip"
+msgstr "How fast the Blendshapes Set weight follows a toggle. 0 switches instantly"
+
+msgid "inspector.excluded_set_names"
+msgstr "Sets not to split"
+
+msgid "inspector.excluded_set_names.tooltip"
+msgstr "Blendshapes Sets listed here are kept as they are and are not switched by the toggles"
+
+
+# M1: warnings and errors (spec chapter 12)
+msgid "diag.E-02"
+msgstr "[KxNFTM-E-02] Wrong location"
+
+msgid "diag.E-02:description"
+msgstr "Place Kx VRC NativeFT Manager inside an avatar that has a VRCAvatarDescriptor."
+
+msgid "diag.E-03"
+msgstr "[KxNFTM-E-03] No Blendshapes Set"
+
+msgid "diag.E-03:description"
+msgstr "The Avatar Descriptor has no Blendshapes Set, so face tracking does nothing. With Kx VRC ARKit BlendShape Generator, set Generator Integration to Auto; otherwise create a Set with the Descriptor's auto fill or by hand."
+
+msgid "diag.E-04"
+msgstr "[KxNFTM-E-04] Jerry's Face Tracking Templates is still on the avatar"
+
+msgid "diag.E-04:description"
+msgstr "It cannot be used together with native face tracking on the same avatar (found: {0}). On an avatar with Use All Tracking Keys, Jerry's does not run and only its synced bits remain, and MA_EyeRotation may stop the native eye gaze through a saved EyeTrackingActive. Remove Jerry's from the avatar."
+
+msgid "diag.E-05"
+msgstr "[KxNFTM-E-05] Toggle State Behavior not found"
+
+msgid "diag.E-05:description"
+msgstr "The face tracking Blendshapes State Behavior was not found in the VRChat SDK, so the toggles cannot switch the Set weights. The Sets were split and the Descriptor settings were applied. Check the SDK version (details: {0})."
+
+msgid "diag.E-06"
+msgstr "[KxNFTM-E-06] Tracking keys do not match the SDK"
+
+msgid "diag.E-06:description"
+msgstr "The FaceTrackingKey of the VRChat SDK differs from this tool's table, so the Sets were not split ({0}). Update this tool."
+
+msgid "diag.W-01"
+msgstr "[KxNFTM-W-01] ARKit BlendShape Generator not found"
+
+msgid "diag.W-01:description"
+msgstr "The preset is ARKit, but the avatar has no Kx VRC ARKit BlendShape Generator. Add the Generator or change the preset to UE."
+
+msgid "diag.W-02"
+msgstr "[KxNFTM-W-02] Generator shapes are not used for face tracking"
+
+msgid "diag.W-02:description"
+msgstr "Generator Integration is Off and the Generator's Blendshapes Set output is off as well, so the generated shapes are not added to any Set. Set Generator Integration to Auto."
+
+msgid "diag.W-03"
+msgstr "[KxNFTM-W-03] Generator version does not support the integration"
+
+msgid "diag.W-03:description"
+msgstr "The Kx VRC ARKit BlendShape Generator on the avatar is not a version that supports the integration. Update the Generator. Until then, enabling its Blendshapes Set output by hand still lets the split and toggles work."
+
+msgid "diag.W-04"
+msgstr "[KxNFTM-W-04] Generator Set has too few keys"
+
+msgid "diag.W-04:description"
+msgstr "Only {0} keys are assigned in the Generator's Blendshapes Set. The source shapes may not have been found. Check the Generator settings."
+
+msgid "diag.W-05"
+msgstr "[KxNFTM-W-05] Use All Tracking Keys is off"
+
+msgid "diag.W-05:description"
+msgstr "Only the 10 basic eye keys are tracked. Turn on Enable Use All Tracking Keys, or enable it on the Avatar Descriptor."
+
+msgid "diag.W-07"
+msgstr "[KxNFTM-W-07] Eye Look rotation range is too narrow"
+
+msgid "diag.W-07:description"
+msgstr "One direction of the Eye Look rotation on the Avatar Descriptor is only {0}°, so the eyes barely move. Widen it to about ±10-15° vertically and ±15-20° horizontally."
+
+msgid "diag.W-08"
+msgstr "[KxNFTM-W-08] Do not use with Kx VRC FE-JsT Bridge"
+
+msgid "diag.W-08:description"
+msgstr "The avatar has Kx VRC FE-JsT Bridge. Suppressing FaceEmo is a feature planned for this tool, and FE-JsT Bridge does not trigger on an avatar with native face tracking. Remove FE-JsT Bridge."
+
+msgid "diag.W-09"
+msgstr "[KxNFTM-W-09] Parameter name conflict"
+
+msgid "diag.W-09:description"
+msgstr "Another MA Parameters also defines this tool's parameters ({0}). Rename one of them."
+
+msgid "diag.W-10"
+msgstr "[KxNFTM-W-10] A Set was not split"
+
+msgid "diag.W-10:description"
+msgstr "The Blendshapes Set \"{0}\" is referenced by name from an existing Parameter Behavior, so it was not split. This Set is not switched by the toggles."
