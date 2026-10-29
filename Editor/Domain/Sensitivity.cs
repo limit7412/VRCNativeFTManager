@@ -195,18 +195,20 @@ namespace NativeFTManager.Domain
             }
         }
 
-        /// <summary>Radialの値を含む段階</summary>
+        /// <summary>
+        /// Radialの値を含む段階。FXでInitとOffから段階へ入る遷移と同じく、下端を超えた段階のうち最も上のもの
+        /// </summary>
         public SensitivityStage FindStage(float value)
         {
-            foreach (var stage in Stages)
+            for (int i = Stages.Count - 1; i > 0; i--)
             {
-                if (stage.UpperBound == null || value < stage.UpperBound.Value)
+                if (value > Stages[i].LowerBound.Value)
                 {
-                    return stage;
+                    return Stages[i];
                 }
             }
 
-            return Stages[Stages.Count - 1];
+            return Stages[0];
         }
 
         /// <summary>

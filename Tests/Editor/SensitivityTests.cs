@@ -146,10 +146,33 @@ namespace NativeFTManager.Tests
 
             Assert.That(
                 lip.TransitionsFrom(ToggleLayerPlan.InitState).Select(Describe),
-                Has.Member("Init->On 4: KxNFTM/FaceTracking & KxNFTM/LipTracking & KxNFTM/Sensitivity/Lip>0.499 & KxNFTM/Sensitivity/Lip<0.624"));
+                Has.Member("Init->On 4: KxNFTM/FaceTracking & KxNFTM/LipTracking & KxNFTM/Sensitivity/Lip>0.499"));
             Assert.That(
                 lip.TransitionsFrom(ToggleLayerPlan.OffState).Select(Describe),
-                Has.Member("Off->On 0: KxNFTM/FaceTracking & KxNFTM/LipTracking & KxNFTM/Sensitivity/Lip<0.124"));
+                Has.Member("Off->On 0: KxNFTM/FaceTracking & KxNFTM/LipTracking"));
+        }
+
+        [TestCase(0f, 0)]
+        [TestCase(0.124f, 0)]
+        [TestCase(0.499f, 3)]
+        [TestCase(0.5f, 4)]
+        [TestCase(1f, 7)]
+        public void Build_EntryFromOff_ReachesAStageEvenOnABoundary(float value, int expected)
+        {
+            // Animatorと同じく、並びの先頭から成り立った遷移を選ぶ。境目ちょうどの値でもOffに残らない
+            var plan = ToggleControllerPlanner.Build(CreateUeToggles(new SensitivityConfig(false, true, 2f, true)));
+            var lip = plan.FindLayer(FaceTrackingGroup.Lip);
+
+            var chosen = lip.TransitionsFrom(ToggleLayerPlan.OffState).FirstOrDefault(transition =>
+                transition.Conditions.All(condition =>
+                    condition.Mode == ToggleConditionMode.Bool
+                        ? condition.Expected
+                        : condition.Mode == ToggleConditionMode.Greater
+                            ? value > condition.Threshold
+                            : value < condition.Threshold));
+
+            Assert.That(chosen, Is.Not.Null);
+            Assert.That(chosen.To, Is.EqualTo("On " + expected));
         }
 
         [Test]
