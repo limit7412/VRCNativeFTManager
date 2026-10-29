@@ -1,10 +1,12 @@
 # Kx VRC NativeFT Manager
 
 VRChatのネイティブFace Tracking向けに、Jerry's Templates相当のトグルと表情補正をEXメニューから操作できるようにするNDMFプラグインです。
-プレハブをアバターへ置くだけで使え、[Kx VRC ARKit BlendShape Generator](https://github.com/limit7412/VRCARKitBlendShapeGenerator)と[Kx VRC FE-JsT Bridge](https://github.com/limit7412/VRCFE-JsTBridge)に連携します。
+プレハブをアバターへ置くだけで使え、[Kx VRC ARKit BlendShape Generator](https://github.com/limit7412/VRCARKitBlendShapeGenerator)に連携します。
+FaceEmoの抑制も、今後のバージョンで本製品に持たせます。[Kx VRC FE-JsT Bridge](https://github.com/limit7412/VRCFE-JsTBridge)とは連携せず、同じアバターでの併用もしません。
 
 > [!WARNING]
-> **開発中です。** 現在のバージョンにはパッケージの骨格（ビルドへの組み込み、更新の確認、配布の仕組み）だけが入っており、トグルや表情補正はまだ動きません。
+> **開発中です。** 現在のバージョンで動くのは、Blendshapes Setのグループ分割と、FT全体・目・口のトグルです。表情補正（エミュレーション、制限、Eye Sync）、瞳孔とビゼームのトグル、FaceEmoの抑制はまだありません。
+> トグルが使うState Behaviorの型は、VRChat SDKのベータ版で確かめている途中です。見つからないときはビルドで警告（KxNFTM-E-05）が出て、トグルだけが効きません。
 > ネイティブFace TrackingはVRChat SDKのベータ版の機能です。SDKが正式版になるまでは実験的な扱いとします。
 
 ## 必要環境
@@ -28,7 +30,20 @@ zipからの手動インストールとbooth版（unitypackage）の手順、お
 
 ## 使い方
 
-機能の実装とともに書きます。
+1. `Packages/Kx VRC NativeFT Manager/Runtime/Prefabs/` のプレハブをアバター直下に置く
+   - 汎用版（`Kx NativeFT Manager`）: DescriptorのBlendshapes Setを、オートフィルか手入力で用意してあるアバター向け
+   - ARKit版（`Kx NativeFT Manager (ARKit)`）: Kx VRC ARKit BlendShape Generatorを使うアバター向け。GeneratorのSet書き込みを、ビルド中だけ有効にする
+2. アップロードする。EXメニューの「Face Tracking」から、Face Tracking・Eye Tracking・Lip Trackingを切り替える
+
+Jerry's Face Tracking Templatesは同じアバターに置けません。残っているとインスペクタとビルドでエラー（KxNFTM-E-04）が出ます。
+
+### ビルド時に行うこと
+
+- DescriptorのBlendshapes Setを、トラッキングキーの種類でEye / EyeClosed / Pupil / Brow / Lip / Otherに分ける（`KxNFTM/Eye` など）。元のSetは消え、キーとシェイプの対応の総数は変わらない
+- トグルごとに同期Boolのパラメーター（`KxNFTM/FaceTracking`、`KxNFTM/EyeTracking`、`KxNFTM/LipTracking`、計3bit）とメニューを作り、FXのレイヤーでSetの重みを0と1に切り替える
+- DescriptorのFace Trackingを有効にし、Use All Tracking Keysを有効にする（インスペクタで変更しないこともできる）
+
+パラメーターの接頭辞 `KxNFTM/` は仮の名前で、1.0までに確定します。
 
 ## ドキュメント
 

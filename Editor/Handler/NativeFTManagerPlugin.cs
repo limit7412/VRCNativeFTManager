@@ -18,19 +18,16 @@ namespace NativeFTManager.Handler
         /// </summary>
         internal const string ModularAvatar = "nadena.dev.modular-avatar";
         internal const string ARKitBlendShapeGenerator = "com.qazx7412.kx-vrc-arkit-blendshape-generator";
-        internal const string FEJsTBridge = "com.qazx7412.kx-vrc-fe-jst-bridge";
 
         public override string QualifiedName => "com.qazx7412.kx-vrc-native-ft-manager";
         public override string DisplayName => "Kx VRC NativeFT Manager";
 
         protected override void Configure()
         {
-            // 生成したMerge AnimatorとメニューをModular Avatarがマージする前に置き終える。
-            // FE-JsT Bridgeとは名前を定数で共有するだけで順序の依存は無いが、
-            // 生成物を読まれる場合に備えて先に置く
+            // 生成したMerge Animator、パラメーター、メニューをModular Avatarがマージする前に置き終える。
+            // FE-JsT Bridgeとは連携しない（仕様書10.2）ので、順序も指定しない
             InPhase(BuildPhase.Generating)
                 .BeforePlugin(ModularAvatar)
-                .BeforePlugin(FEJsTBridge)
                 .Run("Prepare native face tracking", PrepareUseCase.Execute);
 
             // GeneratorがDescriptorへ書いたSetと、MAのマージ結果を前提にする
