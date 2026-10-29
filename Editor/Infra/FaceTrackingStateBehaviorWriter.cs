@@ -72,6 +72,68 @@ namespace NativeFTManager.Infra
         }
 
         /// <summary>
+        /// コントローラにすでにあるこのBehaviorが、名前で参照しているSetを集める。
+        /// 型が見つからなければ何も返さない（このBehavior自体を作れないので、既存のものも見分けられない）
+        /// </summary>
+        public static HashSet<string> CollectReferencedSetNames(IEnumerable<AnimatorController> controllers)
+        {
+            var names = new HashSet<string>();
+            if (!TryResolve(out _))
+            {
+                return names;
+            }
+
+            foreach (var controller in controllers.Where(controller => controller != null).Distinct())
+            {
+                foreach (var layer in controller.layers)
+                {
+                    Collect(layer.stateMachine, names, new HashSet<AnimatorStateMachine>());
+                }
+            }
+
+            return names;
+        }
+
+        private static void Collect(
+            AnimatorStateMachine stateMachine,
+            HashSet<string> names,
+            HashSet<AnimatorStateMachine> visited)
+        {
+            if (stateMachine == null || !visited.Add(stateMachine))
+            {
+                return;
+            }
+
+            AddNames(stateMachine.behaviours, names);
+            foreach (var child in stateMachine.states)
+            {
+                AddNames(child.state != null ? child.state.behaviours : null, names);
+            }
+
+            foreach (var child in stateMachine.stateMachines)
+            {
+                Collect(child.stateMachine, names, visited);
+            }
+        }
+
+        private static void AddNames(StateMachineBehaviour[] behaviours, HashSet<string> names)
+        {
+            if (behaviours == null)
+            {
+                return;
+            }
+
+            foreach (var behaviour in behaviours)
+            {
+                if (behaviour != null && _binding.Type.IsInstanceOfType(behaviour)
+                    && _binding.SetName.GetValue(behaviour) is string name && !string.IsNullOrEmpty(name))
+                {
+                    names.Add(name);
+                }
+            }
+        }
+
+        /// <summary>
         /// 候補の型とフィールドを文字列にする（確認項目6のダンプ用）
         /// </summary>
         public static string Describe()

@@ -305,7 +305,7 @@ msgid "diag.W-10"
 msgstr "[KxNFTM-W-10] 分割しないSetがあります"
 
 msgid "diag.W-10:description"
-msgstr "Blendshapes Set「{0}」は既存のParameter Behaviorから名前で参照されているため、分割していません。このSetはトグルで切り替わりません。"
+msgstr "Blendshapes Set「{0}」は既存のParameter BehaviorかState Behaviorから名前で参照されているため、分割していません。このSetはトグルで切り替わりません。"
 
 msgid "diag.W-14"
 msgstr "[KxNFTM-W-14] Avatar OptimizerがネイティブFTに対応していません"

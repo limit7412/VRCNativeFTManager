@@ -12,7 +12,7 @@ namespace NativeFTManager.Domain
         /// <summary>インスペクタの「分割しないSet」に入っている</summary>
         Excluded,
 
-        /// <summary>既存のParameter Behaviorが名前を参照している（W-10）</summary>
+        /// <summary>既存のParameter BehaviorかState Behaviorが名前を参照している（W-10）</summary>
         ReferencedByBehavior,
 
         /// <summary>本製品の接頭辞を持つ（分割済み）</summary>

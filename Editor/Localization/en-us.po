@@ -305,7 +305,7 @@ msgid "diag.W-10"
 msgstr "[KxNFTM-W-10] A Set was not split"
 
 msgid "diag.W-10:description"
-msgstr "The Blendshapes Set \"{0}\" is referenced by name from an existing Parameter Behavior, so it was not split. This Set is not switched by the toggles."
+msgstr "The Blendshapes Set \"{0}\" is referenced by name from an existing Parameter Behavior or State Behavior, so it was not split. This Set is not switched by the toggles."
 
 msgid "diag.W-14"
 msgstr "[KxNFTM-W-14] Avatar Optimizer does not support native face tracking"

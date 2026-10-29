@@ -82,7 +82,7 @@ namespace NativeFTManager.Domain
         /// <summary>公開パラメーターと同名のパラメーターが他のMA Parametersにある</summary>
         public const string ParameterConflict = "W-09";
 
-        /// <summary>既存のParameter Behaviorが分割対象のSet名を参照している</summary>
+        /// <summary>既存のParameter BehaviorかState Behaviorが分割対象のSet名を参照している</summary>
         public const string SetReferencedByBehavior = "W-10";
 
         /// <summary>アバターにAvatar Optimizerがあるが、ネイティブFTに対応していない版（1.9.21-beta.1未満）</summary>

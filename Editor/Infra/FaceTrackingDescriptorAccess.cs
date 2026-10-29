@@ -63,6 +63,33 @@ namespace NativeFTManager.Infra
         /// <summary>
         /// 既存のParameter BehaviorがtargetBlendSetNameかweightBlendSetNameに持つSet名
         /// </summary>
+        /// <summary>
+        /// Descriptorのアニメーションレイヤーに設定されたコントローラ（既定のものは除く）
+        /// </summary>
+        public static IEnumerable<UnityEditor.Animations.AnimatorController> GetAnimatorControllers(VRCAvatarDescriptor descriptor)
+        {
+            if (descriptor == null)
+            {
+                yield break;
+            }
+
+            foreach (var layers in new[] { descriptor.baseAnimationLayers, descriptor.specialAnimationLayers })
+            {
+                if (layers == null)
+                {
+                    continue;
+                }
+
+                foreach (var layer in layers)
+                {
+                    if (!layer.isDefault && layer.animatorController is UnityEditor.Animations.AnimatorController controller)
+                    {
+                        yield return controller;
+                    }
+                }
+            }
+        }
+
         public static HashSet<string> GetSetNamesReferencedByBehaviors(VRCAvatarDescriptor descriptor)
         {
             var names = new HashSet<string>();

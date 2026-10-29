@@ -82,7 +82,11 @@ namespace NativeFTManager.UseCase
             }
 
             var excluded = new HashSet<string>(primary.excludedSetNames ?? new List<string>());
+            // 既存のState Behaviorが名前で指すSetも分割しない。分割すると元の名前が消え、その制御が効かなくなる。
+            // 本製品のBehaviorはこの後で付けるので、ここで見つかるのは利用者が置いたものだけである
             var referenced = FaceTrackingDescriptorAccess.GetSetNamesReferencedByBehaviors(descriptor);
+            referenced.UnionWith(FaceTrackingStateBehaviorWriter.CollectReferencedSetNames(
+                FaceTrackingDescriptorAccess.GetAnimatorControllers(descriptor)));
             var result = SetSplitPlanner.Split(sets, excluded, referenced, group => plan.DefaultWeights[group]);
 
             foreach (var kept in result.Kept.Where(kept => kept.Reason == SetKeepReason.ReferencedByBehavior))
