@@ -149,7 +149,7 @@ namespace NativeFTManager.Tests
                 Has.Member("Init->On 4: KxNFTM/FaceTracking & KxNFTM/LipTracking & KxNFTM/Sensitivity/Lip>0.499"));
             Assert.That(
                 lip.TransitionsFrom(ToggleLayerPlan.OffState).Select(Describe),
-                Has.Member("Off->On 0: KxNFTM/FaceTracking & KxNFTM/LipTracking"));
+                Has.Member("Off->On 0: KxNFTM/FaceTracking & KxNFTM/LipTracking & KxNFTM/Sensitivity/Lip<0.125"));
         }
 
         [TestCase(0f, 0)]
@@ -206,6 +206,12 @@ namespace NativeFTManager.Tests
 
             Assert.That(lip, Is.Not.Null);
             Assert.That(lip.Transitions.Where(t => t.To == ToggleLayerPlan.OffState), Is.Empty);
+
+            // 終了時間なしの遷移は条件が無いと発火しない。InitからOn 0への遷移にも条件を付ける
+            Assert.That(lip.Transitions.Select(t => t.Conditions.Count), Is.All.GreaterThan(0));
+            Assert.That(
+                lip.TransitionsFrom(ToggleLayerPlan.InitState).Select(Describe),
+                Has.Member("Init->On 0: KxNFTM/Sensitivity/Lip<0.125"));
             Assert.That(plan.FindLayer(FaceTrackingGroup.Eye), Is.Null, "目の感度は無効なのでレイヤーは要らない");
         }
 

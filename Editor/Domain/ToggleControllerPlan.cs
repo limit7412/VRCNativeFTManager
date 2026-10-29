@@ -446,7 +446,7 @@ namespace NativeFTManager.Domain
 
             // InitとOffから段階へ入るときは、上の段階から順に下端だけで判定する。
             // 範囲の両端で判定すると、境目ちょうどの値がどの段階にも入らず、トグルを入れてもOffに残るため。
-            // Animatorは並びの先頭から成り立った遷移を選ぶので、最後の段階0は範囲の条件を持たない
+            // Animatorは並びの先頭から成り立った遷移を選ぶ。最後の段階0には常に成り立つ条件を付ける
             var entryOrder = sensitivity.Stages.Reverse().ToArray();
             foreach (var stage in entryOrder)
             {
@@ -490,13 +490,16 @@ namespace NativeFTManager.Domain
         }
 
         /// <summary>
-        /// 段階へ入る遷移の条件。上の段階から順に並べる前提で、下端だけを見る
+        /// 段階へ入る遷移の条件。上の段階から順に並べる前提で、下端だけを見る。
+        /// 段階0は下端を持たないが、条件を空にはしない。トグルを固定したレイヤーでは条件が1つも無くなり、
+        /// 終了時間なしの遷移は条件なしでは発火しないため。上の段階をすべて外れた値は段階1の下端以下なので、
+        /// 境目のずらし分を足した上端との比較は常に成り立つ
         /// </summary>
         private static ToggleConditionPlan[] GetEntryConditions(SensitivityStage stage, string parameter)
         {
             return stage.LowerBound.HasValue
                 ? new[] { ToggleConditionPlan.Greater(parameter, stage.LowerBound.Value) }
-                : new ToggleConditionPlan[0];
+                : new[] { ToggleConditionPlan.Less(parameter, stage.Upper + SensitivityConfig.BoundaryOffset) };
         }
 
         /// <summary>
