@@ -100,6 +100,18 @@ namespace NativeFTManager.Domain
         /// <summary>Avatar OptimizerはネイティブFTに対応した版だが、SDKが古く対応が無効（3.10.6-beta.3未満）</summary>
         public const string AaoSdkTooOld = "W-15";
 
+        /// <summary>FaceEmoの抑制の発動条件が、メニューに出さないトグルのせいで決して成り立たない（M3で追加）</summary>
+        public const string SuppressionNeverEngaged = "W-16";
+
+        /// <summary>表情制御方式で、FaceEmoのパラメーター名をMA Parametersから解決できない（M3で追加）</summary>
+        public const string FaceEmoParametersUnresolved = "W-17";
+
+        /// <summary>アバターにFaceEmoがあるが、FaceEmoの抑制が無効（M3で追加）</summary>
+        public const string SuppressionDisabled = "I-03";
+
+        /// <summary>FaceEmoの抑制が有効だが、アバターにFaceEmoが無い（M3で追加）</summary>
+        public const string FaceEmoMissing = "I-04";
+
         /// <summary>W-04の判定に使う、割り当てキー数の下限</summary>
         public const int GeneratorSetMinimumKeys = 10;
 
@@ -125,6 +137,10 @@ namespace NativeFTManager.Domain
                 { CorrectionTargetMissing, DiagnosticSeverity.Information },
                 { AaoOutdated, DiagnosticSeverity.Warning },
                 { AaoSdkTooOld, DiagnosticSeverity.Warning },
+                { SuppressionNeverEngaged, DiagnosticSeverity.Warning },
+                { FaceEmoParametersUnresolved, DiagnosticSeverity.Warning },
+                { SuppressionDisabled, DiagnosticSeverity.Information },
+                { FaceEmoMissing, DiagnosticSeverity.Information },
             };
 
         public static IEnumerable<string> All => Severities.Keys;

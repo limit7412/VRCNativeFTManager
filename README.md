@@ -2,10 +2,10 @@
 
 VRChatのネイティブFace Tracking向けに、Jerry's Templates相当のトグルと表情補正をEXメニューから操作できるようにするNDMFプラグインです。
 プレハブをアバターへ置くだけで使え、[Kx VRC ARKit BlendShape Generator](https://github.com/limit7412/VRCARKitBlendShapeGenerator)に連携します。
-FaceEmoの抑制も、今後のバージョンで本製品に持たせます。[Kx VRC FE-JsT Bridge](https://github.com/limit7412/VRCFE-JsTBridge)とは連携せず、同じアバターでの併用もしません。
+FaceEmoの抑制も本製品が行います。[Kx VRC FE-JsT Bridge](https://github.com/limit7412/VRCFE-JsTBridge)とは連携せず、同じアバターでの併用もしません。
 
 > [!WARNING]
-> **開発中です。** 現在のバージョンで動くのは、Blendshapes Setのグループ分割、FT全体・目・口・瞳孔・ビゼームのトグル、表情補正（エミュレーション、制限、Eye Sync）です。FaceEmoの抑制はまだありません。
+> **開発中です。** 現在のバージョンで動くのは、Blendshapes Setのグループ分割、FT全体・目・口・瞳孔・ビゼームのトグル、表情補正（エミュレーション、制限、Eye Sync）、FaceEmoの抑制です。
 > トグルが使うState Behaviorの型と、表情補正の切り替えに使う空のSet（ゲート）が効くかは、VRChat SDKのベータ版で確かめている途中です。State Behaviorの型が見つからないときはビルドで警告（KxNFTM-E-05）が出て、トグルだけが効きません。
 > ネイティブFace TrackingはVRChat SDKのベータ版の機能です。SDKが正式版になるまでは実験的な扱いとします。
 
@@ -55,6 +55,18 @@ Jerry's Face Tracking Templatesは同じアバターに置けません。残っ�
   - 補正の切り替えには、対応を持たない空のSet（`KxNFTM/Gate/...`）の重みを使う。規則が読み書きするキーの側のトグル（目・瞳孔・口）を切ったときも、その規則は止まる
   - 対象のシェイプがSetに無い規則は作らない（KxNFTM-I-01）。Custom式の命令数がアバター全体の上限512を超えるときは、優先度の低い規則から落とす（KxNFTM-W-12）
 - DescriptorのFace Trackingを有効にし、Use All Tracking Keysを有効にする（インスペクタで変更しないこともできる）
+
+### FaceEmoの抑制
+
+FaceEmoを使うアバターでは、インスペクタの「FaceEmoの抑制」を有効にすると、フェイストラッキング中にFaceEmoの表情とまばたきが顔のシェイプを書き込まないようにします。
+FE-JsT Bridgeの同じ機能を移したもので、FaceEmoのアセットは読まず、パラメーター名でつなぎます。既定は無効で、FaceEmoがあるのに無効のときはインスペクタに案内（KxNFTM-I-03）が出ます。
+
+- 発動条件: 「目か口のトラッキングが有効」（Face Trackingが有効で、Eye TrackingかLip Trackingが有効）か、「口のトラッキングが有効」を選ぶ。メニューのトグルだけで決まり、トラッカーが値を送っているかは見ないので、トラッカーを使わないときはFace Trackingのトグルを切る
+- 制御方式: 「表情制御」（既定）はFaceEmoを動かしたまま、表情ロック・まばたき停止・指定した表情番号への切り替えを書き込む。「バイパス」はFaceEmoの外部連携用パラメーターでFaceEmoごと止める。バイパスでは素体の表情レイヤーが表に出るので、「取り除くFXレイヤー」で取り除く
+- 追加で書き込むパラメーター: フェイストラッキング中だけ値を書き込むパラメーター。MA Menu Itemかパラメーター名で指定し、解除時は元の値に戻す・解除時の値を書く・何もしない、から選ぶ
+- 取り除くFXレイヤー: ビルド時に、DescriptorのFXから指定した名前のレイヤーを取り除く。素体のアセットは書き換えない
+
+FE-JsT Bridgeにあった「Tracking Controlの再適用」と「FaceEmoとトラッキングのシェイプの重なりの警告」は、ネイティブFTでの必要性をVRChatのベータクライアントで確かめてから入れるかを決めます。
 
 インスペクタの「見積もり」には、分割で作るSet、Parameter Behaviors、Custom式の命令数、Face Tracking Operations、同期bit、FXのレイヤーの数が出ます。
 ARKit版でGeneratorのSetを使う場合、そのSetはビルド中にしか無いので、見積もりに入りません。

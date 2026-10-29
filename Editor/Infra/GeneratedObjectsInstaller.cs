@@ -20,12 +20,16 @@ namespace NativeFTManager.Infra
     {
         public const string HolderObjectName = NativeFTManagerParameterNames.ShortPrefix + " Generated";
 
+        /// <summary>FaceEmoの抑制のMerge Animatorを載せる子オブジェクトの名前</summary>
+        public const string SuppressionObjectName = NativeFTManagerParameterNames.ShortPrefix + " FaceEmo";
+
         public static GameObject Install(
             GameObject avatarRoot,
             AnimatorController controller,
             IReadOnlyList<ResolvedToggle> parameters,
             MenuPlan menu,
-            Action<Object> saveAsset)
+            Action<Object> saveAsset,
+            AnimatorController suppressionController = null)
         {
             if (avatarRoot == null)
             {
@@ -46,6 +50,11 @@ namespace NativeFTManager.Infra
                 // 配置場所で変わらないAbsoluteにし、Write Defaultsは生成時のOFFのままにする（仕様書5.3）
                 mergeAnimator.pathMode = MergeAnimatorPathMode.Absolute;
                 mergeAnimator.matchAvatarWriteDefaults = false;
+            }
+
+            if (suppressionController != null)
+            {
+                InstallSuppression(holder, suppressionController);
             }
 
             if (parameters.Count > 0)
@@ -75,6 +84,27 @@ namespace NativeFTManager.Infra
             }
 
             return holder;
+        }
+
+        /// <summary>
+        /// FaceEmoの抑制のコントローラを、トグルとは別のMerge Animatorで置く（仕様書10.3）。
+        /// トグルのレイヤーはWrite Defaultsを生成時のOFFのまま入れるが、こちらは空クリップを持つので、
+        /// FE-JsT Bridgeと同じくアバターのWrite Defaultsに合わせる
+        /// </summary>
+        private static void InstallSuppression(GameObject holder, AnimatorController controller)
+        {
+            var child = new GameObject(SuppressionObjectName);
+            child.transform.SetParent(holder.transform, false);
+
+            var mergeAnimator = child.AddComponent<ModularAvatarMergeAnimator>();
+            mergeAnimator.animator = controller;
+            mergeAnimator.layerType = VRCAvatarDescriptor.AnimLayerType.FX;
+            mergeAnimator.deleteAttachedAnimator = true;
+
+            // クリップが持つのは束縛先のないダミーカーブだけなので、
+            // 配置場所によってパスが変わらないAbsoluteで固定する
+            mergeAnimator.pathMode = MergeAnimatorPathMode.Absolute;
+            mergeAnimator.matchAvatarWriteDefaults = true;
         }
 
         /// <summary>

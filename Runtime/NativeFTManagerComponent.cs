@@ -66,6 +66,11 @@ namespace NativeFTManager
         [Tooltip("Ids of the emulation and limit rules that are not generated")]
         public List<string> excludedRules = new List<string>();
 
+        // FaceEmoの抑制（仕様書10.3、M3）。既定は無効で、M2までに保存したコンポーネントの挙動を変えない
+
+        [Tooltip("Keep FaceEmo from writing expressions while face tracking is active")]
+        public FaceEmoSuppressionSettings faceEmoSuppression = new FaceEmoSuppressionSettings();
+
         /// <summary>
         /// 指定したトグルの設定。リストに無いトグルは、メニューに出さずM1までの挙動を変えない値として扱う
         /// </summary>

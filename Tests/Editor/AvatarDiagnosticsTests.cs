@@ -31,6 +31,38 @@ namespace NativeFTManager.Tests
         }
 
         [Test]
+        public void Evaluate_FaceEmoWithSuppressionOff_InformsI03()
+        {
+            var facts = CleanFacts();
+            facts.HasFaceEmo = true;
+
+            Assert.That(Codes(facts), Is.EqualTo(new[] { DiagnosticCodes.SuppressionDisabled }));
+
+            facts.FaceEmoSuppressionEnabled = true;
+            Assert.That(Codes(facts), Is.Empty);
+        }
+
+        [Test]
+        public void Evaluate_SuppressionWithoutFaceEmo_InformsI04()
+        {
+            var facts = CleanFacts();
+            facts.FaceEmoSuppressionEnabled = true;
+
+            Assert.That(Codes(facts), Is.EqualTo(new[] { DiagnosticCodes.FaceEmoMissing }));
+        }
+
+        [Test]
+        public void Evaluate_SuppressionNeverEngaged_WarnsW16()
+        {
+            var facts = CleanFacts();
+            facts.HasFaceEmo = true;
+            facts.FaceEmoSuppressionEnabled = true;
+            facts.FaceEmoSuppressionNeverEngaged = true;
+
+            Assert.That(Codes(facts), Is.EqualTo(new[] { DiagnosticCodes.SuppressionNeverEngaged }));
+        }
+
+        [Test]
         public void Evaluate_ArkitPresetWithoutGenerator_WarnsW01()
         {
             var facts = CleanFacts();

@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
+using UnityEditorInternal;
 using UnityEngine;
 using nadena.dev.ndmf.ui;
 using NativeFTManager.Domain;
@@ -19,6 +21,20 @@ namespace NativeFTManager.Presentation
     [CanEditMultipleObjects]
     public class NativeFTManagerComponentEditor : Editor
     {
+        /// <summary>並びはFaceEmoControlMethodの宣言順に一致させる (enumValueIndexで引くため)</summary>
+        internal static readonly IReadOnlyList<string> ControlMethodLabelKeys = new[]
+        {
+            "prop.control_method.expression_control",
+            "prop.control_method.bypass",
+        };
+
+        /// <summary>並びはFaceEmoSuppressionTriggerの宣言順に一致させる (enumValueIndexで引くため)</summary>
+        internal static readonly IReadOnlyList<string> TriggerLabelKeys = new[]
+        {
+            "prop.face_emo_trigger.eye_or_lip",
+            "prop.face_emo_trigger.lip_only",
+        };
+
         private SerializedProperty _preset;
         private SerializedProperty _toggles;
         private SerializedProperty _lerpSpeed;
@@ -30,6 +46,10 @@ namespace NativeFTManager.Presentation
         private SerializedProperty _enableEmulation;
         private SerializedProperty _enableLimits;
         private SerializedProperty _enableEyeSync;
+        private SerializedProperty _faceEmoSuppression;
+
+        /// <summary>追加パラメーターの一覧。追加の操作を差し替えるため、標準の配列表示の代わりに使う</summary>
+        private ReorderableList _extraParameterList;
 
         private bool _showDetails;
         private bool _showRules;
@@ -52,11 +72,13 @@ namespace NativeFTManager.Presentation
             _enableEmulation = serializedObject.FindProperty(nameof(NativeFTManagerComponent.enableEmulation));
             _enableLimits = serializedObject.FindProperty(nameof(NativeFTManagerComponent.enableLimits));
             _enableEyeSync = serializedObject.FindProperty(nameof(NativeFTManagerComponent.enableEyeSync));
+            _faceEmoSuppression = serializedObject.FindProperty(nameof(NativeFTManagerComponent.faceEmoSuppression));
         }
 
         private void OnDisable()
         {
             UpdateCheck.ResultChanged -= Repaint;
+            _extraParameterList = null;
         }
 
         public override void OnInspectorGUI()
@@ -106,6 +128,9 @@ namespace NativeFTManager.Presentation
                 EditorGUILayout.PropertyField(_visemeDampenAmount, G("inspector.viseme_dampen_amount"));
                 EditorGUI.indentLevel--;
             }
+
+            EditorGUILayout.Space();
+            DrawFaceEmoSuppression();
 
             if (_report != null && _report.Estimate != null)
             {
@@ -207,6 +232,168 @@ namespace NativeFTManager.Presentation
             }
 
             EditorGUI.indentLevel--;
+        }
+
+        /// <summary>
+        /// FaceEmoの抑制（仕様書10.3）。無効のあいだは詳細を出さない
+        /// </summary>
+        private void DrawFaceEmoSuppression()
+        {
+            EditorGUILayout.LabelField(S("inspector.section.face_emo"), EditorStyles.boldLabel);
+
+            var enabled = _faceEmoSuppression.FindPropertyRelative(nameof(FaceEmoSuppressionSettings.enabled));
+            EditorGUILayout.PropertyField(enabled, G("inspector.face_emo.enabled"));
+            if (!enabled.hasMultipleDifferentValues && !enabled.boolValue)
+            {
+                return;
+            }
+
+            EditorGUI.indentLevel++;
+            EditorGUILayout.HelpBox(S("inspector.face_emo.description"), MessageType.Info);
+
+            var method = _faceEmoSuppression.FindPropertyRelative(nameof(FaceEmoSuppressionSettings.controlMethod));
+            DrawLocalizedEnumPopup(method, "prop.control_method", ControlMethodLabelKeys);
+            if (!method.hasMultipleDifferentValues)
+            {
+                if (method.enumValueIndex == (int)FaceEmoControlMethod.ExpressionControl)
+                {
+                    EditorGUILayout.HelpBox(S("inspector.control_method.expression_control"), MessageType.Info);
+                    EditorGUILayout.PropertyField(
+                        _faceEmoSuppression.FindPropertyRelative(nameof(FaceEmoSuppressionSettings.faceEmoteIndex)),
+                        G("prop.face_emote_index"));
+                }
+                else
+                {
+                    EditorGUILayout.HelpBox(S("inspector.control_method.bypass"), MessageType.Info);
+                }
+            }
+
+            var trigger = _faceEmoSuppression.FindPropertyRelative(nameof(FaceEmoSuppressionSettings.trigger));
+            DrawLocalizedEnumPopup(trigger, "prop.face_emo_trigger", TriggerLabelKeys);
+            if (!trigger.hasMultipleDifferentValues && trigger.enumValueIndex == (int)FaceEmoSuppressionTrigger.LipOnly)
+            {
+                EditorGUILayout.HelpBox(S("inspector.face_emo.lip_only"), MessageType.Warning);
+            }
+
+            EditorGUILayout.Space();
+            DrawExtraParameters();
+
+            EditorGUILayout.Space();
+            EditorGUILayout.PropertyField(
+                _faceEmoSuppression.FindPropertyRelative(nameof(FaceEmoSuppressionSettings.removeFxLayers)),
+                G("prop.remove_fx_layers"),
+                true);
+            EditorGUILayout.HelpBox(S("inspector.remove_fx_layers"), MessageType.Info);
+            EditorGUI.indentLevel--;
+        }
+
+        private void DrawExtraParameters()
+        {
+            // ReorderableListは複数選択中の配列を扱えない。標準の配列表示へ戻すと、
+            // 「+」が末尾の項目を複製して既定値の項目を作れないため、複数選択中は編集させない。
+            // 一覧の中身はアバターごとに違うので、まとめて編集できても得るものは少ない
+            if (serializedObject.isEditingMultipleObjects)
+            {
+                EditorGUILayout.LabelField(G("prop.extra_parameters"));
+                EditorGUILayout.HelpBox(S("inspector.extra_parameters.multi_edit"), MessageType.Info);
+            }
+            else
+            {
+                // ReorderableListはインデントを考慮しないので、字下げを外して描く
+                int indent = EditorGUI.indentLevel;
+                EditorGUI.indentLevel = 0;
+                GetExtraParameterList().DoLayoutList();
+                EditorGUI.indentLevel = indent;
+            }
+
+            EditorGUILayout.HelpBox(S("inspector.extra_parameters"), MessageType.Info);
+        }
+
+        /// <summary>
+        /// 追加パラメーターの一覧を作る
+        ///
+        /// 標準の配列表示の「+」は末尾の項目を複製する。複製では、解除時の扱いなどの既定値が
+        /// 新しい項目へ入らず、同じメニューアイテムを指す項目もできてしまう。
+        /// 追加のときは既定値の項目を作るよう差し替える
+        /// </summary>
+        private ReorderableList GetExtraParameterList()
+        {
+            // serializedObjectはエディタの生存中変わらないため、一度作った一覧を使い回す
+            if (_extraParameterList != null)
+            {
+                return _extraParameterList;
+            }
+
+            var property = _faceEmoSuppression.FindPropertyRelative(nameof(FaceEmoSuppressionSettings.extraParameters));
+            var list = new ReorderableList(serializedObject, property, true, true, true, true);
+
+            list.drawHeaderCallback = rect => EditorGUI.LabelField(rect, G("prop.extra_parameters"));
+
+            list.elementHeightCallback = index =>
+                EditorGUI.GetPropertyHeight(property.GetArrayElementAtIndex(index), true)
+                + EditorGUIUtility.standardVerticalSpacing;
+
+            list.drawElementCallback = (rect, index, isActive, isFocused) =>
+            {
+                // 折りたたみの三角が一覧のつまみと重ならないよう、字下げ分だけずらす
+                const float foldoutIndent = 12f;
+                rect.x += foldoutIndent;
+                rect.width -= foldoutIndent;
+                rect.y += EditorGUIUtility.standardVerticalSpacing / 2f;
+                rect.height -= EditorGUIUtility.standardVerticalSpacing;
+
+                EditorGUI.PropertyField(rect, property.GetArrayElementAtIndex(index), true);
+            };
+
+            list.onAddCallback = reorderable =>
+            {
+                var index = property.arraySize;
+                property.arraySize++;
+
+                var element = property.GetArrayElementAtIndex(index);
+                ExtraParameterEntryDrawer.ApplyDefaults(element);
+                element.isExpanded = true;
+
+                reorderable.index = index;
+            };
+
+            _extraParameterList = list;
+            return list;
+        }
+
+        /// <summary>
+        /// 訳語を当てたenumのポップアップを描く
+        /// </summary>
+        /// <remarks>
+        /// PropertyFieldではC#の識別子がそのまま出るため、ポップアップを自前で描く。
+        /// BeginPropertyで囲むと、プレハブインスタンス上での上書き表示と
+        /// 右クリックのRevertが、通常のフィールドと同じように働く
+        /// </remarks>
+        private static void DrawLocalizedEnumPopup(
+            SerializedProperty property, string labelKey, IReadOnlyList<string> optionKeys)
+        {
+            var options = new GUIContent[optionKeys.Count];
+            for (var i = 0; i < options.Length; i++)
+            {
+                options[i] = G(optionKeys[i]);
+            }
+
+            var rect = EditorGUILayout.GetControlRect();
+            var label = EditorGUI.BeginProperty(rect, G(labelKey), property);
+
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+
+            // enumValueIndexは宣言順の添字なので、選択肢の並びと対応する
+            var selected = EditorGUI.Popup(rect, label, property.enumValueIndex, options);
+
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+            {
+                property.enumValueIndex = selected;
+            }
+
+            EditorGUI.EndProperty();
         }
 
         private static bool IsFeatureEnabled(NativeFTManagerComponent component, CorrectionFeature feature)

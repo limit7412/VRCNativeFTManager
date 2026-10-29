@@ -107,7 +107,60 @@ namespace NativeFTManager.Tests
             "inspector.estimate.synced_bits_value",
             "inspector.estimate.fx_layers",
             "inspector.estimate.generator_note",
+            "inspector.section.face_emo",
+            "inspector.face_emo.enabled",
+            "inspector.face_emo.description",
+            "inspector.face_emo.lip_only",
+            "prop.control_method",
+            "prop.face_emote_index",
+            "inspector.control_method.expression_control",
+            "inspector.control_method.bypass",
+            "prop.face_emo_trigger",
+            "prop.extra_parameters",
+            "inspector.extra_parameters",
+            "inspector.extra_parameters.multi_edit",
+            "prop.extra_parameter.menu_item",
+            "prop.extra_parameter.parameter_name",
+            "prop.extra_parameter.parameter_type",
+            "prop.extra_parameter.engaged_value",
+            "prop.extra_parameter.released_value",
+            "inspector.extra_parameter.menu_item_revert",
+            "prop.remove_fx_layers",
+            "inspector.remove_fx_layers",
+            "warning.fx_not_found",
+            "warning.layer_not_found",
+            "warning.fx_not_editable",
+            "warning.synced_layer_detached",
+            "warning.layer_control_detached",
+            "warning.layer_control_not_editable",
+            "info.layers_removed",
+            "warning.extra_parameter.empty_name",
+            "warning.extra_parameter.missing_menu_item",
+            "warning.extra_parameter.outside_avatar",
+            "warning.extra_parameter.unsupported_control",
+            "warning.extra_parameter.unnamed_parameter",
+            "warning.extra_parameter.shared_auto_name",
+            "warning.extra_parameter.reserved_name",
+            "warning.extra_parameter.duplicate_name",
+            "warning.extra_parameter.automatic_value",
+            "warning.extra_parameter.shared_type",
         };
+
+        /// <summary>
+        /// enumの選択肢に当てる訳語のキー。インスペクタとドロワーの一覧から直接確かめる
+        /// </summary>
+        private static IEnumerable<string> EnumLabelKeys =>
+            Presentation.NativeFTManagerComponentEditor.ControlMethodLabelKeys
+                .Concat(Presentation.NativeFTManagerComponentEditor.TriggerLabelKeys)
+                .Concat(Presentation.ExtraParameterEntryDrawer.SourceLabelKeys)
+                .Concat(Presentation.ExtraParameterEntryDrawer.ToggleStateLabelKeys)
+                .Concat(Presentation.ExtraParameterEntryDrawer.ReleaseModeLabelKeys)
+                .Concat(Presentation.ExtraParameterEntryDrawer.SyncModeLabelKeys)
+                .Concat(new[]
+                {
+                    Presentation.ExtraParameterEntryDrawer.AutoNameNoteKey,
+                    Presentation.ExtraParameterEntryDrawer.NoParameterNoteKey,
+                });
 
         /// <summary>
         /// poが取り込まれた結果の型を、名前で確かめる
@@ -150,6 +203,19 @@ namespace NativeFTManager.Tests
             {
                 var keys = ReadKeys(language);
                 foreach (var required in RequiredKeys)
+                {
+                    Assert.That(keys, Contains.Item(required), $"{language}.poに{required}が無い");
+                }
+            }
+        }
+
+        [Test]
+        public void PoFiles_ContainEveryEnumLabelKey()
+        {
+            foreach (var language in Languages)
+            {
+                var keys = ReadKeys(language);
+                foreach (var required in EnumLabelKeys)
                 {
                     Assert.That(keys, Contains.Item(required), $"{language}.poに{required}が無い");
                 }
