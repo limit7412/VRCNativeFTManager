@@ -45,6 +45,16 @@ namespace NativeFTManager.Infra
                 });
             }
 
+            foreach (var parameter in plan.FloatParameters)
+            {
+                controller.AddParameter(new AnimatorControllerParameter
+                {
+                    name = parameter.Name,
+                    type = AnimatorControllerParameterType.Float,
+                    defaultFloat = parameter.DefaultValue,
+                });
+            }
+
             foreach (var layerPlan in plan.Layers)
             {
                 controller.AddLayer(layerPlan.Name);
@@ -129,18 +139,20 @@ namespace NativeFTManager.Infra
 
         private static Dictionary<string, AnimatorState> WriteLayer(ToggleLayerPlan layerPlan, AnimatorStateMachine stateMachine)
         {
-            var states = new Dictionary<string, AnimatorState>();
-            var positions = new Dictionary<string, Vector3>
+            var states = new Dictionary<string, AnimatorState>
             {
-                { ToggleLayerPlan.InitState, new Vector3(250f, 0f) },
-                { ToggleLayerPlan.OnState, new Vector3(500f, -80f) },
-                { ToggleLayerPlan.OffState, new Vector3(500f, 80f) },
+                [ToggleLayerPlan.InitState] = AddState(stateMachine, ToggleLayerPlan.InitState, new Vector3(250f, 0f)),
             };
 
-            foreach (var name in new[] { ToggleLayerPlan.InitState, ToggleLayerPlan.OnState, ToggleLayerPlan.OffState })
+            // Onのステート（感度があれば段階の数だけ）を上へ、Offを下へ並べる
+            var onStates = layerPlan.OnStates;
+            for (int i = 0; i < onStates.Count; i++)
             {
-                states[name] = AddState(stateMachine, name, positions[name]);
+                var position = new Vector3(500f, -80f - (onStates.Count - 1 - i) * 60f);
+                states[onStates[i].Name] = AddState(stateMachine, onStates[i].Name, position);
             }
+
+            states[ToggleLayerPlan.OffState] = AddState(stateMachine, ToggleLayerPlan.OffState, new Vector3(500f, 80f));
 
             stateMachine.defaultState = states[ToggleLayerPlan.InitState];
 
@@ -150,21 +162,31 @@ namespace NativeFTManager.Infra
                 transition.hasExitTime = false;
                 transition.exitTime = 0f;
                 transition.hasFixedDuration = true;
-                transition.duration = 0f;
+                transition.duration = transitionPlan.Duration;
                 transition.offset = 0f;
                 transition.interruptionSource = TransitionInterruptionSource.None;
                 transition.canTransitionToSelf = false;
 
                 foreach (var condition in transitionPlan.Conditions)
                 {
-                    transition.AddCondition(
-                        condition.Expected ? AnimatorConditionMode.If : AnimatorConditionMode.IfNot,
-                        0f,
-                        condition.Parameter);
+                    transition.AddCondition(GetConditionMode(condition), condition.Threshold, condition.Parameter);
                 }
             }
 
             return states;
+        }
+
+        private static AnimatorConditionMode GetConditionMode(ToggleConditionPlan condition)
+        {
+            switch (condition.Mode)
+            {
+                case ToggleConditionMode.Greater:
+                    return AnimatorConditionMode.Greater;
+                case ToggleConditionMode.Less:
+                    return AnimatorConditionMode.Less;
+                default:
+                    return condition.Expected ? AnimatorConditionMode.If : AnimatorConditionMode.IfNot;
+            }
         }
     }
 }

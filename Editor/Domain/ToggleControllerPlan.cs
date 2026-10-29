@@ -17,9 +17,11 @@ namespace NativeFTManager.Domain
             IReadOnlyList<ToggleLayerPlan> layers,
             IReadOnlyDictionary<FaceTrackingGroup, float> defaultWeights,
             IReadOnlyDictionary<string, float> gateWeights = null,
-            VisemeLayerPlan visemeLayer = null)
+            VisemeLayerPlan visemeLayer = null,
+            IReadOnlyList<FloatParameterPlan> floatParameters = null)
         {
             Parameters = parameters;
+            FloatParameters = floatParameters ?? new FloatParameterPlan[0];
             Layers = layers;
             DefaultWeights = defaultWeights;
             GateWeights = gateWeights ?? new Dictionary<string, float>();
@@ -28,6 +30,9 @@ namespace NativeFTManager.Domain
 
         /// <summary>コントローラに宣言するBoolパラメーター</summary>
         public IReadOnlyList<ToggleParameterPlan> Parameters { get; }
+
+        /// <summary>コントローラに宣言するFloatパラメーター（感度のRadial、仕様書5.6）</summary>
+        public IReadOnlyList<FloatParameterPlan> FloatParameters { get; }
 
         /// <summary>Setの重みを切り替えるレイヤー（グループとゲート）</summary>
         public IReadOnlyList<ToggleLayerPlan> Layers { get; }
@@ -77,6 +82,22 @@ namespace NativeFTManager.Domain
         public bool AlwaysOff { get; }
     }
 
+    internal sealed class FloatParameterPlan
+    {
+        public FloatParameterPlan(string name, float defaultValue, bool saved)
+        {
+            Name = name;
+            DefaultValue = defaultValue;
+            Saved = saved;
+        }
+
+        public string Name { get; }
+
+        public float DefaultValue { get; }
+
+        public bool Saved { get; }
+    }
+
     internal sealed class ToggleParameterPlan
     {
         public ToggleParameterPlan(string name, bool defaultValue)
@@ -88,6 +109,23 @@ namespace NativeFTManager.Domain
         public string Name { get; }
 
         public bool DefaultValue { get; }
+    }
+
+    /// <summary>
+    /// Setの重みを1より小さい値で書くステート（感度の段階）と、その重み
+    /// </summary>
+    internal sealed class ToggleOnState
+    {
+        public ToggleOnState(string name, float weight)
+        {
+            Name = name;
+            Weight = weight;
+        }
+
+        public string Name { get; }
+
+        /// <summary>このステートで書くSetの重み</summary>
+        public float Weight { get; }
     }
 
     /// <summary>
@@ -103,13 +141,26 @@ namespace NativeFTManager.Domain
             string name,
             IReadOnlyList<FaceTrackingGroup> groups,
             IReadOnlyList<ToggleTransitionPlan> transitions,
-            IReadOnlyList<GateSlot> gates = null)
+            IReadOnlyList<GateSlot> gates = null,
+            IReadOnlyList<ToggleOnState> onStates = null,
+            SensitivityChannel? sensitivity = null)
         {
             Name = name;
             Groups = groups;
             Transitions = transitions;
             Gates = gates ?? new GateSlot[0];
+            OnStates = onStates ?? new[] { new ToggleOnState(OnState, 1f) };
+            Sensitivity = sensitivity;
         }
+
+        /// <summary>
+        /// 条件が成り立つ間にいるステート。感度の無いレイヤーはOn（重み1）だけで、
+        /// 感度のあるレイヤーは段階ごとのステート（On 0〜On 7）になる（仕様書5.6）
+        /// </summary>
+        public IReadOnlyList<ToggleOnState> OnStates { get; }
+
+        /// <summary>このレイヤーの感度の系統。感度を掛けないならnull</summary>
+        public SensitivityChannel? Sensitivity { get; }
 
         public string Name { get; }
 
@@ -130,16 +181,24 @@ namespace NativeFTManager.Domain
     }
 
     /// <summary>
-    /// 遷移1本。条件は論理積で、Has Exit TimeなしDuration 0で作る
+    /// 遷移1本。条件は論理積で、Has Exit Timeなしで作る。長さは既定で0（感度の段階どうしだけ短い長さを取る）
     /// </summary>
     internal sealed class ToggleTransitionPlan
     {
-        public ToggleTransitionPlan(string from, string to, IReadOnlyList<ToggleConditionPlan> conditions)
+        public ToggleTransitionPlan(
+            string from,
+            string to,
+            IReadOnlyList<ToggleConditionPlan> conditions,
+            float duration = 0f)
         {
             From = from;
             To = to;
             Conditions = conditions;
+            Duration = duration;
         }
+
+        /// <summary>遷移の長さ（秒）</summary>
+        public float Duration { get; }
 
         public string From { get; }
 
@@ -148,18 +207,55 @@ namespace NativeFTManager.Domain
         public IReadOnlyList<ToggleConditionPlan> Conditions { get; }
     }
 
-    /// <summary>Boolパラメーターがexpectedのとき（If / IfNot）</summary>
+    internal enum ToggleConditionMode
+    {
+        /// <summary>BoolがExpectedのとき（If / IfNot）</summary>
+        Bool,
+
+        /// <summary>FloatがThresholdより大きいとき</summary>
+        Greater,
+
+        /// <summary>FloatがThresholdより小さいとき</summary>
+        Less,
+    }
+
+    /// <summary>遷移の条件1つ。Boolパラメーターがexpectedのとき（If / IfNot）か、Floatの比較</summary>
     internal sealed class ToggleConditionPlan
     {
         public ToggleConditionPlan(string parameter, bool expected)
         {
             Parameter = parameter;
             Expected = expected;
+            Mode = ToggleConditionMode.Bool;
+        }
+
+        private ToggleConditionPlan(string parameter, ToggleConditionMode mode, float threshold)
+        {
+            Parameter = parameter;
+            Mode = mode;
+            Threshold = threshold;
+            Expected = true;
+        }
+
+        public static ToggleConditionPlan Greater(string parameter, float threshold)
+        {
+            return new ToggleConditionPlan(parameter, ToggleConditionMode.Greater, threshold);
+        }
+
+        public static ToggleConditionPlan Less(string parameter, float threshold)
+        {
+            return new ToggleConditionPlan(parameter, ToggleConditionMode.Less, threshold);
         }
 
         public string Parameter { get; }
 
+        /// <summary>Boolの条件で期待する値。Floatの比較では常にtrue</summary>
         public bool Expected { get; }
+
+        public ToggleConditionMode Mode { get; }
+
+        /// <summary>Floatの比較の閾値</summary>
+        public float Threshold { get; }
     }
 
     /// <summary>
@@ -174,25 +270,39 @@ namespace NativeFTManager.Domain
             var parameters = toggles.Dynamic
                 .Select(toggle => new ToggleParameterPlan(toggle.ParameterName, toggle.DefaultValue))
                 .ToArray();
+            var sensitivity = toggles.Sensitivity;
+            var floatParameters = sensitivity.Channels
+                .Select(channel => new FloatParameterPlan(
+                    SensitivityConfig.GetParameterName(channel), SensitivityConfig.DefaultValue, sensitivity.Saved))
+                .ToArray();
 
             var defaultWeights = new Dictionary<FaceTrackingGroup, float>();
             var gateWeights = new Dictionary<string, float>();
-            var layerSlots = new List<(GroupCondition condition, List<FaceTrackingGroup> groups, List<GateSlot> gates)>();
+            var layerSlots = new List<(
+                GroupCondition condition,
+                SensitivityChannel? channel,
+                List<FaceTrackingGroup> groups,
+                List<GateSlot> gates)>();
 
             void AddSlot(GroupCondition condition, FaceTrackingGroup? group, GateSlot gate)
             {
+                // ゲートには感度を掛けない。ゲートの重みは補正の効き方そのものなので、0か1のまま切り替える
+                var channel = group.HasValue ? sensitivity.GetEnabledChannel(group.Value) : null;
+
                 // メニューに出すトグルが条件に1つも無ければ、重みは既定値のまま変わらない。
-                // 条件の無い遷移は作れないので、レイヤーを作らずsetWeightだけで決める
+                // 条件の無い遷移は作れないので、レイヤーを作らずsetWeightだけで決める。
+                // 感度があるときは、Radialの段階で重みが変わるのでレイヤーを作る
                 var simplified = condition.Simplify(toggles);
-                if (simplified == null || simplified.Literals.Count == 0)
+                if (simplified == null || (simplified.Literals.Count == 0 && channel == null))
                 {
                     return;
                 }
 
-                var existing = layerSlots.FirstOrDefault(entry => entry.condition.SameAs(simplified));
+                var existing = layerSlots.FirstOrDefault(
+                    entry => entry.condition.SameAs(simplified) && entry.channel == channel);
                 if (existing.groups == null)
                 {
-                    existing = (simplified, new List<FaceTrackingGroup>(), new List<GateSlot>());
+                    existing = (simplified, channel, new List<FaceTrackingGroup>(), new List<GateSlot>());
                     layerSlots.Add(existing);
                 }
 
@@ -210,7 +320,8 @@ namespace NativeFTManager.Domain
             foreach (var group in FaceTrackingGroupTable.Order)
             {
                 var condition = GroupCondition.For(group);
-                defaultWeights[group] = condition.EvaluateDefaults(toggles) ? 1f : 0f;
+                float onWeight = sensitivity.GetEnabledChannel(group).HasValue ? sensitivity.DefaultStage.Weight : 1f;
+                defaultWeights[group] = condition.EvaluateDefaults(toggles) ? onWeight : 0f;
                 AddSlot(condition, group, null);
             }
 
@@ -226,10 +337,12 @@ namespace NativeFTManager.Domain
                     entry.condition,
                     entry.groups,
                     entry.gates,
-                    toggles))
+                    toggles,
+                    entry.channel))
                 .ToArray();
 
-            return new ToggleControllerPlan(parameters, layers, defaultWeights, gateWeights, BuildVisemeLayer(toggles));
+            return new ToggleControllerPlan(
+                parameters, layers, defaultWeights, gateWeights, BuildVisemeLayer(toggles), floatParameters);
         }
 
         private static string GetLayerName(IEnumerable<string> slots)
@@ -269,8 +382,14 @@ namespace NativeFTManager.Domain
             GroupCondition condition,
             IReadOnlyList<FaceTrackingGroup> groups,
             IReadOnlyList<GateSlot> gates,
-            ToggleSet toggles)
+            ToggleSet toggles,
+            SensitivityChannel? channel = null)
         {
+            if (channel.HasValue)
+            {
+                return BuildSensitivityLayer(name, condition, groups, toggles, channel.Value);
+            }
+
             var onConditions = condition.Literals
                 .Select(literal => ToConditionPlan(literal, toggles))
                 .ToArray();
@@ -298,6 +417,88 @@ namespace NativeFTManager.Domain
             }
 
             return new ToggleLayerPlan(name, groups.ToArray(), transitions, gates.ToArray());
+        }
+
+        /// <summary>
+        /// 感度のあるレイヤー（仕様書5.6）。Onの代わりに段階ごとのステートを置き、
+        /// トグルの条件に加えてRadialの値の範囲で入る段階を決める。
+        /// 段階から抜けるときは、Offへの遷移を先に並べてトグルの切り替えを優先する
+        /// </summary>
+        private static ToggleLayerPlan BuildSensitivityLayer(
+            string name,
+            GroupCondition condition,
+            IReadOnlyList<FaceTrackingGroup> groups,
+            ToggleSet toggles,
+            SensitivityChannel channel)
+        {
+            var sensitivity = toggles.Sensitivity;
+            string parameter = SensitivityConfig.GetParameterName(channel);
+            var onConditions = condition.Literals
+                .Select(literal => ToConditionPlan(literal, toggles))
+                .ToArray();
+            var offConditions = condition.Literals
+                .Select(literal => ToConditionPlan(literal.Negate(), toggles))
+                .ToArray();
+
+            var stageConditions = sensitivity.Stages
+                .ToDictionary(stage => stage.Index, stage => GetRangeConditions(stage, parameter));
+            var transitions = new List<ToggleTransitionPlan>();
+
+            foreach (var stage in sensitivity.Stages)
+            {
+                transitions.Add(new ToggleTransitionPlan(
+                    ToggleLayerPlan.InitState, stage.StateName, onConditions.Concat(stageConditions[stage.Index]).ToArray()));
+            }
+
+            foreach (var off in offConditions)
+            {
+                transitions.Add(new ToggleTransitionPlan(
+                    ToggleLayerPlan.InitState, ToggleLayerPlan.OffState, new[] { off }));
+            }
+
+            foreach (var stage in sensitivity.Stages)
+            {
+                transitions.Add(new ToggleTransitionPlan(
+                    ToggleLayerPlan.OffState, stage.StateName, onConditions.Concat(stageConditions[stage.Index]).ToArray()));
+            }
+
+            foreach (var from in sensitivity.Stages)
+            {
+                foreach (var off in offConditions)
+                {
+                    transitions.Add(new ToggleTransitionPlan(from.StateName, ToggleLayerPlan.OffState, new[] { off }));
+                }
+
+                foreach (var to in sensitivity.Stages.Where(stage => stage.Index != from.Index))
+                {
+                    transitions.Add(new ToggleTransitionPlan(
+                        from.StateName,
+                        to.StateName,
+                        stageConditions[to.Index],
+                        SensitivityConfig.StageTransitionDuration));
+                }
+            }
+
+            var onStates = sensitivity.Stages
+                .Select(stage => new ToggleOnState(stage.StateName, stage.Weight))
+                .ToArray();
+            return new ToggleLayerPlan(name, groups.ToArray(), transitions, new GateSlot[0], onStates, channel);
+        }
+
+        private static ToggleConditionPlan[] GetRangeConditions(SensitivityStage stage, string parameter)
+        {
+            var conditions = new List<ToggleConditionPlan>();
+            if (stage.LowerBound.HasValue)
+            {
+                conditions.Add(ToggleConditionPlan.Greater(parameter, stage.LowerBound.Value));
+            }
+
+            if (stage.UpperBound.HasValue)
+            {
+                conditions.Add(ToggleConditionPlan.Less(parameter, stage.UpperBound.Value));
+            }
+
+            return conditions.ToArray();
         }
 
         private static ToggleConditionPlan ToConditionPlan(ToggleLiteral literal, ToggleSet toggles)

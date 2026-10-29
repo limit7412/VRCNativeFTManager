@@ -29,7 +29,8 @@ namespace NativeFTManager.Infra
             IReadOnlyList<ResolvedToggle> parameters,
             MenuPlan menu,
             Action<Object> saveAsset,
-            AnimatorController suppressionController = null)
+            AnimatorController suppressionController = null,
+            IReadOnlyList<FloatParameterPlan> floatParameters = null)
         {
             if (avatarRoot == null)
             {
@@ -57,7 +58,8 @@ namespace NativeFTManager.Infra
                 InstallSuppression(holder, suppressionController);
             }
 
-            if (parameters.Count > 0)
+            floatParameters = floatParameters ?? new FloatParameterPlan[0];
+            if (parameters.Count > 0 || floatParameters.Count > 0)
             {
                 var maParameters = holder.AddComponent<ModularAvatarParameters>();
                 foreach (var toggle in parameters)
@@ -71,6 +73,21 @@ namespace NativeFTManager.Infra
                         defaultValue = toggle.DefaultValue ? 1f : 0f,
                         hasExplicitDefaultValue = true,
                         saved = toggle.Saved,
+                        localOnly = false,
+                        internalParameter = false,
+                    });
+                }
+
+                // 感度のRadial（仕様書5.6）。トグルと同じく名前を固定する
+                foreach (var parameter in floatParameters)
+                {
+                    maParameters.parameters.Add(new ParameterConfig
+                    {
+                        nameOrPrefix = parameter.Name,
+                        syncType = ParameterSyncType.Float,
+                        defaultValue = parameter.DefaultValue,
+                        hasExplicitDefaultValue = true,
+                        saved = parameter.Saved,
                         localOnly = false,
                         internalParameter = false,
                     });
@@ -119,6 +136,18 @@ namespace NativeFTManager.Infra
                 subMenu.controls.Add(CreateToggle(toggle));
             }
 
+            if (plan.Sensitivity.Count > 0)
+            {
+                var sensitivityMenu = CreateMenu(NativeFTManagerParameterNames.ShortPrefix + " " + MenuPlan.SensitivityMenuName);
+                foreach (var radial in plan.Sensitivity)
+                {
+                    sensitivityMenu.controls.Add(CreateRadial(radial));
+                }
+
+                subMenu.controls.Add(CreateSubMenu(MenuPlan.SensitivityMenuName, sensitivityMenu));
+                saveAsset?.Invoke(sensitivityMenu);
+            }
+
             if (plan.Settings.Count > 0)
             {
                 var settingsMenu = CreateMenu(NativeFTManagerParameterNames.ShortPrefix + " " + MenuPlan.SettingsMenuName);
@@ -156,6 +185,18 @@ namespace NativeFTManager.Infra
                 parameter = new VRCExpressionsMenu.Control.Parameter { name = toggle.Parameter },
                 value = 1f,
                 subParameters = new VRCExpressionsMenu.Control.Parameter[0],
+                labels = new VRCExpressionsMenu.Control.Label[0],
+            };
+        }
+
+        private static VRCExpressionsMenu.Control CreateRadial(MenuTogglePlan radial)
+        {
+            return new VRCExpressionsMenu.Control
+            {
+                name = radial.Label,
+                type = VRCExpressionsMenu.Control.ControlType.RadialPuppet,
+                parameter = new VRCExpressionsMenu.Control.Parameter { name = string.Empty },
+                subParameters = new[] { new VRCExpressionsMenu.Control.Parameter { name = radial.Parameter } },
                 labels = new VRCExpressionsMenu.Control.Label[0],
             };
         }

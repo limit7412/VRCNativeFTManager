@@ -47,6 +47,7 @@ namespace NativeFTManager.Presentation
         private SerializedProperty _enableLimits;
         private SerializedProperty _enableEyeSync;
         private SerializedProperty _faceEmoSuppression;
+        private SerializedProperty _sensitivity;
 
         /// <summary>追加パラメーターの一覧。追加の操作を差し替えるため、標準の配列表示の代わりに使う</summary>
         private ReorderableList _extraParameterList;
@@ -73,6 +74,7 @@ namespace NativeFTManager.Presentation
             _enableLimits = serializedObject.FindProperty(nameof(NativeFTManagerComponent.enableLimits));
             _enableEyeSync = serializedObject.FindProperty(nameof(NativeFTManagerComponent.enableEyeSync));
             _faceEmoSuppression = serializedObject.FindProperty(nameof(NativeFTManagerComponent.faceEmoSuppression));
+            _sensitivity = serializedObject.FindProperty(nameof(NativeFTManagerComponent.sensitivity));
         }
 
         private void OnDisable()
@@ -116,6 +118,9 @@ namespace NativeFTManager.Presentation
 
             EditorGUILayout.Space();
             DrawCorrections();
+
+            EditorGUILayout.Space();
+            DrawSensitivity();
 
             EditorGUILayout.Space();
             EditorGUILayout.LabelField(S("inspector.section.descriptor"), EditorStyles.boldLabel);
@@ -231,6 +236,37 @@ namespace NativeFTManager.Presentation
                 }
             }
 
+            EditorGUI.indentLevel--;
+        }
+
+        /// <summary>
+        /// 感度（仕様書5.6）。プリセットには含めないので、変えてもCustomにならない。
+        /// どの系統も無効のあいだは上限の倍率を出さない
+        /// </summary>
+        private void DrawSensitivity()
+        {
+            EditorGUILayout.LabelField(S("inspector.section.sensitivity"), EditorStyles.boldLabel);
+
+            var eye = _sensitivity.FindPropertyRelative(nameof(SensitivitySettings.eye));
+            var lip = _sensitivity.FindPropertyRelative(nameof(SensitivitySettings.lip));
+            EditorGUILayout.PropertyField(eye, G("inspector.sensitivity.eye"));
+            EditorGUILayout.PropertyField(lip, G("inspector.sensitivity.lip"));
+
+            bool anyEnabled = eye.hasMultipleDifferentValues || lip.hasMultipleDifferentValues
+                              || eye.boolValue || lip.boolValue;
+            if (!anyEnabled)
+            {
+                return;
+            }
+
+            EditorGUI.indentLevel++;
+            EditorGUILayout.PropertyField(
+                _sensitivity.FindPropertyRelative(nameof(SensitivitySettings.maxMultiplier)),
+                G("inspector.sensitivity.max_multiplier"));
+            EditorGUILayout.PropertyField(
+                _sensitivity.FindPropertyRelative(nameof(SensitivitySettings.saved)),
+                G("inspector.sensitivity.saved"));
+            EditorGUILayout.HelpBox(S("inspector.sensitivity.description"), MessageType.Info);
             EditorGUI.indentLevel--;
         }
 

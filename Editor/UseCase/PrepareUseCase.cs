@@ -74,7 +74,8 @@ namespace NativeFTManager.UseCase
                 toggles.Dynamic,
                 MenuPlan.Build(toggles),
                 asset => SaveAsset(context, asset),
-                suppression);
+                suppression,
+                plan.FloatParameters);
         }
 
         private static void SaveAsset(BuildContext context, Object asset)

@@ -24,7 +24,21 @@ namespace NativeFTManager.UseCase
 
         public static ToggleSet ResolveToggles(NativeFTManagerComponent component)
         {
-            return ToggleSet.Resolve(component.GetToggle, GetFeatures(component));
+            return ToggleSet.Resolve(component.GetToggle, GetFeatures(component), GetSensitivity(component));
+        }
+
+        /// <summary>
+        /// 感度の設定（仕様書5.6）。M3までに保存したコンポーネントは設定を持たないので、どの系統も作らない
+        /// </summary>
+        public static SensitivityConfig GetSensitivity(NativeFTManagerComponent component)
+        {
+            var settings = component.sensitivity;
+            if (settings == null)
+            {
+                return SensitivityConfig.None;
+            }
+
+            return new SensitivityConfig(settings.eye, settings.lip, settings.maxMultiplier, settings.saved);
         }
 
         /// <summary>

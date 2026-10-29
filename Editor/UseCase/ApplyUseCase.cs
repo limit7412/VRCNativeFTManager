@@ -103,6 +103,9 @@ namespace NativeFTManager.UseCase
             {
                 split.Data.Weight = plan.DefaultWeights[corrections.GetLayerGroup(split.Group)];
             }
+            // 感度の倍率は、補正の計画（Eye SyncのApplyToBlendshapeが元の倍率を読む）の後で上げる（仕様書5.6）
+            toggles.Sensitivity.ScaleMultipliers(result.Created, corrections.GetLayerGroup);
+
             var gateSets = corrections.Gates
                 .Select(gate => FaceTrackingSetData.CreateEmpty(gate.SetName, GetGateWeight(plan, gate, toggles)));
 

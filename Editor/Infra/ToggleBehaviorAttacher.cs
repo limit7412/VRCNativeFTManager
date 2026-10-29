@@ -58,16 +58,23 @@ namespace NativeFTManager.Infra
             }
 
             var stateMachine = layers[index].stateMachine;
-            var on = FindState(stateMachine, ToggleLayerPlan.OnState);
             var off = FindState(stateMachine, ToggleLayerPlan.OffState);
-            if (on == null || off == null)
+            var on = layerPlan.OnStates
+                .Select(planned => (planned.Weight, State: FindState(stateMachine, planned.Name)))
+                .ToArray();
+            if (off == null || on.Any(entry => entry.State == null))
             {
                 return Outcome.LayerMissing;
             }
 
             foreach (var setName in setNames)
             {
-                Save(FaceTrackingStateBehaviorWriter.Add(on, setName, 1f, lerpSpeed), saveAsset);
+                // 感度の段階では重みが1より小さい。Setの倍率はApplyで上限の倍率まで上げてある（仕様書5.6）
+                foreach (var (weight, state) in on)
+                {
+                    Save(FaceTrackingStateBehaviorWriter.Add(state, setName, weight, lerpSpeed), saveAsset);
+                }
+
                 Save(FaceTrackingStateBehaviorWriter.Add(off, setName, 0f, lerpSpeed), saveAsset);
             }
 

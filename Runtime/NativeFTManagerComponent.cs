@@ -71,6 +71,11 @@ namespace NativeFTManager
         [Tooltip("Keep FaceEmo from writing expressions while face tracking is active")]
         public FaceEmoSuppressionSettings faceEmoSuppression = new FaceEmoSuppressionSettings();
 
+        // 感度（仕様書5.6、M4）。既定はどの系統も作らず、M3までに保存したコンポーネントの挙動を変えない
+
+        [Tooltip("Radials in the Face Tracking menu that change the strength of the eye and mouth tracking")]
+        public SensitivitySettings sensitivity = new SensitivitySettings();
+
         /// <summary>
         /// 指定したトグルの設定。リストに無いトグルは、メニューに出さずM1までの挙動を変えない値として扱う
         /// </summary>
@@ -106,6 +111,13 @@ namespace NativeFTManager
         private void OnValidate()
         {
             lerpSpeed = Mathf.Clamp(lerpSpeed, 0f, MaxLerpSpeed);
+            if (sensitivity != null)
+            {
+                sensitivity.maxMultiplier = Mathf.Clamp(
+                    sensitivity.maxMultiplier,
+                    SensitivitySettings.MinMaxMultiplier,
+                    SensitivitySettings.MaxMaxMultiplier);
+            }
 
 #if UNITY_EDITOR
             EditorOnValidateHook?.Invoke(this);
