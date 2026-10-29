@@ -23,7 +23,7 @@
     "versionDefines": [
         {
             "name": "com.qazx7412.kx-vrc-arkit-blendshape-generator",
-            "expression": "[0.2.0,1.0.0)",
+            "expression": "[0.2.1,1.0.0)",
             "define": "KX_ARKIT_GENERATOR"
         }
     ],
