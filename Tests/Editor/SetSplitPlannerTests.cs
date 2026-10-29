@@ -121,6 +121,34 @@ namespace NativeFTManager.Tests
         }
 
         [Test]
+        public void Split_AvoidsNamesOfKeptSets()
+        {
+            var result = Split(
+                CreateSet("KxNFTM/Lip", (36, "jawOpen")),
+                CreateSet("KxNFTM/Lip/2", (36, "jawOpen")),
+                CreateSet("Source", (0, "eyeLookOutRight"), (36, "jawOpen")));
+
+            Assert.That(
+                result.Created.Select(split => split.Data.Name),
+                Is.EqualTo(new[] { "KxNFTM/Eye", "KxNFTM/Lip/3" }),
+                "残したSetと同じ名前は使わず、空いている番号を付ける");
+            Assert.That(result.Sets.Select(set => set.Name), Is.Unique);
+        }
+
+        [Test]
+        public void Split_MultipleSources_StayUniqueWhenANumberIsTaken()
+        {
+            var result = Split(
+                CreateSet("KxNFTM/Lip/1", (36, "jawOpen")),
+                CreateSet("SourceA", (36, "jawOpen")),
+                CreateSet("SourceB", (36, "jawOpen")));
+
+            Assert.That(
+                result.Created.Select(split => split.Data.Name),
+                Is.EqualTo(new[] { "KxNFTM/Lip/2", "KxNFTM/Lip/3" }));
+        }
+
+        [Test]
         public void Split_UsesTheDefaultWeightOfEachGroup()
         {
             var result = SetSplitPlanner.Split(

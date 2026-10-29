@@ -112,15 +112,18 @@ namespace NativeFTManager.Domain
                 sources.Add(set);
             }
 
+            // 残したSetの名前は使用済みとして扱う。分割済みのSetを残したまま未分割のSetを分けると、
+            // 同じ名前ができ、Behaviorが保持したSetと新しいSetを名前で区別できなくなるため
+            var usedNames = new HashSet<string>(kept.Select(set => set.Name).Where(name => name != null));
             var created = new List<SplitSet>();
             for (int sourceIndex = 0; sourceIndex < sources.Count; sourceIndex++)
             {
                 foreach (var group in FaceTrackingGroupTable.Order)
                 {
-                    var name = GetSetName(group, sources.Count == 1 ? (int?)null : sourceIndex + 1);
-                    var data = Extract(sources[sourceIndex], group, name, defaultWeight(group));
+                    var data = Extract(sources[sourceIndex], group, string.Empty, defaultWeight(group));
                     if (data != null)
                     {
+                        data.Name = ReserveSetName(group, sources.Count == 1 ? (int?)null : sourceIndex + 1, usedNames);
                         created.Add(new SplitSet(group, data));
                     }
                 }
@@ -137,6 +140,20 @@ namespace NativeFTManager.Domain
         {
             var name = NativeFTManagerParameterNames.SetPrefix + group;
             return sourceNumber.HasValue ? name + "/" + sourceNumber.Value : name;
+        }
+
+        /// <summary>
+        /// 使われていない名前を選んで予約する。望む名前が使用済みなら、番号を2から順に付けて空きを探す
+        /// </summary>
+        private static string ReserveSetName(FaceTrackingGroup group, int? sourceNumber, HashSet<string> usedNames)
+        {
+            var name = GetSetName(group, sourceNumber);
+            for (int number = Math.Max(2, (sourceNumber ?? 0) + 1); !usedNames.Add(name); number++)
+            {
+                name = GetSetName(group, number);
+            }
+
+            return name;
         }
 
         private static SetKeepReason? GetKeepReason(

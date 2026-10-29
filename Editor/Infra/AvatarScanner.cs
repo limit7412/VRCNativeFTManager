@@ -69,7 +69,7 @@ namespace NativeFTManager.Infra
                 .ToArray();
 
             facts.JerrysEvidence = JerrysDetection.Detect(
-                CollectControllerParameterNames(avatarRoot),
+                CollectControllerParameterNames(avatarRoot, descriptor),
                 maParameterNames,
                 avatarRoot.GetComponentsInChildren<Transform>(true).Select(t => t.name));
 
@@ -79,8 +79,26 @@ namespace NativeFTManager.Infra
             return facts;
         }
 
-        private static IEnumerable<IReadOnlyCollection<string>> CollectControllerParameterNames(GameObject avatarRoot)
+        /// <summary>
+        /// Merge Animatorのコントローラに加え、Descriptorに直接設定されたコントローラも集める。
+        /// Jerry'sをDescriptorのFXへ直接入れる導入方法もあるため
+        /// </summary>
+        private static IEnumerable<IReadOnlyCollection<string>> CollectControllerParameterNames(
+            GameObject avatarRoot,
+            VRCAvatarDescriptor descriptor)
         {
+            if (descriptor != null && descriptor.customizeAnimationLayers && descriptor.baseAnimationLayers != null)
+            {
+                foreach (var layer in descriptor.baseAnimationLayers)
+                {
+                    var controller = layer.isDefault ? null : Resolve(layer.animatorController);
+                    if (controller != null)
+                    {
+                        yield return controller.parameters.Select(parameter => parameter.name).ToArray();
+                    }
+                }
+            }
+
             foreach (var mergeAnimator in avatarRoot.GetComponentsInChildren<ModularAvatarMergeAnimator>(true))
             {
                 var controller = Resolve(mergeAnimator != null ? mergeAnimator.animator : null);

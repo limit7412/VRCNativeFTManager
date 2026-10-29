@@ -164,14 +164,31 @@ namespace NativeFTManager.Presentation
                 {
                     var toggle = (NativeFTToggle)kind.enumValueIndex;
                     EditorGUILayout.LabelField(MenuPlan.GetLabel(toggle), GUILayout.MinWidth(100f));
-                    showInMenu.boolValue = EditorGUILayout.Toggle(showInMenu.boolValue, GUILayout.Width(80f));
-                    defaultValue.boolValue = EditorGUILayout.Toggle(defaultValue.boolValue, GUILayout.Width(80f));
-                    using (new EditorGUI.DisabledScope(!showInMenu.boolValue))
+                    DrawToggleCell(showInMenu);
+                    DrawToggleCell(defaultValue);
+                    using (new EditorGUI.DisabledScope(!showInMenu.hasMultipleDifferentValues && !showInMenu.boolValue))
                     {
-                        saved.boolValue = EditorGUILayout.Toggle(saved.boolValue, GUILayout.Width(80f));
+                        DrawToggleCell(saved);
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// 複数選択で値が揃っていなければ混在表示にし、操作されたときだけ書き戻す。
+        /// 無条件に代入すると、操作していないコンポーネントまで同じ値で上書きされるため
+        /// </summary>
+        private static void DrawToggleCell(SerializedProperty property)
+        {
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            EditorGUI.BeginChangeCheck();
+            var value = EditorGUILayout.Toggle(property.boolValue, GUILayout.Width(80f));
+            if (EditorGUI.EndChangeCheck())
+            {
+                property.boolValue = value;
+            }
+
+            EditorGUI.showMixedValue = false;
         }
 
         private static MessageType ToMessageType(DiagnosticSeverity severity)
