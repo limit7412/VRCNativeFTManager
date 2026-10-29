@@ -35,7 +35,7 @@ namespace NativeFTManager.UseCase
                     primary);
             }
 
-            var toggles = ToggleSet.Resolve(primary.GetToggle);
+            var toggles = ComponentSettings.ResolveToggles(primary);
             var facts = AvatarScanner.Scan(avatarRoot, primary, toggles.Dynamic);
             DiagnosticReporter.Report(AvatarDiagnostics.Evaluate(facts), primary);
 
@@ -53,10 +53,14 @@ namespace NativeFTManager.UseCase
                 state.GeneratorSetName = integration.SetName;
             }
 
-            var plan = ToggleControllerPlanner.Build(toggles);
+            // ゲートSetのレイヤーも、グループと同じくここで作る。どのゲートが要るかはSetの中身で決まるので、
+            // 使う可能性のあるものをすべて作り、使わなかったものはApplyで取り除く
+            var gates = CorrectionPlanner.GetPossibleGates(toggles, ComponentSettings.GetExcludedRules(primary));
+            var plan = ToggleControllerPlanner.Build(toggles, gates);
             state.Plan = plan;
+            state.Toggles = toggles;
 
-            var controller = plan.Layers.Count > 0
+            var controller = plan.Layers.Count > 0 || plan.VisemeLayer != null
                 ? ToggleControllerWriter.Write(plan, asset => SaveAsset(context, asset))
                 : null;
 

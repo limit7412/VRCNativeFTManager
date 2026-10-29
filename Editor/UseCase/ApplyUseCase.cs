@@ -48,7 +48,8 @@ namespace NativeFTManager.UseCase
             }
 
             var state = context.GetState<BuildState>();
-            var plan = state.Plan ?? ToggleControllerPlanner.Build(ToggleSet.Resolve(primary.GetToggle));
+            var toggles = state.Toggles ?? ComponentSettings.ResolveToggles(primary);
+            var plan = state.Plan ?? ToggleControllerPlanner.Build(toggles);
             var fx = FxControllerLocator.Find(descriptor);
 
             var mismatch = FaceTrackingDescriptorAccess.FindKeyMismatch();
@@ -94,9 +95,63 @@ namespace NativeFTManager.UseCase
                 DiagnosticReporter.Report(new Diagnostic(DiagnosticCodes.SetReferencedByBehavior, kept.Name), primary);
             }
 
-            FaceTrackingDescriptorAccess.WriteSets(descriptor, result.Sets);
-            AttachBehaviors(context, fx, plan, result, primary);
+            var corrections = PlanCorrections(descriptor, result, toggles, primary);
+            var gateSets = corrections.Gates
+                .Select(gate => FaceTrackingSetData.CreateEmpty(gate.SetName, GetGateWeight(plan, gate, toggles)));
+
+            FaceTrackingDescriptorAccess.WriteSets(descriptor, result.Sets.Concat(gateSets));
+            FaceTrackingDescriptorAccess.AppendBehaviors(descriptor, corrections.Behaviors);
+            AttachBehaviors(context, fx, plan, result, corrections, primary);
             FaceTrackingDescriptorAccess.ApplySettings(descriptor, primary);
+        }
+
+        /// <summary>
+        /// 表情補正のParameter Behaviorsを決める（仕様書5.4）。
+        /// 対象のシェイプは分割後のSetから引くので、分割の後に呼ぶ
+        /// </summary>
+        private static CorrectionPlan PlanCorrections(
+            VRCAvatarDescriptor descriptor,
+            SetSplitResult result,
+            ToggleSet toggles,
+            NativeFTManagerComponent primary)
+        {
+            int existingInstructions = FaceTrackingDescriptorAccess.ReadExistingBehaviors(descriptor)
+                .Where(behavior => behavior.CustomExpression != null)
+                .Select(behavior => CustomExpression.Analyze(behavior.CustomExpression))
+                .Where(info => info.IsValid)
+                .Sum(info => info.Instructions);
+
+            var corrections = CorrectionPlanner.Plan(
+                result.Sets, toggles, ComponentSettings.GetExcludedRules(primary), existingInstructions);
+
+            if (corrections.MissingTargets.Count > 0)
+            {
+                DiagnosticReporter.Report(
+                    new Diagnostic(DiagnosticCodes.CorrectionTargetMissing, string.Join(", ", corrections.MissingTargets)),
+                    primary);
+            }
+
+            if (corrections.DroppedRules.Count > 0)
+            {
+                DiagnosticReporter.Report(
+                    new Diagnostic(
+                        DiagnosticCodes.CorrectionInstructionsExceeded,
+                        string.Join(", ", corrections.DroppedRules),
+                        existingInstructions),
+                    primary);
+            }
+
+            return corrections;
+        }
+
+        private static float GetGateWeight(ToggleControllerPlan plan, GateSlot gate, ToggleSet toggles)
+        {
+            if (plan.GateWeights.TryGetValue(gate.Key, out var weight))
+            {
+                return weight;
+            }
+
+            return gate.Condition.EvaluateDefaults(toggles) ? 1f : 0f;
         }
 
         private static void AttachBehaviors(
@@ -104,6 +159,7 @@ namespace NativeFTManager.UseCase
             UnityEditor.Animations.AnimatorController fx,
             ToggleControllerPlan plan,
             SetSplitResult result,
+            CorrectionPlan corrections,
             NativeFTManagerComponent primary)
         {
             if (fx == null || plan.Layers.Count == 0)
@@ -117,6 +173,9 @@ namespace NativeFTManager.UseCase
                 var setNames = result.Created
                     .Where(split => layer.Groups.Contains(split.Group))
                     .Select(split => split.Data.Name)
+                    .Concat(corrections.Gates
+                        .Where(gate => layer.Gates.Any(planned => planned.Key == gate.Key))
+                        .Select(gate => gate.SetName))
                     .ToArray();
 
                 var outcome = ToggleBehaviorAttacher.Attach(

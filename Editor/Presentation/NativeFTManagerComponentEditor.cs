@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using nadena.dev.ndmf.ui;
@@ -12,8 +13,7 @@ namespace NativeFTManager.Presentation
     /// NativeFTManagerComponentのインスペクタ
     ///
     /// 表示文言はNDMFのローカライズ機構から引く。
-    /// 並びは仕様書6.4に沿い、M1では状態表示、警告、プリセット、トグル、Descriptorの設定、詳細を出す。
-    /// 表情補正と見積もりはM2で足す
+    /// 並びは仕様書6.4に沿い、状態表示、警告、プリセット、トグル、表情補正、Descriptorの設定、見積もり、詳細の順に出す
     /// </summary>
     [CustomEditor(typeof(NativeFTManagerComponent))]
     [CanEditMultipleObjects]
@@ -27,8 +27,13 @@ namespace NativeFTManager.Presentation
         private SerializedProperty _visemeDampenOverride;
         private SerializedProperty _visemeDampenAmount;
         private SerializedProperty _generatorIntegration;
+        private SerializedProperty _enableEmulation;
+        private SerializedProperty _enableLimits;
+        private SerializedProperty _enableEyeSync;
 
         private bool _showDetails;
+        private bool _showRules;
+        private InspectUseCase.Report _report;
 
         private void OnEnable()
         {
@@ -44,6 +49,9 @@ namespace NativeFTManager.Presentation
             _visemeDampenOverride = serializedObject.FindProperty(nameof(NativeFTManagerComponent.visemeDampenOverride));
             _visemeDampenAmount = serializedObject.FindProperty(nameof(NativeFTManagerComponent.visemeDampenAmount));
             _generatorIntegration = serializedObject.FindProperty(nameof(NativeFTManagerComponent.generatorIntegration));
+            _enableEmulation = serializedObject.FindProperty(nameof(NativeFTManagerComponent.enableEmulation));
+            _enableLimits = serializedObject.FindProperty(nameof(NativeFTManagerComponent.enableLimits));
+            _enableEyeSync = serializedObject.FindProperty(nameof(NativeFTManagerComponent.enableEyeSync));
         }
 
         private void OnDisable()
@@ -63,17 +71,29 @@ namespace NativeFTManager.Presentation
 
             EditorGUILayout.HelpBox(S("inspector.description"), MessageType.Info);
 
-            if (!serializedObject.isEditingMultipleObjects)
+            _report = serializedObject.isEditingMultipleObjects
+                ? null
+                : InspectUseCase.Inspect((NativeFTManagerComponent)target);
+            if (_report != null)
             {
-                DrawStatus((NativeFTManagerComponent)target);
+                DrawStatus(_report);
             }
 
+            // 何か操作されたときだけプリセットとの一致を見直す。開いただけでCustomへ書き換えると、
+            // 古い版で保存したコンポーネントのシーンが、見ただけで変更扱いになるため
+            EditorGUI.BeginChangeCheck();
+
             EditorGUILayout.Space();
+            EditorGUI.BeginChangeCheck();
             EditorGUILayout.PropertyField(_preset, G("inspector.preset"));
+            bool presetChanged = EditorGUI.EndChangeCheck();
             EditorGUILayout.PropertyField(_generatorIntegration, G("inspector.generator_integration"));
 
             EditorGUILayout.Space();
             DrawToggles();
+
+            EditorGUILayout.Space();
+            DrawCorrections();
 
             EditorGUILayout.Space();
             EditorGUILayout.LabelField(S("inspector.section.descriptor"), EditorStyles.boldLabel);
@@ -87,6 +107,12 @@ namespace NativeFTManager.Presentation
                 EditorGUI.indentLevel--;
             }
 
+            if (_report != null && _report.Estimate != null)
+            {
+                EditorGUILayout.Space();
+                DrawEstimate(_report);
+            }
+
             EditorGUILayout.Space();
             _showDetails = EditorGUILayout.Foldout(_showDetails, S("inspector.section.details"), true);
             if (_showDetails)
@@ -97,13 +123,157 @@ namespace NativeFTManager.Presentation
                 EditorGUI.indentLevel--;
             }
 
+            bool changed = EditorGUI.EndChangeCheck();
             serializedObject.ApplyModifiedProperties();
+            if (changed)
+            {
+                SyncPreset(presetChanged);
+            }
         }
 
-        private static void DrawStatus(NativeFTManagerComponent component)
+        /// <summary>
+        /// プリセットを選び直したら中身を書き込み、中身をプリセットから変えたらCustomにする（仕様書6.3）
+        /// </summary>
+        private void SyncPreset(bool presetChanged)
         {
-            var report = InspectUseCase.Inspect(component);
+            foreach (var component in targets.OfType<NativeFTManagerComponent>())
+            {
+                if (presetChanged && component.preset != NativeFTPreset.Custom)
+                {
+                    Undo.RecordObject(component, S("inspector.undo.preset"));
+                    NativeFTPresets.Apply(component, component.preset);
+                    EditorUtility.SetDirty(component);
+                }
+                else if (!NativeFTPresets.Matches(component, component.preset))
+                {
+                    Undo.RecordObject(component, S("inspector.undo.preset"));
+                    component.preset = NativeFTPreset.Custom;
+                    EditorUtility.SetDirty(component);
+                }
+            }
 
+            serializedObject.Update();
+        }
+
+        private void DrawCorrections()
+        {
+            EditorGUILayout.LabelField(S("inspector.section.corrections"), EditorStyles.boldLabel);
+            EditorGUILayout.PropertyField(_enableEmulation, G("inspector.enable_emulation"));
+            EditorGUILayout.PropertyField(_enableLimits, G("inspector.enable_limits"));
+            EditorGUILayout.PropertyField(_enableEyeSync, G("inspector.enable_eye_sync"));
+
+            _showRules = EditorGUILayout.Foldout(_showRules, S("inspector.corrections.rules"), true);
+            if (!_showRules)
+            {
+                return;
+            }
+
+            var components = targets.OfType<NativeFTManagerComponent>().ToArray();
+            var missing = _report != null ? _report.Corrections.MissingTargets : new string[0];
+            EditorGUI.indentLevel++;
+            foreach (var rule in CorrectionRuleTable.All)
+            {
+                bool featureEnabled = components.Any(component => IsFeatureEnabled(component, rule.Feature));
+                using (new EditorGUI.DisabledScope(!featureEnabled))
+                using (new EditorGUILayout.HorizontalScope())
+                {
+                    bool excludedAll = components.All(component => IsExcluded(component, rule.Id));
+                    bool excludedAny = components.Any(component => IsExcluded(component, rule.Id));
+                    EditorGUI.showMixedValue = excludedAll != excludedAny;
+                    EditorGUI.BeginChangeCheck();
+                    var label = new GUIContent($"{rule.Id} ({rule.Feature})", rule.Source);
+                    bool enabled = EditorGUILayout.ToggleLeft(label, !excludedAny);
+                    if (EditorGUI.EndChangeCheck())
+                    {
+                        SetExcluded(components, rule.Id, !enabled);
+                    }
+
+                    EditorGUI.showMixedValue = false;
+                    if (missing.Contains(rule.Id))
+                    {
+                        EditorGUILayout.LabelField(S("inspector.corrections.no_shape"), GUILayout.Width(120f));
+                    }
+                }
+            }
+
+            EditorGUI.indentLevel--;
+        }
+
+        private static bool IsFeatureEnabled(NativeFTManagerComponent component, CorrectionFeature feature)
+        {
+            switch (feature)
+            {
+                case CorrectionFeature.Emulation:
+                    return component.enableEmulation;
+                case CorrectionFeature.Limits:
+                    return component.enableLimits;
+                default:
+                    return component.enableEyeSync;
+            }
+        }
+
+        private static bool IsExcluded(NativeFTManagerComponent component, string id)
+        {
+            return component.excludedRules != null && component.excludedRules.Contains(id);
+        }
+
+        private void SetExcluded(NativeFTManagerComponent[] components, string id, bool excluded)
+        {
+            // 書き換えはSerializedObjectを通さずに行うので、先に保留中の変更を書き戻し、後で読み直す
+            serializedObject.ApplyModifiedProperties();
+            Undo.RecordObjects(components, S("inspector.undo.rules"));
+            foreach (var component in components)
+            {
+                if (component.excludedRules == null)
+                {
+                    component.excludedRules = new System.Collections.Generic.List<string>();
+                }
+
+                component.excludedRules.Remove(id);
+                if (excluded)
+                {
+                    component.excludedRules.Add(id);
+                }
+
+                EditorUtility.SetDirty(component);
+            }
+
+            serializedObject.Update();
+        }
+
+        private static void DrawEstimate(InspectUseCase.Report report)
+        {
+            var estimate = report.Estimate;
+            EditorGUILayout.LabelField(S("inspector.section.estimate"), EditorStyles.boldLabel);
+            EditorGUILayout.LabelField(
+                S("inspector.estimate.sets"),
+                S("inspector.estimate.sets_value", estimate.SplitSetCount, estimate.GateSetCount));
+            EditorGUILayout.LabelField(
+                S("inspector.estimate.behaviors"),
+                S("inspector.estimate.behaviors_value", estimate.BehaviorCount, estimate.ExistingBehaviorCount));
+            EditorGUILayout.LabelField(
+                S("inspector.estimate.instructions"),
+                S("inspector.estimate.instructions_value",
+                    estimate.TotalInstructions,
+                    CustomExpression.AvatarInstructionLimit,
+                    estimate.Instructions));
+            EditorGUILayout.LabelField(S("inspector.estimate.operations"), estimate.Operations.ToString());
+            EditorGUILayout.LabelField(
+                S("inspector.estimate.synced_bits"),
+                S("inspector.estimate.synced_bits_value",
+                    estimate.TotalSyncedBits,
+                    BuildEstimate.SyncedBitLimit,
+                    estimate.SyncedBits));
+            EditorGUILayout.LabelField(S("inspector.estimate.fx_layers"), estimate.FxLayerCount.ToString());
+
+            if (report.EstimateExcludesGenerator)
+            {
+                EditorGUILayout.HelpBox(S("inspector.estimate.generator_note"), MessageType.Info);
+            }
+        }
+
+        private static void DrawStatus(InspectUseCase.Report report)
+        {
             if (report.HasAvatar)
             {
                 EditorGUILayout.LabelField(S("inspector.section.status"), EditorStyles.boldLabel);
@@ -160,9 +330,10 @@ namespace NativeFTManager.Presentation
                 var defaultValue = element.FindPropertyRelative(nameof(ToggleSettings.defaultValue));
                 var saved = element.FindPropertyRelative(nameof(ToggleSettings.saved));
 
+                var toggle = (NativeFTToggle)kind.intValue;
+                using (new EditorGUI.DisabledScope(!IsToggleAvailable(toggle)))
                 using (new EditorGUILayout.HorizontalScope())
                 {
-                    var toggle = (NativeFTToggle)kind.enumValueIndex;
                     EditorGUILayout.LabelField(MenuPlan.GetLabel(toggle), GUILayout.MinWidth(100f));
                     DrawToggleCell(showInMenu);
                     DrawToggleCell(defaultValue);
@@ -172,6 +343,75 @@ namespace NativeFTManager.Presentation
                     }
                 }
             }
+
+            DrawMissingToggles();
+        }
+
+        /// <summary>
+        /// 表情補正のトグルは、その機能を生成しないあいだ効かないので操作できなくする
+        /// </summary>
+        private bool IsToggleAvailable(NativeFTToggle toggle)
+        {
+            switch (toggle)
+            {
+                case NativeFTToggle.Emulation:
+                    return _enableEmulation.hasMultipleDifferentValues || _enableEmulation.boolValue;
+                case NativeFTToggle.Limits:
+                    return _enableLimits.hasMultipleDifferentValues || _enableLimits.boolValue;
+                case NativeFTToggle.EyeSync:
+                    return _enableEyeSync.hasMultipleDifferentValues || _enableEyeSync.boolValue;
+                default:
+                    return true;
+            }
+        }
+
+        /// <summary>
+        /// 古い版で保存したコンポーネントは、後から足したトグルを持たない。
+        /// 持たないトグルはメニューに出さない扱いになるので、その旨を出し、表に加えるボタンを置く
+        /// </summary>
+        private void DrawMissingToggles()
+        {
+            var components = targets.OfType<NativeFTManagerComponent>().ToArray();
+            var missing = System.Enum.GetValues(typeof(NativeFTToggle))
+                .Cast<NativeFTToggle>()
+                .Where(toggle => components.Any(component =>
+                    component.toggles == null || component.toggles.All(settings => settings == null || settings.toggle != toggle)))
+                .ToArray();
+            if (missing.Length == 0)
+            {
+                return;
+            }
+
+            EditorGUILayout.HelpBox(
+                S("inspector.toggle.missing", string.Join(", ", missing.Select(MenuPlan.GetLabel))),
+                MessageType.Info);
+            if (!GUILayout.Button(S("inspector.toggle.add_missing")))
+            {
+                return;
+            }
+
+            serializedObject.ApplyModifiedProperties();
+            Undo.RecordObjects(components, S("inspector.undo.toggles"));
+            foreach (var component in components)
+            {
+                if (component.toggles == null)
+                {
+                    component.toggles = new System.Collections.Generic.List<ToggleSettings>();
+                }
+
+                foreach (var toggle in missing)
+                {
+                    if (component.toggles.All(settings => settings == null || settings.toggle != toggle))
+                    {
+                        // 足しただけで挙動が変わらないよう、持たないときと同じ値で加える
+                        component.toggles.Add(ToggleSettings.CreateMissing(toggle));
+                    }
+                }
+
+                EditorUtility.SetDirty(component);
+            }
+
+            serializedObject.Update();
         }
 
         /// <summary>

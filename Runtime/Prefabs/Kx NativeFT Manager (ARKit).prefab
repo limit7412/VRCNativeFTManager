@@ -58,9 +58,33 @@ MonoBehaviour:
     showInMenu: 1
     defaultValue: 1
     saved: 1
+  - toggle: 3
+    showInMenu: 0
+    defaultValue: 1
+    saved: 1
+  - toggle: 4
+    showInMenu: 1
+    defaultValue: 1
+    saved: 1
+  - toggle: 5
+    showInMenu: 1
+    defaultValue: 1
+    saved: 1
+  - toggle: 6
+    showInMenu: 1
+    defaultValue: 1
+    saved: 1
+  - toggle: 7
+    showInMenu: 1
+    defaultValue: 0
+    saved: 1
   lerpSpeed: 8
   excludedSetNames: []
   setUseAllTrackingKeys: 1
   visemeDampenOverride: 0
   visemeDampenAmount: 0.5
   generatorIntegration: 1
+  enableEmulation: 1
+  enableLimits: 1
+  enableEyeSync: 1
+  excludedRules: []
