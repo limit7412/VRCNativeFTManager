@@ -415,4 +415,4 @@ msgid "diag.I-01"
 msgstr "[KxNFTM-I-01] Some corrections were skipped because the shapes are missing"
 
 msgid "diag.I-01:description"
-msgstr "These rules were not generated because no shape is assigned to their tracking keys: {0}."
+msgstr "These rules were not generated because no shape is assigned to their tracking keys in the split Sets: {0}. Sets that are not split are left out because their weights are controlled by the user."

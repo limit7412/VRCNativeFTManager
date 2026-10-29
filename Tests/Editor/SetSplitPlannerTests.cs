@@ -171,5 +171,17 @@ namespace NativeFTManager.Tests
 
             Assert.That(lip.BlendShapeMultipliers[36], Is.EqualTo(1f));
         }
+
+        [Test]
+        public void CorrectionSources_LeaveOutKeptSets()
+        {
+            // 既存のBehaviorが重みを制御するSetの対応へ補正を足すと、重み0でも補正だけが動くので含めない
+            var referenced = CreateSet("Expression", (18, "browPinchRight"));
+            var source = CreateSet("Source", (36, "jawOpen"));
+            var result = SetSplitPlanner.Split(new[] { referenced, source }, new string[0], new[] { "Expression" }, group => 1f);
+
+            Assert.That(result.Sets.Select(set => set.Name), Has.Member("Expression"));
+            Assert.That(result.CorrectionSources.Select(set => set.Name), Is.EqualTo(new[] { "KxNFTM/Lip" }));
+        }
     }
 }

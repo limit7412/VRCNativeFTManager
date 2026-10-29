@@ -129,7 +129,7 @@ namespace NativeFTManager.UseCase
                 .Sum(info => info.Instructions);
 
             var corrections = CorrectionPlanner.Plan(
-                result.Sets, toggles, ComponentSettings.GetExcludedRules(primary), existingInstructions);
+                result.CorrectionSources, toggles, ComponentSettings.GetExcludedRules(primary), existingInstructions);
 
             if (corrections.MissingTargets.Count > 0)
             {

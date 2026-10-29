@@ -109,7 +109,8 @@ namespace NativeFTManager.UseCase
                 .Where(info => info.IsValid)
                 .Sum(info => info.Instructions);
 
-            report.Corrections = CorrectionPlanner.Plan(split.Sets, toggles, excludedRules, existingInstructions);
+            report.Corrections = CorrectionPlanner.Plan(
+                split.CorrectionSources, toggles, excludedRules, existingInstructions);
             report.Estimate = BuildEstimate.Calculate(
                 split.Sets,
                 split.Created.Count,
