@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using VRC.SDKBase;
 
@@ -15,11 +16,60 @@ namespace NativeFTManager
     /// 追加したてのコンポーネントへ入れたい既定値はResetで入れる。
     /// Unityはシリアライズデータに無いフィールドを初期化子の値のまま残すため、
     /// 初期化子に新しい既定を書くと、更新しただけで保存済みのアバターの挙動が変わる。
+    /// M1のフィールドは、それより前に設定を持つ版を公開していないので、初期化子に既定値を書いている。
     /// </summary>
     [DisallowMultipleComponent]
     [AddComponentMenu("KxVRCNativeFTManager/Kx VRC NativeFT Manager")]
     public class NativeFTManagerComponent : MonoBehaviour, IEditorOnly
     {
+        /// <summary>Lerp Speedの上限（仕様書5.3）</summary>
+        public const float MaxLerpSpeed = 20f;
+
+        [Tooltip("Preset of the settings")]
+        public NativeFTPreset preset = NativeFTPreset.UE;
+
+        [Tooltip("Toggles in the Face Tracking menu")]
+        public List<ToggleSettings> toggles = ToggleSettings.CreateDefaults();
+
+        [Tooltip("Speed at which the Blendshapes Set weight follows a toggle (0 switches instantly)")]
+        [Range(0f, MaxLerpSpeed)]
+        public float lerpSpeed = 8f;
+
+        [Tooltip("Names of Blendshapes Sets that are kept as they are instead of being split into groups")]
+        public List<string> excludedSetNames = new List<string>();
+
+        [Tooltip("Enable Use All Tracking Keys on the Avatar Descriptor at build time")]
+        public bool setUseAllTrackingKeys = true;
+
+        [Tooltip("Viseme Dampen written to the Avatar Descriptor at build time")]
+        public VisemeDampenOverride visemeDampenOverride = VisemeDampenOverride.DoNotChange;
+
+        [Tooltip("Viseme Dampen Amount written together with the mode")]
+        [Range(0f, 1f)]
+        public float visemeDampenAmount = 0.5f;
+
+        [Tooltip("Enable the Blendshapes Set output of Kx VRC ARKit BlendShape Generator at build time when the avatar has one")]
+        public GeneratorIntegration generatorIntegration = GeneratorIntegration.Off;
+
+        /// <summary>
+        /// 指定したトグルの設定。リストに無いトグルは、メニューに出さず既定で有効なものとして扱う
+        /// </summary>
+        public ToggleSettings GetToggle(NativeFTToggle toggle)
+        {
+            if (toggles != null)
+            {
+                foreach (var settings in toggles)
+                {
+                    if (settings != null && settings.toggle == toggle)
+                    {
+                        return settings;
+                    }
+                }
+            }
+
+            return new ToggleSettings(toggle) { showInMenu = false };
+        }
+
 #if UNITY_EDITOR
         /// <summary>
         /// Editorアセンブリ側から差し込まれるOnValidateフック
@@ -28,8 +78,15 @@ namespace NativeFTManager
         internal static Action<NativeFTManagerComponent> EditorOnValidateHook;
 #endif
 
+        private void Reset()
+        {
+            toggles = ToggleSettings.CreateDefaults();
+        }
+
         private void OnValidate()
         {
+            lerpSpeed = Mathf.Clamp(lerpSpeed, 0f, MaxLerpSpeed);
+
 #if UNITY_EDITOR
             EditorOnValidateHook?.Invoke(this);
 #endif
