@@ -215,13 +215,11 @@ namespace NativeFTManager.Domain
     internal sealed class SuppressionSettings
     {
         public SuppressionSettings(
-            FaceEmoControlMethod controlMethod,
             FaceEmoSuppressionTrigger trigger,
             int faceEmoteIndex,
             bool controlFaceEmo = true,
             IReadOnlyList<ExtraParameterTarget> extraParameters = null)
         {
-            ControlMethod = controlMethod;
             Trigger = trigger;
 
             // FaceEmoの表情番号は0から振られるため、負の値はDriverへ渡さない
@@ -230,11 +228,9 @@ namespace NativeFTManager.Domain
             ExtraParameters = extraParameters ?? new ExtraParameterTarget[0];
         }
 
-        public FaceEmoControlMethod ControlMethod { get; }
-
         public FaceEmoSuppressionTrigger Trigger { get; }
 
-        /// <summary>表情制御方式で切り替え先にする表情番号</summary>
+        /// <summary>フェイストラッキング中に切り替え先にする表情番号</summary>
         public int FaceEmoteIndex { get; }
 
         /// <summary>
@@ -256,12 +252,9 @@ namespace NativeFTManager.Domain
     internal static class SuppressionControllerPlanner
     {
         public const string ExpressionControlLayerName = NativeFTManagerParameterNames.LayerPrefix + "FaceEmo ExpressionControl";
-        public const string BypassLayerName = NativeFTManagerParameterNames.LayerPrefix + "FaceEmo Bypass";
         public const string ExtraParametersLayerName = NativeFTManagerParameterNames.LayerPrefix + "ExtraParameters";
         public const string UnsyncedExtraParametersLayerName = NativeFTManagerParameterNames.LayerPrefix + "ExtraParametersUnsynced";
 
-        public const string IdleStateName = "Idle";
-        public const string BypassStateName = "Bypass";
         public const string EngagedStateName = "Engaged";
         public const string RedriveStateName = "Redrive";
         public const string InitialStateName = "Initial";
@@ -300,22 +293,12 @@ namespace NativeFTManager.Domain
 
             var layers = new List<SuppressionLayerPlan>();
 
-            // 出力先のパラメーターは方式ごとに違うため、使う分だけを宣言する
             if (settings.ControlFaceEmo)
             {
-                if (settings.ControlMethod == FaceEmoControlMethod.ExpressionControl)
-                {
-                    parameters.Add(new SuppressionParameterPlan(faceEmo.EmoteLockEnable, SuppressionParameterType.Bool));
-                    parameters.Add(new SuppressionParameterPlan(faceEmo.ForceBlinkDisable, SuppressionParameterType.Bool));
-                    parameters.Add(new SuppressionParameterPlan(faceEmo.Emote, SuppressionParameterType.Int));
-                    layers.Add(BuildExpressionControlLayer(settings, faceEmo, on, off));
-                }
-                else
-                {
-                    parameters.Add(new SuppressionParameterPlan(
-                        FaceEmoParameterNames.ForceBypassEnable, SuppressionParameterType.Bool));
-                    layers.Add(BuildBypassLayer(on, off));
-                }
+                parameters.Add(new SuppressionParameterPlan(faceEmo.EmoteLockEnable, SuppressionParameterType.Bool));
+                parameters.Add(new SuppressionParameterPlan(faceEmo.ForceBlinkDisable, SuppressionParameterType.Bool));
+                parameters.Add(new SuppressionParameterPlan(faceEmo.Emote, SuppressionParameterType.Int));
+                layers.Add(BuildExpressionControlLayer(settings, faceEmo, on, off));
             }
 
             var extraParameters = settings.ExtraParameters;
@@ -392,7 +375,7 @@ namespace NativeFTManager.Domain
         /// FaceEmoは書き込みを続けるため、FaceEmoより前にいる素体の表情レイヤーは
         /// 通常時と同じく押さえ込まれたままになる。
         ///
-        /// バイパス方式と違い、周期的な書き直しは行わない。
+        /// 追加パラメーターの非同期レイヤーと違い、周期的な書き直しは行わない。
         /// 書き込む先がすべて同期パラメーターであり、値そのものが後からjoinした人へ届くためである。
         /// 書き直し続けると、装着者がメニューで選び直した表情を毎周期奪ってしまう。
         ///
@@ -422,48 +405,6 @@ namespace NativeFTManager.Domain
             transitions.AddRange(When(ReleasedStateName, EngagedStateName, on));
 
             return new SuppressionLayerPlan(ExpressionControlLayerName, InitialStateName, states, transitions);
-        }
-
-        /// <summary>
-        /// 発動条件をCN_FORCE_BYPASS_ENABLEへ写すレイヤー
-        ///
-        /// 写しは一度きりにせず、空クリップを1周するたびにRedriveを経由して
-        /// 元のステートへ入り直し、Driverを発火し直す。アバターのロード中は
-        /// Driverの書き込みが失われることがあり、ステートが目的地に着いたまま
-        /// 値だけが既定へ戻ると、装着者がトラッキングを切り替え直すまで
-        /// バイパスが成立しない。FaceEmo側の遷移はこの値そのものを条件に持つため、
-        /// 書き直しさえ届けば以降の連鎖はFaceEmoの中で復旧する。
-        /// 同じ値の書き直しは無害で、非同期パラメーターのため同期帯域も使わない。
-        ///
-        /// 入り直しに自己遷移を使わないのは、通常遷移の自己遷移で突入時の挙動が
-        /// 再実行されるかをUnityが仕様として明言していないため
-        /// </summary>
-        private static SuppressionLayerPlan BuildBypassLayer(
-            IReadOnlyList<IReadOnlyList<ToggleConditionPlan>> on,
-            IReadOnlyList<IReadOnlyList<ToggleConditionPlan>> off)
-        {
-            var states = new[]
-            {
-                new SuppressionStatePlan(IdleStateName, DefaultClipLengthSeconds, BypassDriver(0f)),
-                new SuppressionStatePlan(BypassStateName, DefaultClipLengthSeconds, BypassDriver(1f)),
-                new SuppressionStatePlan(RedriveStateName, DefaultClipLengthSeconds),
-            };
-
-            var transitions = new List<SuppressionTransitionPlan>();
-            transitions.AddRange(When(IdleStateName, BypassStateName, on));
-            transitions.AddRange(When(BypassStateName, IdleStateName, off));
-
-            // 空クリップを1周したらRedriveへ抜ける。条件付きの遷移を記載順の
-            // 先に置いてあるため、発動条件の切替はこのループより優先される
-            transitions.Add(AfterLoop(IdleStateName, RedriveStateName));
-            transitions.Add(AfterLoop(BypassStateName, RedriveStateName));
-
-            // Redriveは発動条件の現在値に合うステートへ即座に戻る中継で、
-            // 戻った先の突入でDriverが発火し直す
-            transitions.AddRange(When(RedriveStateName, BypassStateName, on));
-            transitions.AddRange(When(RedriveStateName, IdleStateName, off));
-
-            return new SuppressionLayerPlan(BypassLayerName, IdleStateName, states, transitions);
         }
 
         /// <summary>
@@ -643,13 +584,6 @@ namespace NativeFTManager.Domain
         private static SuppressionDriverPlan ExtraDriver(bool localOnly, List<SuppressionDriverEntry> entries)
         {
             return entries.Count > 0 ? new SuppressionDriverPlan(localOnly, entries) : null;
-        }
-
-        private static SuppressionDriverPlan BypassDriver(float value)
-        {
-            return new SuppressionDriverPlan(
-                localOnly: false,
-                entries: new[] { new SuppressionDriverEntry(FaceEmoParameterNames.ForceBypassEnable, value) });
         }
 
         /// <summary>表情ロックとまばたき停止を起こし、指定の表情へ切り替えるDriver</summary>

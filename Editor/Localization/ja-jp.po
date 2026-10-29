@@ -461,7 +461,7 @@ msgid "diag.W-17"
 msgstr "[KxNFTM-W-17] FaceEmoのパラメーター名を解決できません"
 
 msgid "diag.W-17:description"
-msgstr "FaceEmoのMA Parametersから、表情制御方式が書き込むパラメーターの名前を引けませんでした。FaceEmoの元の名前で書き込みます。FaceEmoの「パラメーターに接頭辞を付ける」設定を使っている場合は効かないので、FaceEmoを適用し直すか、制御方式をバイパスにしてください。"
+msgstr "FaceEmoのMA Parametersから、抑制が書き込むパラメーターの名前を引けませんでした。FaceEmoの元の名前で書き込みます。FaceEmoの「パラメーターに接頭辞を付ける」設定を使っている場合は効かないので、FaceEmoを適用し直してください。"
 
 msgid "diag.I-03"
 msgstr "[KxNFTM-I-03] FaceEmoがありますが、FaceEmoの抑制は無効です"
@@ -475,28 +475,7 @@ msgstr "[KxNFTM-I-04] FaceEmoが見つかりません"
 msgid "diag.I-04:description"
 msgstr "FaceEmoの抑制が有効ですが、アバターのMerge AnimatorにFaceEmoが見つかりません。FaceEmoを後から追加する場合や、ビルド中にFaceEmoを生成する構成なら、このままで構いません。FaceEmoを使わないなら、抑制を無効にしてください。"
 
-msgid "prop.control_method"
-msgstr "制御方式"
-
-msgid "prop.control_method.tooltip"
-msgstr "フェイストラッキング中に、FaceEmoの書き込みを止める方法を選びます。"
-
-msgid "prop.control_method.bypass"
-msgstr "バイパス"
-
-msgid "prop.control_method.bypass.tooltip"
-msgstr "FaceEmoの外部連携用パラメーターでバイパスさせ、FaceEmoごと止めます。"
-
-msgid "prop.control_method.expression_control"
-msgstr "表情制御"
-
-msgid "prop.control_method.expression_control.tooltip"
-msgstr "FaceEmoを動かしたまま、表情ロックとまばたき停止、表情の切り替えで無害な状態へ寄せます。"
-
-msgid "inspector.control_method.bypass"
-msgstr "FaceEmoが書き込みを止めるため、その分だけ素体の表情レイヤーが表に出てきます。下の「取り除くFXレイヤー」で対処してください。"
-
-msgid "inspector.control_method.expression_control"
+msgid "inspector.face_emo.expression_control"
 msgstr "FaceEmoが書き込みを続けるため、素体の表情レイヤーは通常時と同じく押さえ込まれ、トラッキング中もメニューから表情を選べます。\nFaceEmoのデフォルト表情はトラッキングと同じブレンドシェイプを書くので、あらかじめFaceEmoの「除外するブレンドシェイプ」へトラッキング用のシェイプを登録しておいてください。"
 
 msgid "prop.face_emote_index"
@@ -512,7 +491,7 @@ msgid "prop.remove_fx_layers.tooltip"
 msgstr "ビルド時にFXから取り除くレイヤーの名前です。アバター素体のアセットは書き換わりません。"
 
 msgid "inspector.remove_fx_layers"
-msgstr "バイパス方式では、FaceEmoが書き込みを止めた分だけ、素体の表情レイヤーが表に出てきます。\n素体の表情レイヤー (ジェスチャー表情、まばたき、Tracking Controlの切り替えなど) の名前をここに並べると、ビルド時にFXから取り除きます。\nレイヤー名はビルド後のFXをAnimatorウィンドウで開くと確認できます。"
+msgstr "フェイストラッキングとぶつかる素体のレイヤー (まばたき、Tracking Controlの切り替えなど) の名前をここに並べると、ビルド時にFXから取り除きます。\nレイヤー名はビルド後のFXをAnimatorウィンドウで開くと確認できます。"
 
 msgid "warning.fx_not_found"
 msgstr "FXコントローラが見つかりません"

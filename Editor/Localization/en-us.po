@@ -461,7 +461,7 @@ msgid "diag.W-17"
 msgstr "[KxNFTM-W-17] FaceEmo parameter names could not be resolved"
 
 msgid "diag.W-17:description"
-msgstr "The names of the parameters that expression control writes could not be read from FaceEmo's MA Parameters. FaceEmo's original names are used. This does not work if FaceEmo adds a prefix to its parameters, so apply FaceEmo again or switch the control method to Bypass."
+msgstr "The names of the parameters that the suppression writes could not be read from FaceEmo's MA Parameters. FaceEmo's original names are used. This does not work if FaceEmo adds a prefix to its parameters, so apply FaceEmo again."
 
 msgid "diag.I-03"
 msgstr "[KxNFTM-I-03] FaceEmo is on the avatar, but FaceEmo suppression is off"
@@ -475,28 +475,7 @@ msgstr "[KxNFTM-I-04] FaceEmo was not found"
 msgid "diag.I-04:description"
 msgstr "FaceEmo suppression is on, but no FaceEmo was found among the avatar's Merge Animators. If you add FaceEmo later, or FaceEmo is generated during the build, you can leave it as it is. If you do not use FaceEmo, turn the suppression off."
 
-msgid "prop.control_method"
-msgstr "Control Method"
-
-msgid "prop.control_method.tooltip"
-msgstr "Chooses how FaceEmo is kept from writing while face tracking is active."
-
-msgid "prop.control_method.bypass"
-msgstr "Bypass"
-
-msgid "prop.control_method.bypass.tooltip"
-msgstr "Stops FaceEmo entirely through its bypass parameter."
-
-msgid "prop.control_method.expression_control"
-msgstr "Expression control"
-
-msgid "prop.control_method.expression_control.tooltip"
-msgstr "Keeps FaceEmo running, and locks the expression, stops blinking, and switches to the chosen emote."
-
-msgid "inspector.control_method.bypass"
-msgstr "FaceEmo stops writing, so the avatar's own expression layers surface again. Use FX Layers To Remove below to handle them."
-
-msgid "inspector.control_method.expression_control"
+msgid "inspector.face_emo.expression_control"
 msgstr "FaceEmo keeps writing, so the avatar's own expression layers stay covered as usual and the menu can still switch expressions while tracking.\nFaceEmo's default face writes the same blend shapes as face tracking, so register the tracking blend shapes in FaceEmo's Excluded Blend Shapes first."
 
 msgid "prop.face_emote_index"
@@ -512,7 +491,7 @@ msgid "prop.remove_fx_layers.tooltip"
 msgstr "Names of the FX layers removed at build time. The avatar's own assets are not modified."
 
 msgid "inspector.remove_fx_layers"
-msgstr "With the bypass method FaceEmo stops writing, and the avatar's own expression layers surface again.\nList those layers here (gesture expressions, blink, Tracking Control switching, and so on) and they are removed from FX at build time.\nOpen the built FX in the Animator window to find the layer names."
+msgstr "List the avatar's own layers that conflict with face tracking here (blink, Tracking Control switching, and so on) and they are removed from FX at build time.\nOpen the built FX in the Animator window to find the layer names."
 
 msgid "warning.fx_not_found"
 msgstr "The FX controller was not found"
