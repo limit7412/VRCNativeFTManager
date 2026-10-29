@@ -19,6 +19,27 @@ namespace NativeFTManager.Domain
     }
 
     /// <summary>
+    /// アバターにあるAvatar Optimizerの状態
+    ///
+    /// AAOは1.9.21-beta.1でネイティブFTに対応し、SetとParameter Behaviorsの対象シェイプを保護する。
+    /// ただし対応が有効になるのはSDK 3.10.6-beta.3以降に限られる
+    /// </summary>
+    internal enum AaoPresence
+    {
+        /// <summary>アバターに無い</summary>
+        None,
+
+        /// <summary>あるが、ネイティブFTに対応していない版</summary>
+        Outdated,
+
+        /// <summary>対応した版だが、SDKが古く対応が無効</summary>
+        SdkTooOld,
+
+        /// <summary>対応した版で、SDKも対応範囲にある</summary>
+        Supported,
+    }
+
+    /// <summary>
     /// 警告の判定に使う、アバターから読み取った事実
     ///
     /// ビルドとインスペクタの両方で同じ判定をするため、Unityの型を持たない形に写してから判定する
@@ -31,6 +52,7 @@ namespace NativeFTManager.Domain
         public bool GeneratorSetWriteEnabled;
         public IReadOnlyList<string> JerrysEvidence = new string[0];
         public bool HasJsTBridge;
+        public AaoPresence Aao;
         public bool SetUseAllTrackingKeys;
         public bool DescriptorUseAllTrackingKeys;
 
@@ -78,6 +100,16 @@ namespace NativeFTManager.Domain
                         diagnostics.Add(new Diagnostic(DiagnosticCodes.GeneratorSetWriteOff));
                     }
 
+                    break;
+            }
+
+            switch (facts.Aao)
+            {
+                case AaoPresence.Outdated:
+                    diagnostics.Add(new Diagnostic(DiagnosticCodes.AaoOutdated));
+                    break;
+                case AaoPresence.SdkTooOld:
+                    diagnostics.Add(new Diagnostic(DiagnosticCodes.AaoSdkTooOld));
                     break;
             }
 

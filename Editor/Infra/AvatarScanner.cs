@@ -24,6 +24,9 @@ namespace NativeFTManager.Infra
         /// </summary>
         private const string GeneratorComponentType = "ARKitBlendShapeGenerator.ARKitBlendShapeGeneratorComponent";
 
+        /// <summary>Avatar Optimizerのコンポーネントの名前空間。型は参照しない</summary>
+        private const string AaoNamespace = "Anatawa12.AvatarOptimizer";
+
         public static AvatarFacts Scan(
             GameObject avatarRoot,
             NativeFTManagerComponent component,
@@ -47,6 +50,11 @@ namespace NativeFTManager.Infra
             var behaviours = avatarRoot.GetComponentsInChildren<MonoBehaviour>(true).Where(b => b != null).ToArray();
 
             facts.HasJsTBridge = behaviours.Any(b => b.GetType().FullName == JsTBridgeComponentType);
+
+            if (behaviours.Any(b => IsInNamespace(b.GetType(), AaoNamespace)))
+            {
+                facts.Aao = GetAaoSupport();
+            }
 
             var integration = GeneratorIntegrationRegistry.Current;
             if (integration != null && integration.IsPresent(avatarRoot))
@@ -77,6 +85,27 @@ namespace NativeFTManager.Infra
             facts.ConflictingParameters = maParameterNames.Where(published.Contains).Distinct().ToArray();
 
             return facts;
+        }
+
+        /// <summary>
+        /// AAOの版とSDKの版から、AAOのネイティブFT対応が効くかを決める。
+        /// 版はasmdefのversionDefinesで判定する（仕様書11章）
+        /// </summary>
+        private static AaoPresence GetAaoSupport()
+        {
+#if !KX_AAO_NATIVE_FT
+            return AaoPresence.Outdated;
+#elif !KX_VRC_SDK_AAO_FT
+            return AaoPresence.SdkTooOld;
+#else
+            return AaoPresence.Supported;
+#endif
+        }
+
+        private static bool IsInNamespace(System.Type type, string name)
+        {
+            var ns = type.Namespace;
+            return ns != null && (ns == name || ns.StartsWith(name + ".", System.StringComparison.Ordinal));
         }
 
         /// <summary>

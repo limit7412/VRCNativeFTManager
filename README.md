@@ -19,7 +19,12 @@ FaceEmoの抑制も、今後のバージョンで本製品に持たせます。[
 次のパッケージは依存に含めていません。入っているときだけ連携が有効になります。
 
 - Kx VRC ARKit BlendShape Generator
-- Avatar Optimizer 1.6.0 以上 2.0.0 未満
+- Avatar Optimizer 1.9.21-beta.1 以降（併用する場合）
+
+Avatar Optimizerは1.9.21-beta.1でネイティブFTに対応し、Blendshapes SetとParameter Behaviorsが使うシェイプを最適化から守るようになりました。
+本製品はこの対応を前提にしており、独自のAvatar Optimizer対策は持ちません。
+Avatar Optimizerの対応が効くのはVRChat SDK 3.10.6-beta.3以降なので、併用する場合はSDKもこの版以降にしてください。
+古い組み合わせでは、ビルド時に警告（W-14、W-15）を出します。
 
 ## インストール
 

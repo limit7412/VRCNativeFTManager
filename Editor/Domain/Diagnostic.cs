@@ -85,6 +85,12 @@ namespace NativeFTManager.Domain
         /// <summary>既存のParameter Behaviorが分割対象のSet名を参照している</summary>
         public const string SetReferencedByBehavior = "W-10";
 
+        /// <summary>アバターにAvatar Optimizerがあるが、ネイティブFTに対応していない版（1.9.21-beta.1未満）</summary>
+        public const string AaoOutdated = "W-14";
+
+        /// <summary>Avatar OptimizerはネイティブFTに対応した版だが、SDKが古く対応が無効（3.10.6-beta.3未満）</summary>
+        public const string AaoSdkTooOld = "W-15";
+
         /// <summary>W-04の判定に使う、割り当てキー数の下限</summary>
         public const int GeneratorSetMinimumKeys = 10;
 
@@ -105,6 +111,8 @@ namespace NativeFTManager.Domain
                 { JsTBridgePresent, DiagnosticSeverity.Warning },
                 { ParameterConflict, DiagnosticSeverity.Warning },
                 { SetReferencedByBehavior, DiagnosticSeverity.Warning },
+                { AaoOutdated, DiagnosticSeverity.Warning },
+                { AaoSdkTooOld, DiagnosticSeverity.Warning },
             };
 
         public static IEnumerable<string> All => Severities.Keys;

@@ -306,3 +306,15 @@ msgstr "[KxNFTM-W-10] A Set was not split"
 
 msgid "diag.W-10:description"
 msgstr "The Blendshapes Set \"{0}\" is referenced by name from an existing Parameter Behavior, so it was not split. This Set is not switched by the toggles."
+
+msgid "diag.W-14"
+msgstr "[KxNFTM-W-14] Avatar Optimizer does not support native face tracking"
+
+msgid "diag.W-14:description"
+msgstr "This version of Avatar Optimizer does not support native face tracking. Optimization may remove or rename shapes used by Blendshapes Sets and Parameter Behaviors, breaking face tracking. Update Avatar Optimizer to 1.9.21-beta.1 or later."
+
+msgid "diag.W-15"
+msgstr "[KxNFTM-W-15] Avatar Optimizer's native face tracking support is disabled by the SDK version"
+
+msgid "diag.W-15:description"
+msgstr "Avatar Optimizer's native face tracking support is enabled only with VRChat SDK 3.10.6-beta.3 or later. With the current SDK, optimization may break face tracking shapes. Update the SDK to 3.10.6-beta.3 or later."

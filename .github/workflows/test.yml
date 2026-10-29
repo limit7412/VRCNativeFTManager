@@ -381,10 +381,10 @@ jobs:
           vrc-get install com.vrchat.avatars "$VRC_SDK_VERSION" --yes
           vrc-get install nadena.dev.ndmf --yes
           vrc-get install nadena.dev.modular-avatar --yes
-          # AAO互換アセンブリ（Editor/AAOCompat）は、AAOが入っているときだけコンパイルされる
-          # （asmdefのdefineConstraints）。入れておかないとCIでコンパイルを確かめられない。
-          # Generator互換アセンブリ（Editor/GeneratorCompat）も同じ形だが、対応する版の
-          # Generator（仕様書16章のP1）がまだ出ていないため、ここではまだ入れない
+          # AAOの版で切り替わる警告（W-14、W-15）は、asmdefのversionDefinesで立つdefineで分岐する。
+          # AAOが入った構成でもコンパイルを確かめるため、ここで入れる。
+          # Generator互換アセンブリ（Editor/GeneratorCompat）はGeneratorが入っているときだけ
+          # コンパイルされるが、対応する版（仕様書16章のP1）がまだ出ていないため、ここではまだ入れない
           vrc-get install com.anatawa12.avatar-optimizer --yes
           cat Packages/vpm-manifest.json
 

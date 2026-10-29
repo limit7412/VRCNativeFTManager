@@ -125,6 +125,21 @@ namespace NativeFTManager.Tests
             set.BlendShapeNames[9] = "shape9";
             Assert.That(AvatarDiagnostics.IsGeneratorSetSparse(set), Is.False);
         }
+
+        [Test]
+        public void Evaluate_AaoWithoutNativeFaceTrackingSupport_WarnsW14OrW15()
+        {
+            var facts = CleanFacts();
+
+            facts.Aao = AaoPresence.Outdated;
+            Assert.That(Codes(facts), Is.EqualTo(new[] { DiagnosticCodes.AaoOutdated }));
+
+            facts.Aao = AaoPresence.SdkTooOld;
+            Assert.That(Codes(facts), Is.EqualTo(new[] { DiagnosticCodes.AaoSdkTooOld }));
+
+            facts.Aao = AaoPresence.Supported;
+            Assert.That(Codes(facts), Is.Empty);
+        }
     }
 
     public class JerrysDetectionTests

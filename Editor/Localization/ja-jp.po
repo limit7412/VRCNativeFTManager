@@ -306,3 +306,15 @@ msgstr "[KxNFTM-W-10] 分割しないSetがあります"
 
 msgid "diag.W-10:description"
 msgstr "Blendshapes Set「{0}」は既存のParameter Behaviorから名前で参照されているため、分割していません。このSetはトグルで切り替わりません。"
+
+msgid "diag.W-14"
+msgstr "[KxNFTM-W-14] Avatar OptimizerがネイティブFTに対応していません"
+
+msgid "diag.W-14:description"
+msgstr "このAvatar OptimizerはネイティブFTに対応していない版です。最適化でBlendshapes SetやParameter Behaviorsの対象シェイプが削除・改名され、FTが動かなくなることがあります。Avatar Optimizerを1.9.21-beta.1以降に更新してください。"
+
+msgid "diag.W-15"
+msgstr "[KxNFTM-W-15] SDKの版が古いため、Avatar OptimizerのネイティブFT対応が無効です"
+
+msgid "diag.W-15:description"
+msgstr "Avatar OptimizerのネイティブFT対応は、VRChat SDK 3.10.6-beta.3以降でだけ有効になります。今のSDKでは最適化でFTのシェイプが壊れることがあります。SDKを3.10.6-beta.3以降に更新してください。"
