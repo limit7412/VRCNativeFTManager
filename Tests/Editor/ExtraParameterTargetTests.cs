@@ -151,6 +151,15 @@ namespace NativeFTManager.Tests
         }
 
         [Test]
+        public void TypeOf_SharedValues_TakesWidestType()
+        {
+            // 値1と2の項目が同じパラメーターを使うと、MAはIntにする
+            Assert.That(MenuItemToggleValue.TypeOf(new[] { 1f, 2f }).ToString(), Is.EqualTo("Int"));
+            Assert.That(MenuItemToggleValue.TypeOf(new[] { 1f, 2f, 0.5f }).ToString(), Is.EqualTo("Float"));
+            Assert.That(MenuItemToggleValue.TypeOf(new[] { 0f, 1f }).ToString(), Is.EqualTo("Bool"));
+        }
+
+        [Test]
         public void ResolveAutomatic_ReturnsOne_WhenUndeclared()
         {
             Assert.That(MenuItemToggleValue.ResolveAutomatic(false, 1, null), Is.EqualTo(1f));

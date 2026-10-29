@@ -721,6 +721,15 @@ msgstr "{0}番目の項目は、先に並んだ項目と同じパラメーター
 msgid "warning.extra_parameter.duplicate_name:hint"
 msgstr "同じパラメーターを指す項目は1つにまとめてください。"
 
+msgid "warning.extra_parameter.shared_type"
+msgstr "追加パラメーターの型を決められません"
+
+msgid "warning.extra_parameter.shared_type:description"
+msgstr "{0}番目の項目が指す{1}のパラメーターは未宣言で、同じパラメーターを使うほかのメニューアイテムに値の自動設定が有効なものがあります。Modular Avatarが決める型を求められないため、生成から外しました。"
+
+msgid "warning.extra_parameter.shared_type:hint"
+msgstr "パラメーターをExpression ParametersかMA Parametersで宣言するか、ほかのメニューアイテムの値の自動設定を切ってください。"
+
 msgid "warning.extra_parameter.automatic_value"
 msgstr "追加パラメーターのメニューアイテムの値を決められません"
 

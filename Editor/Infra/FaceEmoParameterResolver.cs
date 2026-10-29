@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using nadena.dev.modular_avatar.core;
+using nadena.dev.ndmf;
 using NativeFTManager.Domain;
 
 namespace NativeFTManager.Infra
@@ -13,20 +14,25 @@ namespace NativeFTManager.Infra
         /// <summary>
         /// MA Parametersの登録内容を読み、FaceEmoのパラメーター名を解決する
         /// </summary>
-        public static FaceEmoParameterNames Resolve(GameObject avatarRoot)
+        public static FaceEmoParameterNames Resolve(BuildContext context)
         {
-            return FaceEmoParameterNames.Resolve(CollectParameterRemaps(avatarRoot));
+            return FaceEmoParameterNames.Resolve(
+                CollectParameterRemaps(ParameterInfo.ForContext(context), context.AvatarRootObject));
         }
 
         /// <summary>
-        /// コンポーネントごとに、元の名前からリネーム後の名前への対応を作る
+        /// コンポーネントごとに、元の名前から最終的な名前への対応を作る
         /// </summary>
         /// <remarks>
+        /// 最終的な名前は、コンポーネント自身と祖先のMA Parametersによるリネームをすべて当てたものである。
+        /// FaceEmoの登録でA→Bとし、祖先でB→Cとしていれば、FaceEmoが使うのはCになる。
+        /// MAと同じNDMFのParameterInfoで引くため、MAがあとで振る名前と一致する。
+        ///
         /// 非アクティブなオブジェクトも対象に含める。環境検出と同じく、
         /// 導入直後にオフのまま置かれたプレハブを見落とさないためである。
         /// </remarks>
         internal static IReadOnlyList<IReadOnlyDictionary<string, string>> CollectParameterRemaps(
-            GameObject avatarRoot)
+            ParameterInfo parameterInfo, GameObject avatarRoot)
         {
             var remaps = new List<IReadOnlyDictionary<string, string>>();
             if (avatarRoot == null)
@@ -42,6 +48,7 @@ namespace NativeFTManager.Infra
                 }
 
                 var remap = new Dictionary<string, string>();
+                var remappings = parameterInfo.GetParameterRemappingsAt(component, true);
 
                 foreach (var config in component.parameters)
                 {
@@ -59,7 +66,9 @@ namespace NativeFTManager.Infra
                     }
 
                     remap[config.nameOrPrefix] =
-                        string.IsNullOrEmpty(config.remapTo) ? config.nameOrPrefix : config.remapTo;
+                        remappings.TryGetValue((ParameterNamespace.Animator, config.nameOrPrefix), out var mapping)
+                            ? mapping.ParameterName
+                            : config.nameOrPrefix;
                 }
 
                 if (remap.Count > 0)

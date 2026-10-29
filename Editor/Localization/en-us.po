@@ -721,6 +721,15 @@ msgstr "Entry {0} was skipped because an earlier entry writes to the same parame
 msgid "warning.extra_parameter.duplicate_name:hint"
 msgstr "Keep only one entry for each parameter."
 
+msgid "warning.extra_parameter.shared_type"
+msgstr "The type of an extra parameter cannot be determined"
+
+msgid "warning.extra_parameter.shared_type:description"
+msgstr "Entry {0} was skipped because the parameter of {1} is not declared and another menu item sharing it uses an automatic value. The type Modular Avatar chooses cannot be determined."
+
+msgid "warning.extra_parameter.shared_type:hint"
+msgstr "Declare the parameter in Expression Parameters or MA Parameters, or turn off the automatic value on the other menu items."
+
 msgid "warning.extra_parameter.automatic_value"
 msgstr "The value of an extra parameter's menu item cannot be determined"
 

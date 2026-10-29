@@ -231,11 +231,26 @@ namespace NativeFTManager.Infra
                     value = control.value;
                 }
 
-                // 宣言済みならその型に合わせる。未宣言ならMAがトグル値から型を決めるので、同じ規則で求める
+                // 宣言済みならその型に合わせる。未宣言ならMAが同じパラメーターを使う
+                // すべてのメニューアイテムのトグル値から型を決めるので、同じ規則で求める
                 declared = declared ?? CollectDeclaredParameters(parameterInfo, avatarRoot);
-                var type = declared.TryGetValue(effectiveName, out var declaredParameter)
-                    ? declaredParameter.Type
-                    : MenuItemToggleValue.TypeOf(value);
+                SuppressionParameterType type;
+                if (declared.TryGetValue(effectiveName, out var declaredParameter))
+                {
+                    type = declaredParameter.Type;
+                }
+                else
+                {
+                    menuItems = menuItems ?? CollectMenuItems(parameterInfo, avatarRoot);
+                    var values = SharedValues(menuItems, menuItem, effectiveName, value);
+                    if (values == null)
+                    {
+                        issues.Add(new Issue("warning.extra_parameter.shared_type", number, menuItem));
+                        continue;
+                    }
+
+                    type = MenuItemToggleValue.TypeOf(values);
+                }
 
                 usedNames.Add(effectiveName);
                 targets.Add(ExtraParameterTarget.FromMenuItem(
@@ -259,6 +274,39 @@ namespace NativeFTManager.Infra
             return remaps.TryGetValue((ParameterNamespace.Animator, name), out var mapping)
                 ? mapping.ParameterName
                 : name;
+        }
+
+        /// <summary>
+        /// 同じパラメーターを使うメニューアイテムのトグル値を、指定した項目の値とともに集める
+        /// ほかの項目に値の自動設定が有効なものがあると、MAが振る値を求められないのでnullを返す
+        /// </summary>
+        private static List<float> SharedValues(
+            IEnumerable<(ModularAvatarMenuItem item, string name)> menuItems,
+            ModularAvatarMenuItem self,
+            string name,
+            float value)
+        {
+            var values = new List<float> { value };
+
+            foreach (var (item, itemName) in menuItems)
+            {
+                if (itemName != name || item == self)
+                {
+                    continue;
+                }
+
+                if (item.automaticValue)
+                {
+                    return null;
+                }
+
+                if (item.Control != null)
+                {
+                    values.Add(item.Control.value);
+                }
+            }
+
+            return values;
         }
 
         /// <summary>

@@ -143,6 +143,7 @@ namespace NativeFTManager.Tests
             "warning.extra_parameter.reserved_name",
             "warning.extra_parameter.duplicate_name",
             "warning.extra_parameter.automatic_value",
+            "warning.extra_parameter.shared_type",
         };
 
         /// <summary>

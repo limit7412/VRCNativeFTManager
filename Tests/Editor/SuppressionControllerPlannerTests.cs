@@ -38,14 +38,24 @@ namespace NativeFTManager.Tests
             var layer = Build().FindLayer(Planner.ExpressionControlLayerName);
 
             Assert.That(layer, Is.Not.Null);
-            Assert.That(layer.DefaultStateName, Is.EqualTo(Planner.IdleStateName));
+            Assert.That(layer.DefaultStateName, Is.EqualTo(Planner.InitialStateName));
             Assert.That(layer.Transitions.Select(Describe), Is.EqualTo(new[]
             {
-                $"Idle->Engaged: {FT} & {Eye}",
-                $"Idle->Engaged: {FT} & {Lip}",
-                $"Engaged->Idle: !{FT}",
-                $"Engaged->Idle: !{Eye} & !{Lip}",
+                $"Initial->Engaged: {FT} & {Eye}",
+                $"Initial->Engaged: {FT} & {Lip}",
+                $"Engaged->Released: !{FT}",
+                $"Engaged->Released: !{Eye} & !{Lip}",
+                $"Released->Engaged: {FT} & {Eye}",
+                $"Released->Engaged: {FT} & {Lip}",
             }));
+        }
+
+        [Test]
+        public void ExpressionControl_InitialState_WritesNothing()
+        {
+            // 読み込んだだけで、FaceEmoに保存された表情ロックとまばたき停止を上書きしない
+            var layer = Build().FindLayer(Planner.ExpressionControlLayerName);
+            Assert.That(layer.FindState(Planner.InitialStateName).Driver, Is.Null);
         }
 
         [Test]
@@ -65,10 +75,10 @@ namespace NativeFTManager.Tests
                 }));
 
             // 表情番号は戻さない
-            var idle = layer.FindState(Planner.IdleStateName).Driver;
-            Assert.That(idle.LocalOnly, Is.True);
+            var released = layer.FindState(Planner.ReleasedStateName).Driver;
+            Assert.That(released.LocalOnly, Is.True);
             Assert.That(
-                idle.Entries.Select(entry => $"{entry.Parameter}={entry.Value}"),
+                released.Entries.Select(entry => $"{entry.Parameter}={entry.Value}"),
                 Is.EqualTo(new[]
                 {
                     FaceEmoParameterNames.RawEmoteLockEnable + "=0",
@@ -173,7 +183,7 @@ namespace NativeFTManager.Tests
                 new ToggleSettings(NativeFTToggle.LipTracking, false, true));
             var layer = Build(toggles: toggles).FindLayer(Planner.ExpressionControlLayerName);
 
-            Assert.That(layer.Transitions.Select(Describe), Is.EqualTo(new[] { "Idle->Engaged:  @0" }));
+            Assert.That(layer.Transitions.Select(Describe), Is.EqualTo(new[] { "Initial->Engaged:  @0", "Released->Engaged:  @0" }));
         }
 
         [Test]

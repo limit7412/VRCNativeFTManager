@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace NativeFTManager.Domain
 {
@@ -23,6 +24,31 @@ namespace NativeFTManager.Domain
             }
 
             return value > 1f ? SuppressionParameterType.Int : SuppressionParameterType.Bool;
+        }
+
+        /// <summary>
+        /// 同じパラメーターを使うメニューアイテムすべてのトグル値から、パラメーターの型を決める
+        /// MAは全項目の値を見て型を決めるため、1つでもFloatならFloat、次にInt、残りはBoolになる
+        /// </summary>
+        public static SuppressionParameterType TypeOf(IEnumerable<float> values)
+        {
+            var type = SuppressionParameterType.Bool;
+
+            foreach (var value in values)
+            {
+                var current = TypeOf(value);
+                if (current == SuppressionParameterType.Float)
+                {
+                    return SuppressionParameterType.Float;
+                }
+
+                if (current == SuppressionParameterType.Int)
+                {
+                    type = SuppressionParameterType.Int;
+                }
+            }
+
+            return type;
         }
 
         /// <summary>

@@ -398,6 +398,10 @@ namespace NativeFTManager.Domain
         ///
         /// Driverはlocal onlyで生成する。同期パラメーターをリモートでも書くと、
         /// 書き込んだ値と届いた同期値が競合する。FaceEmo自身も同じ理由でローカル駆動している
+        ///
+        /// 既定のステートはDriverを持たないInitialにする。解除のDriverを既定のステートに置くと、
+        /// フェイストラッキングを使わないままアバターを読み込んだだけで、
+        /// 装着者が保存していた表情ロックとまばたき停止の状態を0で上書きしてしまう
         /// </summary>
         private static SuppressionLayerPlan BuildExpressionControlLayer(
             SuppressionSettings settings,
@@ -407,15 +411,17 @@ namespace NativeFTManager.Domain
         {
             var states = new[]
             {
-                new SuppressionStatePlan(IdleStateName, DefaultClipLengthSeconds, ReleaseDriver(faceEmo)),
+                new SuppressionStatePlan(InitialStateName, DefaultClipLengthSeconds),
                 new SuppressionStatePlan(EngagedStateName, DefaultClipLengthSeconds, EngageDriver(faceEmo, settings.FaceEmoteIndex)),
+                new SuppressionStatePlan(ReleasedStateName, DefaultClipLengthSeconds, ReleaseDriver(faceEmo)),
             };
 
             var transitions = new List<SuppressionTransitionPlan>();
-            transitions.AddRange(When(IdleStateName, EngagedStateName, on));
-            transitions.AddRange(When(EngagedStateName, IdleStateName, off));
+            transitions.AddRange(When(InitialStateName, EngagedStateName, on));
+            transitions.AddRange(When(EngagedStateName, ReleasedStateName, off));
+            transitions.AddRange(When(ReleasedStateName, EngagedStateName, on));
 
-            return new SuppressionLayerPlan(ExpressionControlLayerName, IdleStateName, states, transitions);
+            return new SuppressionLayerPlan(ExpressionControlLayerName, InitialStateName, states, transitions);
         }
 
         /// <summary>

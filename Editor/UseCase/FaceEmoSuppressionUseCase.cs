@@ -59,7 +59,6 @@ namespace NativeFTManager.UseCase
             AvatarFacts facts,
             Action<Object> saveAsset)
         {
-            var avatarRoot = context.AvatarRootObject;
             var faceEmo = FaceEmoParameterNames.Raw;
 
             // FaceEmoの制御パラメーターは設定次第で名前が変わる。
@@ -67,7 +66,7 @@ namespace NativeFTManager.UseCase
             // FaceEmoが見つからないアバターでは解決できないのが当然なので、W-17は出さない
             if (settings.controlMethod == FaceEmoControlMethod.ExpressionControl)
             {
-                faceEmo = FaceEmoParameterResolver.Resolve(avatarRoot);
+                faceEmo = FaceEmoParameterResolver.Resolve(context);
                 if (!faceEmo.Resolved && facts.HasFaceEmo)
                 {
                     DiagnosticReporter.Report(new Diagnostic(DiagnosticCodes.FaceEmoParametersUnresolved), component);
