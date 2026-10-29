@@ -34,9 +34,8 @@ namespace NativeFTManager.Tests
         [TestCase(99, FaceTrackingGroup.Lip)]
         [TestCase(100, FaceTrackingGroup.Other)]
         [TestCase(101, FaceTrackingGroup.Other)]
-        public void GetGroup_FollowsTheSpecTable(int key, object expected)
+        public void GetGroup_FollowsTheSpecTable(int key, FaceTrackingGroup expected)
         {
-            // FaceTrackingGroupはinternalなので、publicなテストの引数の型には書けない
             Assert.That(FaceTrackingGroupTable.GetGroup(key), Is.EqualTo(expected));
         }
 
