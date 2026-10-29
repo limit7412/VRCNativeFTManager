@@ -23,7 +23,7 @@
     "versionDefines": [
         {
             "name": "com.anatawa12.avatar-optimizer",
-            "expression": "[1.6.0,2.0.0)",
+            "expression": "[1.6.0,1.9.21-beta.1)",
             "define": "KX_AAO_API"
         }
     ],

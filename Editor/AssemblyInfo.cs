@@ -5,4 +5,3 @@ using System.Runtime.CompilerServices;
 
 // 連携用アセンブリから、Localizationなどのinternal型へアクセスするため
 [assembly: InternalsVisibleTo("NativeFTManager.Editor.GeneratorCompat")]
-[assembly: InternalsVisibleTo("NativeFTManager.Editor.AAOCompat")]

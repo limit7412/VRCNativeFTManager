@@ -29,10 +29,15 @@ CIでも実行されるが（[ci.md](ci.md)）、Unityライセンスのsecret�
 | `NativeFTManager.Runtime` | `Runtime/` | 常に |
 | `NativeFTManager.Editor` | `Editor/` | 常に（エディタのみ） |
 | `NativeFTManager.Editor.GeneratorCompat` | `Editor/GeneratorCompat/` | ARKit BlendShape Generatorが入っているとき（define `KX_ARKIT_GENERATOR`） |
-| `NativeFTManager.Editor.AAOCompat` | `Editor/AAOCompat/` | Avatar Optimizer 1.6.0以上2.0.0未満が入っているとき（define `KX_AAO_API`） |
+| `NativeFTManager.Editor.AAOCompat` | `Editor/AAOCompat/` | Avatar Optimizer 1.6.0以上1.9.21-beta.1未満が入っているとき（define `KX_AAO_API`）。中身は無く、GUIDを保つためだけに残している |
 | `NativeFTManager.Editor.Tests` | `Tests/Editor/` | `testables` に追加したとき |
 
 任意依存の型に触るコードは、対応する連携用アセンブリにだけ置く。
 本体のアセンブリから参照すると、その依存が無いプロジェクトでコンパイルが通らなくなる。
 連携用アセンブリの判定はasmdefの `versionDefines` と `defineConstraints` で行う。
-GeneratorCompatの版の範囲は、Generatorが連携に必要な定数を公開する版（仕様書16章のP1）のリリースで確定する。それまでは仮の値を置いている。
+Avatar Optimizerの型には触らないため、AAO対策の処理は持たない。
+`Editor/AAOCompat/` は0.1.0-test1で配ったGUIDを保つためだけに残した空のアセンブリで、対応前のAAO（`[1.6.0,1.9.21-beta.1)`）でしかコンパイルされない。
+AAOは1.9.21-beta.1でネイティブFTに対応し、SetとParameter Behaviorsの対象シェイプを自分で保護する。
+本体のasmdefでは `versionDefines` でAAOの版（`KX_AAO_NATIVE_FT`）とSDKの版（`KX_VRC_SDK_AAO_FT`）を判定し、古い組み合わせのときに警告（W-14、W-15）を出すだけにしている。
+
+GeneratorCompatの版の範囲は、Generatorが連携に必要な定数（`FaceTrackingSetNames`）を公開する版（仕様書16章のP1）のリリースで確定する。今の `[0.2.1,1.0.0)` は、P1を含む次のリリースを0.2.1と見込んだ仮の値である。

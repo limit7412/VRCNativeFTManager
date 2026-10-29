@@ -1,4 +1,10 @@
+using System.Collections.Generic;
+using System.Linq;
 using nadena.dev.ndmf;
+using VRC.SDK3.Avatars.Components;
+using NativeFTManager.Domain;
+using NativeFTManager.Infra;
+using Object = UnityEngine.Object;
 
 namespace NativeFTManager.UseCase
 {
@@ -6,19 +12,141 @@ namespace NativeFTManager.UseCase
     /// Transforming Phaseの処理（仕様書9章の手順5）
     ///
     /// ARKit BlendShape GeneratorとModular Avatarが終わった後に、
-    /// DescriptorのSetを分割し、Parameter Behaviorsを書く段階である。
-    /// 現時点ではコンポーネントの除去だけを行い、分割と書き込みはM1で実装する。
+    /// DescriptorのSetをグループごとに分割し、マージ後のFXでトグルのステートにSetの重みを書くBehaviorを付け、
+    /// DescriptorのFace Trackingの設定を整える
     /// </summary>
     internal static class ApplyUseCase
     {
         public static void Execute(BuildContext context)
         {
-            var components = ComponentSelection.CollectComponents(context.AvatarRootObject);
+            var avatarRoot = context.AvatarRootObject;
+            var components = ComponentSelection.CollectComponents(avatarRoot);
+            var primary = ComponentSelection.SelectPrimaryComponent(avatarRoot, components);
 
-            // ビルド時にのみ意味を持つコンポーネントなので、処理の成否にかかわらず取り除く。
-            // ビルド終盤で動作するAvatar Optimizer等から「未知のコンポーネント」として
-            // 検出されないようにするため、Optimizing Phaseより前のここで削除する。
-            ComponentSelection.RemoveComponents(components);
+            try
+            {
+                if (primary != null)
+                {
+                    Apply(context, primary);
+                }
+            }
+            finally
+            {
+                // ビルド時にのみ意味を持つコンポーネントなので、処理の成否にかかわらず取り除く。
+                // ビルド終盤で動作するAvatar Optimizer等から「未知のコンポーネント」として
+                // 検出されないようにするため、Optimizing Phaseより前のここで削除する。
+                ComponentSelection.RemoveComponents(components);
+            }
+        }
+
+        private static void Apply(BuildContext context, NativeFTManagerComponent primary)
+        {
+            var descriptor = context.AvatarRootObject.GetComponent<VRCAvatarDescriptor>();
+            if (descriptor == null)
+            {
+                return;
+            }
+
+            var state = context.GetState<BuildState>();
+            var plan = state.Plan ?? ToggleControllerPlanner.Build(ToggleSet.Resolve(primary.GetToggle));
+            var fx = FxControllerLocator.Find(descriptor);
+
+            var mismatch = FaceTrackingDescriptorAccess.FindKeyMismatch();
+            if (mismatch != null)
+            {
+                DiagnosticReporter.Report(new Diagnostic(DiagnosticCodes.KeyMismatch, mismatch), primary);
+                RemoveLayers(fx, plan);
+                return;
+            }
+
+            var sets = FaceTrackingDescriptorAccess.ReadSets(descriptor);
+
+            if (state.GeneratorSetExpected && state.GeneratorSetName != null)
+            {
+                var generatorSet = sets.FirstOrDefault(set => set.Name == state.GeneratorSetName);
+                if (AvatarDiagnostics.IsGeneratorSetSparse(generatorSet))
+                {
+                    DiagnosticReporter.Report(
+                        new Diagnostic(
+                            DiagnosticCodes.GeneratorSetSparse,
+                            generatorSet?.AssignedKeyCount ?? 0),
+                        primary);
+                }
+            }
+
+            if (sets.Count == 0)
+            {
+                DiagnosticReporter.Report(new Diagnostic(DiagnosticCodes.NoSets), primary);
+                RemoveLayers(fx, plan);
+                return;
+            }
+
+            var excluded = new HashSet<string>(primary.excludedSetNames ?? new List<string>());
+            // 既存のState Behaviorが名前で指すSetも分割しない。分割すると元の名前が消え、その制御が効かなくなる。
+            // 本製品のBehaviorはこの後で付けるので、ここで見つかるのは利用者が置いたものだけである
+            var referenced = FaceTrackingDescriptorAccess.GetSetNamesReferencedByBehaviors(descriptor);
+            referenced.UnionWith(FaceTrackingStateBehaviorWriter.CollectReferencedSetNames(
+                FaceTrackingDescriptorAccess.GetAnimatorControllers(descriptor)));
+            var result = SetSplitPlanner.Split(sets, excluded, referenced, group => plan.DefaultWeights[group]);
+
+            foreach (var kept in result.Kept.Where(kept => kept.Reason == SetKeepReason.ReferencedByBehavior))
+            {
+                DiagnosticReporter.Report(new Diagnostic(DiagnosticCodes.SetReferencedByBehavior, kept.Name), primary);
+            }
+
+            FaceTrackingDescriptorAccess.WriteSets(descriptor, result.Sets);
+            AttachBehaviors(context, fx, plan, result, primary);
+            FaceTrackingDescriptorAccess.ApplySettings(descriptor, primary);
+        }
+
+        private static void AttachBehaviors(
+            BuildContext context,
+            UnityEditor.Animations.AnimatorController fx,
+            ToggleControllerPlan plan,
+            SetSplitResult result,
+            NativeFTManagerComponent primary)
+        {
+            if (fx == null || plan.Layers.Count == 0)
+            {
+                return;
+            }
+
+            bool reportedUnavailable = false;
+            foreach (var layer in plan.Layers)
+            {
+                var setNames = result.Created
+                    .Where(split => layer.Groups.Contains(split.Group))
+                    .Select(split => split.Data.Name)
+                    .ToArray();
+
+                var outcome = ToggleBehaviorAttacher.Attach(
+                    fx, layer, setNames, primary.lerpSpeed, asset => context.AssetSaver.SaveAsset(asset));
+
+                if (outcome == ToggleBehaviorAttacher.Outcome.BehaviorUnavailable && !reportedUnavailable)
+                {
+                    FaceTrackingStateBehaviorWriter.TryResolve(out var failure);
+                    DiagnosticReporter.Report(
+                        new Diagnostic(DiagnosticCodes.StateBehaviorUnavailable, failure),
+                        primary);
+                    reportedUnavailable = true;
+                }
+            }
+        }
+
+        /// <summary>
+        /// 切り替えるSetが無いときは、生成したレイヤーを残さない
+        /// </summary>
+        private static void RemoveLayers(UnityEditor.Animations.AnimatorController fx, ToggleControllerPlan plan)
+        {
+            if (fx == null)
+            {
+                return;
+            }
+
+            foreach (var layer in plan.Layers)
+            {
+                ToggleBehaviorAttacher.Attach(fx, layer, new string[0], 0f, null);
+            }
         }
     }
 }

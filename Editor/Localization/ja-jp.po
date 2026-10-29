@@ -31,7 +31,7 @@ msgstr "1つのアバターにKx VRC NativeFT Managerは1つだけ置けるた�
 
 # インスペクタ
 msgid "inspector.description"
-msgstr "ネイティブフェイストラッキングのトグルと表情補正を、ビルド時にアバターへ組み込みます。\n設定項目は今後のバージョンで追加します。"
+msgstr "ネイティブフェイストラッキングのトグルを、ビルド時にアバターへ組み込みます。\nEXメニューの「Face Tracking」から、FT全体・目・口を切り替えられます。"
 
 # 更新の確認
 msgid "update.available.vpm"
@@ -120,3 +120,201 @@ msgstr "古いファイルを削除できなかったため、取り込みを中
 
 msgid "update.error.playing"
 msgstr "再生中は更新できません。再生を止めてからやり直してください。"
+
+# M1: インスペクタ
+msgid "common.on"
+msgstr "有効"
+
+msgid "common.off"
+msgstr "無効"
+
+msgid "inspector.section.status"
+msgstr "状態"
+
+msgid "inspector.status.sets"
+msgstr "Blendshapes Set"
+
+msgid "inspector.status.sets_value"
+msgstr "{0} 件（割り当て {1} キー）"
+
+msgid "inspector.status.use_all_tracking_keys"
+msgstr "Use All Tracking Keys"
+
+msgid "inspector.status.generator"
+msgstr "ARKit BlendShape Generator"
+
+msgid "inspector.status.generator_none"
+msgstr "なし"
+
+msgid "inspector.status.generator_unsupported"
+msgstr "連携に対応していない版"
+
+msgid "inspector.status.generator_present"
+msgstr "あり（Set書き込みはオフ）"
+
+msgid "inspector.status.generator_set_write"
+msgstr "あり（Set書き込みは有効）"
+
+msgid "inspector.preset"
+msgstr "プリセット"
+
+msgid "inspector.preset.tooltip"
+msgstr "設定のまとまり。M1ではトグルの構成はどれも同じで、ARKitはGeneratorが無いときの警告に使います"
+
+msgid "inspector.generator_integration"
+msgstr "Generator連携"
+
+msgid "inspector.generator_integration.tooltip"
+msgstr "Autoにすると、アバターにKx VRC ARKit BlendShape Generatorがあるとき、ビルド中だけそのSet書き込みを有効にします。シーンのGeneratorの設定は変わりません"
+
+msgid "inspector.section.toggles"
+msgstr "トグル"
+
+msgid "inspector.toggle.show_in_menu"
+msgstr "メニュー"
+
+msgid "inspector.toggle.show_in_menu.tooltip"
+msgstr "EXメニューに出し、同期パラメーターを作ります。出さないトグルは常に既定値として扱います"
+
+msgid "inspector.toggle.default_value"
+msgstr "既定値"
+
+msgid "inspector.toggle.default_value.tooltip"
+msgstr "パラメーターの既定値"
+
+msgid "inspector.toggle.saved"
+msgstr "保存"
+
+msgid "inspector.toggle.saved.tooltip"
+msgstr "ワールドをまたいで値を保存します"
+
+msgid "inspector.section.descriptor"
+msgstr "Descriptorの設定（ビルド時）"
+
+msgid "inspector.set_use_all_tracking_keys"
+msgstr "Use All Tracking Keysを有効にする"
+
+msgid "inspector.set_use_all_tracking_keys.tooltip"
+msgstr "無効だと、目の基本キー10個以外のトラッキングが使われません"
+
+msgid "inspector.viseme_dampen"
+msgstr "Viseme Dampen"
+
+msgid "inspector.viseme_dampen.tooltip"
+msgstr "ビルド時にDescriptorへ書くViseme Dampenのモード。DoNotChangeならDescriptorの値のまま"
+
+msgid "inspector.viseme_dampen_amount"
+msgstr "量"
+
+msgid "inspector.section.details"
+msgstr "詳細"
+
+msgid "inspector.lerp_speed"
+msgstr "Lerp Speed"
+
+msgid "inspector.lerp_speed.tooltip"
+msgstr "トグルを切り替えたとき、Setの重みが追いつく速さ。0で即時に切り替わります"
+
+msgid "inspector.excluded_set_names"
+msgstr "分割しないSet"
+
+msgid "inspector.excluded_set_names.tooltip"
+msgstr "ここに名前を入れたBlendshapes Setは、グループに分けずにそのまま残します。トグルでは切り替わりません"
+
+
+# M1: 警告とエラー（仕様書12章）
+msgid "diag.E-02"
+msgstr "[KxNFTM-E-02] 置き場所が違います"
+
+msgid "diag.E-02:description"
+msgstr "Kx VRC NativeFT Managerは、VRCAvatarDescriptorを持つアバターの中に置いてください。"
+
+msgid "diag.E-03"
+msgstr "[KxNFTM-E-03] Blendshapes Setがありません"
+
+msgid "diag.E-03:description"
+msgstr "DescriptorにBlendshapes Setが1つも無いため、フェイストラッキングは動きません。Kx VRC ARKit BlendShape Generatorを使うときはGenerator連携をAutoに、使わないときはDescriptorのオートフィルか手入力でSetを作ってください。"
+
+msgid "diag.E-04"
+msgstr "[KxNFTM-E-04] Jerry's Face Tracking Templatesが残っています"
+
+msgid "diag.E-04:description"
+msgstr "ネイティブフェイストラッキングとは同じアバターで共存できません（検出: {0}）。Use All Tracking KeysのアバターではJerry'sが動かず、同期bitだけが残ります。保存されたEyeTrackingActiveでMA_EyeRotationがネイティブの視線を止めることもあります。Jerry'sをアバターから外してください。"
+
+msgid "diag.E-05"
+msgstr "[KxNFTM-E-05] トグルのState Behaviorが見つかりません"
+
+msgid "diag.E-05:description"
+msgstr "VRChat SDKにFace Tracking BlendshapesのState Behaviorが見つからないため、トグルでSetの重みを切り替えられません。Setの分割とDescriptorの設定は行いました。SDKの版を確認してください（詳細: {0}）。"
+
+msgid "diag.E-06"
+msgstr "[KxNFTM-E-06] トラッキングキーの並びがSDKと合いません"
+
+msgid "diag.E-06:description"
+msgstr "VRChat SDKのFaceTrackingKeyが本製品の対応表と食い違うため、Setを分割しませんでした（{0}）。本製品を更新してください。"
+
+msgid "diag.W-01"
+msgstr "[KxNFTM-W-01] ARKit BlendShape Generatorがありません"
+
+msgid "diag.W-01:description"
+msgstr "プリセットがARKitですが、アバターにKx VRC ARKit BlendShape Generatorがありません。Generatorを置くか、プリセットをUEにしてください。"
+
+msgid "diag.W-02"
+msgstr "[KxNFTM-W-02] GeneratorのシェイプがFTに使われません"
+
+msgid "diag.W-02:description"
+msgstr "Generator連携がOffで、GeneratorのSet書き込みもオフです。生成したシェイプがBlendshapes Setに入りません。Generator連携をAutoにしてください。"
+
+msgid "diag.W-03"
+msgstr "[KxNFTM-W-03] Generatorの版が連携に対応していません"
+
+msgid "diag.W-03:description"
+msgstr "アバターのKx VRC ARKit BlendShape Generatorは、連携に必要な版ではありません。Generatorを更新してください。連携できない間は、GeneratorのSet書き込みを手で有効にすれば分割とトグルは動きます。"
+
+msgid "diag.W-04"
+msgstr "[KxNFTM-W-04] GeneratorのSetの割り当てが少なすぎます"
+
+msgid "diag.W-04:description"
+msgstr "GeneratorのBlendshapes Setに割り当てられたキーが{0}個しかありません。元になるシェイプが見つかっていない可能性があります。Generatorの設定を確認してください。"
+
+msgid "diag.W-05"
+msgstr "[KxNFTM-W-05] Use All Tracking Keysが無効です"
+
+msgid "diag.W-05:description"
+msgstr "目の基本キー10個以外のトラッキングが使われません。「Use All Tracking Keysを有効にする」をオンにするか、Descriptorで有効にしてください。"
+
+msgid "diag.W-07"
+msgstr "[KxNFTM-W-07] Eye Lookの回転幅が狭すぎます"
+
+msgid "diag.W-07:description"
+msgstr "DescriptorのEye Lookの回転幅に{0}°しかない方向があり、視線が動いても見た目にはほとんど動きません。上下は±10〜15°、左右は±15〜20°を目安に広げてください。"
+
+msgid "diag.W-08"
+msgstr "[KxNFTM-W-08] Kx VRC FE-JsT Bridgeと併用しないでください"
+
+msgid "diag.W-08:description"
+msgstr "アバターにKx VRC FE-JsT Bridgeがあります。FaceEmoの抑制は本製品が持つ予定の機能で、FE-JsT Bridgeはネイティブフェイストラッキングのアバターでは発動しません。FE-JsT Bridgeを外してください。"
+
+msgid "diag.W-09"
+msgstr "[KxNFTM-W-09] パラメーター名が重なっています"
+
+msgid "diag.W-09:description"
+msgstr "本製品のパラメーターと同じ名前が、ほかのMA Parametersにもあります（{0}）。どちらかの名前を変えてください。"
+
+msgid "diag.W-10"
+msgstr "[KxNFTM-W-10] 分割しないSetがあります"
+
+msgid "diag.W-10:description"
+msgstr "Blendshapes Set「{0}」は既存のParameter BehaviorかState Behaviorから名前で参照されているため、分割していません。このSetはトグルで切り替わりません。"
+
+msgid "diag.W-14"
+msgstr "[KxNFTM-W-14] Avatar OptimizerがネイティブFTに対応していません"
+
+msgid "diag.W-14:description"
+msgstr "このAvatar OptimizerはネイティブFTに対応していない版です。最適化でBlendshapes SetやParameter Behaviorsの対象シェイプが削除・改名され、FTが動かなくなることがあります。Avatar Optimizerを1.9.21-beta.1以降に更新してください。"
+
+msgid "diag.W-15"
+msgstr "[KxNFTM-W-15] SDKの版が古いため、Avatar OptimizerのネイティブFT対応が無効です"
+
+msgid "diag.W-15:description"
+msgstr "Avatar OptimizerのネイティブFT対応は、VRChat SDK 3.10.6-beta.3以降でだけ有効になります。今のSDKでは最適化でFTのシェイプが壊れることがあります。SDKを3.10.6-beta.3以降に更新してください。"

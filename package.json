@@ -2,7 +2,7 @@
     "name": "com.qazx7412.kx-vrc-native-ft-manager",
     "version": "0.1.0",
     "displayName": "Kx VRC NativeFT Manager",
-    "description": "VRChat のネイティブ Face Tracking 向けに、Jerry's Templates 相当のトグルと表情補正を EX メニューから操作できるようにする NDMF プラグイン。プレハブを置くだけで使え、ARKit BlendShape Generator と FE-JsT Bridge に連携する。",
+    "description": "VRChat のネイティブ Face Tracking 向けに、Jerry's Templates 相当のトグルと表情補正を EX メニューから操作できるようにする NDMF プラグイン。プレハブを置くだけで使え、ARKit BlendShape Generator と連携する。",
     "unity": "2022.3",
     "unityRelease": "6f1",
     "dependencies": {},

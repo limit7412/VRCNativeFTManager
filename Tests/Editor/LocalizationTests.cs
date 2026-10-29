@@ -60,6 +60,30 @@ namespace NativeFTManager.Tests
             "update.error.backup",
             "update.error.delete",
             "update.error.playing",
+            "common.on",
+            "common.off",
+            "inspector.section.status",
+            "inspector.status.sets",
+            "inspector.status.sets_value",
+            "inspector.status.use_all_tracking_keys",
+            "inspector.status.generator",
+            "inspector.status.generator_none",
+            "inspector.status.generator_unsupported",
+            "inspector.status.generator_present",
+            "inspector.status.generator_set_write",
+            "inspector.preset",
+            "inspector.generator_integration",
+            "inspector.section.toggles",
+            "inspector.toggle.show_in_menu",
+            "inspector.toggle.default_value",
+            "inspector.toggle.saved",
+            "inspector.section.descriptor",
+            "inspector.set_use_all_tracking_keys",
+            "inspector.viseme_dampen",
+            "inspector.viseme_dampen_amount",
+            "inspector.section.details",
+            "inspector.lerp_speed",
+            "inspector.excluded_set_names",
         };
 
         /// <summary>
@@ -105,6 +129,28 @@ namespace NativeFTManager.Tests
                 foreach (var required in RequiredKeys)
                 {
                     Assert.That(keys, Contains.Item(required), $"{language}.poに{required}が無い");
+                }
+            }
+        }
+
+        /// <summary>
+        /// 警告とエラーは、コードから組み立てたキーで引くため、一覧に書き漏らしても気付きにくい。
+        /// コードの表から直接確かめる
+        /// </summary>
+        [Test]
+        public void PoFiles_ContainEveryDiagnosticKey()
+        {
+            foreach (var language in Languages)
+            {
+                var keys = ReadKeys(language);
+                foreach (var code in Domain.DiagnosticCodes.All)
+                {
+                    var diagnostic = new Domain.Diagnostic(code);
+                    Assert.That(keys, Contains.Item(diagnostic.LocalizationKey), $"{language}.poに{code}が無い");
+                    Assert.That(
+                        keys,
+                        Contains.Item(diagnostic.LocalizationKey + ":description"),
+                        $"{language}.poに{code}の説明が無い");
                 }
             }
         }

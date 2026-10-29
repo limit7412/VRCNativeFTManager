@@ -19,7 +19,7 @@ CLIの版はワークフローの `UNITY_TEST_RUNNER_CLI_VERSION` で固定し�
 
 VRChat SDKはネイティブFace Tracking対応のプレリリースを必須とするため、ワークフローの `VRC_SDK_VERSION` で版を固定して入れる。
 `package.json` の `vpmDependencies` の下限を変えたときは、ここも揃えること。
-連携用のアセンブリをコンパイルするため、任意依存のAvatar Optimizerも入れている。
+AAOの版で切り替わる警告の分岐をコンパイルするため、任意依存のAvatar Optimizerも入れている。
 ARKit BlendShape Generatorは、連携に必要な版（仕様書16章のP1）が出たら同じように入れる。
 
 ## Unityライセンスの設定
