@@ -84,7 +84,63 @@ namespace NativeFTManager.Infra
             var published = new HashSet<string>(publishedParameters.Select(toggle => toggle.ParameterName));
             facts.ConflictingParameters = maParameterNames.Where(published.Contains).Distinct().ToArray();
 
+            facts.PublishedSyncedBits = publishedParameters.Count;
+            facts.OtherSyncedBits = EstimateOtherSyncedBits(avatarRoot, descriptor, ownHolders, published);
+
             return facts;
+        }
+
+        /// <summary>
+        /// 本製品以外の同期パラメーターのbit数の見込み（W-13）。
+        /// DescriptorのExpression Parametersと、ほかのMA Parametersの同期するものを名前で重複を除いて数える。
+        /// MAの自動リネームや、他のNDMFプラグインがビルド中に足すものは数えられないので目安である
+        /// </summary>
+        private static int EstimateOtherSyncedBits(
+            GameObject avatarRoot,
+            VRCAvatarDescriptor descriptor,
+            Transform[] ownHolders,
+            HashSet<string> published)
+        {
+            var bits = new Dictionary<string, int>();
+
+            var expressionParameters = descriptor != null ? descriptor.expressionParameters : null;
+            if (expressionParameters != null && expressionParameters.parameters != null)
+            {
+                foreach (var parameter in expressionParameters.parameters)
+                {
+                    if (parameter == null || string.IsNullOrEmpty(parameter.name) || !parameter.networkSynced)
+                    {
+                        continue;
+                    }
+
+                    bits[parameter.name] = parameter.valueType == VRC.SDK3.Avatars.ScriptableObjects.VRCExpressionParameters.ValueType.Bool ? 1 : 8;
+                }
+            }
+
+            foreach (var component in avatarRoot.GetComponentsInChildren<ModularAvatarParameters>(true))
+            {
+                if (component == null || ownHolders.Contains(component.transform))
+                {
+                    continue;
+                }
+
+                foreach (var config in component.parameters)
+                {
+                    if (string.IsNullOrEmpty(config.nameOrPrefix) || config.isPrefix || config.localOnly
+                        || config.syncType == ParameterSyncType.NotSynced)
+                    {
+                        continue;
+                    }
+
+                    // 内部パラメーターはコンポーネントごとに別名へ変わるので、名前が同じでも別に数える
+                    var key = config.internalParameter
+                        ? config.nameOrPrefix + "#" + component.GetInstanceID()
+                        : config.nameOrPrefix;
+                    bits[key] = config.syncType == ParameterSyncType.Bool ? 1 : 8;
+                }
+            }
+
+            return bits.Where(entry => !published.Contains(entry.Key)).Sum(entry => entry.Value);
         }
 
         /// <summary>

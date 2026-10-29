@@ -63,6 +63,13 @@ namespace NativeFTManager.Domain
         /// <summary>Descriptorへ書き戻すSetの全体（分割しなかったSetを先に、分割したSetを後に並べる）</summary>
         public IReadOnlyList<FaceTrackingSetData> Sets { get; }
 
+        /// <summary>
+        /// 表情補正の対象のシェイプを引くSet。分割したSetだけにする。
+        /// 分割しなかったSet（利用者が外したものと、既存のBehaviorが名前で指すもの）は利用者が重みを制御しているので、
+        /// その対応へ補正を足すと、Setの重みを0にしても補正だけが動き続けるため
+        /// </summary>
+        public IReadOnlyList<FaceTrackingSetData> CorrectionSources => Created.Select(split => split.Data).ToArray();
+
         /// <summary>分割で作ったSet</summary>
         public IReadOnlyList<SplitSet> Created { get; }
 

@@ -14,20 +14,37 @@ namespace NativeFTManager.Domain
     {
         public const string SubMenuName = "Face Tracking";
 
-        public MenuPlan(IReadOnlyList<MenuTogglePlan> toggles)
+        public const string SettingsMenuName = "Settings";
+
+        public MenuPlan(IReadOnlyList<MenuTogglePlan> toggles, IReadOnlyList<MenuTogglePlan> settings = null)
         {
             Toggles = toggles;
+            Settings = settings ?? new MenuTogglePlan[0];
         }
 
+        /// <summary>「Face Tracking」サブメニューの直下に並べるトグル</summary>
         public IReadOnlyList<MenuTogglePlan> Toggles { get; }
 
-        public bool IsEmpty => Toggles.Count == 0;
+        /// <summary>「Settings」サブメニューに並べる表情補正のトグル</summary>
+        public IReadOnlyList<MenuTogglePlan> Settings { get; }
+
+        public bool IsEmpty => Toggles.Count == 0 && Settings.Count == 0;
 
         public static MenuPlan Build(ToggleSet toggles)
         {
-            return new MenuPlan(toggles.Dynamic
-                .Select(toggle => new MenuTogglePlan(GetLabel(toggle.Toggle), toggle.ParameterName))
-                .ToArray());
+            var main = toggles.Dynamic.Where(toggle => !IsSetting(toggle.Toggle));
+            var settings = toggles.Dynamic.Where(toggle => IsSetting(toggle.Toggle));
+            return new MenuPlan(
+                main.Select(toggle => new MenuTogglePlan(GetLabel(toggle.Toggle), toggle.ParameterName)).ToArray(),
+                settings.Select(toggle => new MenuTogglePlan(GetLabel(toggle.Toggle), toggle.ParameterName)).ToArray());
+        }
+
+        /// <summary>Settingsサブメニューに入れるトグル（仕様書8.3）</summary>
+        public static bool IsSetting(NativeFTToggle toggle)
+        {
+            return toggle == NativeFTToggle.Emulation
+                   || toggle == NativeFTToggle.Limits
+                   || toggle == NativeFTToggle.EyeSync;
         }
 
         public static string GetLabel(NativeFTToggle toggle)
@@ -40,6 +57,16 @@ namespace NativeFTManager.Domain
                     return "Eye Tracking";
                 case NativeFTToggle.LipTracking:
                     return "Lip Tracking";
+                case NativeFTToggle.Pupil:
+                    return "Pupil";
+                case NativeFTToggle.Visemes:
+                    return "Visemes";
+                case NativeFTToggle.Emulation:
+                    return "Emulation";
+                case NativeFTToggle.Limits:
+                    return "Limits";
+                case NativeFTToggle.EyeSync:
+                    return "Eye Sync";
                 default:
                     throw new ArgumentOutOfRangeException(nameof(toggle), toggle, null);
             }

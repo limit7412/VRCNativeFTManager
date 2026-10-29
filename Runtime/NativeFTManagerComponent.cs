@@ -51,8 +51,23 @@ namespace NativeFTManager
         [Tooltip("Enable the Blendshapes Set output of Kx VRC ARKit BlendShape Generator at build time when the avatar has one")]
         public GeneratorIntegration generatorIntegration = GeneratorIntegration.Off;
 
+        // 表情補正（仕様書5.4、M2）。M1で保存したコンポーネントの挙動を変えないよう、初期化子は無効にしておく。
+        // 追加したてのコンポーネントとプレハブでは、プリセットの値をResetで入れる
+
+        [Tooltip("Generate the face tracking emulation (Parameter Behaviors ported from Jerry's Templates)")]
+        public bool enableEmulation;
+
+        [Tooltip("Generate the face tracking limits (Parameter Behaviors ported from Jerry's Templates)")]
+        public bool enableLimits;
+
+        [Tooltip("Generate Eye Sync, which closes both eyelids together")]
+        public bool enableEyeSync;
+
+        [Tooltip("Ids of the emulation and limit rules that are not generated")]
+        public List<string> excludedRules = new List<string>();
+
         /// <summary>
-        /// 指定したトグルの設定。リストに無いトグルは、メニューに出さず既定で有効なものとして扱う
+        /// 指定したトグルの設定。リストに無いトグルは、メニューに出さずM1までの挙動を変えない値として扱う
         /// </summary>
         public ToggleSettings GetToggle(NativeFTToggle toggle)
         {
@@ -67,7 +82,7 @@ namespace NativeFTManager
                 }
             }
 
-            return new ToggleSettings(toggle) { showInMenu = false };
+            return ToggleSettings.CreateMissing(toggle);
         }
 
 #if UNITY_EDITOR
@@ -80,7 +95,7 @@ namespace NativeFTManager
 
         private void Reset()
         {
-            toggles = ToggleSettings.CreateDefaults();
+            NativeFTPresets.Apply(this, preset);
         }
 
         private void OnValidate()

@@ -6,8 +6,8 @@ namespace NativeFTManager
     /// <summary>
     /// 設定のまとまり（仕様書6.3）
     ///
-    /// M1ではトグルの構成がどれも同じで、ARKitかどうかをGenerator連携の警告に使うだけである。
-    /// 表情補正の既定値の違いはM2で足す。
+    /// 中身（トグルの構成と表情補正の有無）は <see cref="NativeFTPresets"/> に置く。
+    /// どのまとまりとも一致しない設定はCustomになる
     /// </summary>
     public enum NativeFTPreset
     {
@@ -27,6 +27,11 @@ namespace NativeFTManager
         FaceTracking = 0,
         EyeTracking = 1,
         LipTracking = 2,
+        Pupil = 3,
+        Visemes = 4,
+        Emulation = 5,
+        Limits = 6,
+        EyeSync = 7,
     }
 
     /// <summary>
@@ -57,18 +62,35 @@ namespace NativeFTManager
             this.toggle = toggle;
         }
 
+        public ToggleSettings(NativeFTToggle toggle, bool showInMenu, bool defaultValue)
+        {
+            this.toggle = toggle;
+            this.showInMenu = showInMenu;
+            this.defaultValue = defaultValue;
+        }
+
         /// <summary>
-        /// すべてのトグルをメニューに出し、既定で有効にした設定
+        /// 設定がリストに無いトグルの扱い。メニューに出さず、M1までの挙動を変えない値に固定する。
+        /// M1の版で保存したコンポーネントはPupil以降を持たないため、ここで挙動が決まる
+        /// </summary>
+        public static ToggleSettings CreateMissing(NativeFTToggle toggle)
+        {
+            // Eye SyncはM1に無かったので無効のまま。ほかは有効で、Setの重みを変えない側になる。
+            // エミュレーションと制限は、コンポーネントのenableEmulation / enableLimitsが既定でfalseなので生成されない
+            return new ToggleSettings(toggle, false, toggle != NativeFTToggle.EyeSync);
+        }
+
+        /// <summary>
+        /// UEプリセットのトグル（すべてメニューに出す）
         /// </summary>
         public static List<ToggleSettings> CreateDefaults()
         {
-            var list = new List<ToggleSettings>();
-            foreach (NativeFTToggle toggle in Enum.GetValues(typeof(NativeFTToggle)))
-            {
-                list.Add(new ToggleSettings(toggle));
-            }
+            return NativeFTPresets.CreateToggles(NativeFTPreset.UE);
+        }
 
-            return list;
+        public ToggleSettings Clone()
+        {
+            return new ToggleSettings(toggle, showInMenu, defaultValue) { saved = saved };
         }
     }
 

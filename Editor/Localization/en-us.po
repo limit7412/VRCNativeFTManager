@@ -31,7 +31,7 @@ msgstr "An avatar can only have one Kx VRC NativeFT Manager, so the duplicate co
 
 # Inspector
 msgid "inspector.description"
-msgstr "Adds native face tracking toggles to the avatar at build time.\nThe Face Tracking submenu of the Expressions Menu switches face tracking, eyes and mouth."
+msgstr "Adds native face tracking toggles and expression corrections to the avatar at build time.\nThe Face Tracking submenu of the Expressions Menu switches face tracking, eyes, mouth, pupils, visemes and the corrections (Settings)."
 
 # Update check
 msgid "update.available.vpm"
@@ -159,7 +159,7 @@ msgid "inspector.preset"
 msgstr "Preset"
 
 msgid "inspector.preset.tooltip"
-msgstr "Group of settings. In this version every preset has the same toggles; ARKit is used to warn when the Generator is missing"
+msgstr "Group of settings. UE matches Jerry's Templates, ARKit leaves out the pupils, and Minimal has only the eye and mouth toggles. Changing any of them switches to Custom"
 
 msgid "inspector.generator_integration"
 msgstr "Generator Integration"
@@ -318,3 +318,101 @@ msgstr "[KxNFTM-W-15] Avatar Optimizer's native face tracking support is disable
 
 msgid "diag.W-15:description"
 msgstr "Avatar Optimizer's native face tracking support is enabled only with VRChat SDK 3.10.6-beta.3 or later. With the current SDK, optimization may break face tracking shapes. Update the SDK to 3.10.6-beta.3 or later."
+
+# M2: inspector
+msgid "inspector.undo.preset"
+msgstr "Change preset"
+
+msgid "inspector.undo.rules"
+msgstr "Change correction rules"
+
+msgid "inspector.undo.toggles"
+msgstr "Add toggles"
+
+msgid "inspector.toggle.missing"
+msgstr "This component has no settings for these toggles: {0}. A toggle without settings stays out of the menu and behaves as in earlier versions."
+
+msgid "inspector.toggle.add_missing"
+msgstr "Add the toggles to the table"
+
+msgid "inspector.section.corrections"
+msgstr "Expression Corrections"
+
+msgid "inspector.enable_emulation"
+msgstr "Emulation"
+
+msgid "inspector.enable_emulation.tooltip"
+msgstr "Adds Parameter Behaviors such as raising the cheeks and dimples when smiling, or moving the brows with the mouth (ported from Jerry's 7.0.5). When off, no gate Set or toggle is created"
+
+msgid "inspector.enable_limits"
+msgstr "Limits"
+
+msgid "inspector.enable_limits.tooltip"
+msgstr "Adds Parameter Behaviors that cap shapes, such as the upper lip while funneling (ported from Jerry's 7.0.5). When off, no gate Set or toggle is created"
+
+msgid "inspector.enable_eye_sync"
+msgstr "Eye Sync"
+
+msgid "inspector.enable_eye_sync.tooltip"
+msgstr "Creates a toggle that closes both eyelids together using their average. When off, no gate Set or toggle is created"
+
+msgid "inspector.corrections.rules"
+msgstr "Rules (uncheck to skip)"
+
+msgid "inspector.corrections.no_shape"
+msgstr "No target shape"
+
+msgid "inspector.section.estimate"
+msgstr "Estimate (before build)"
+
+msgid "inspector.estimate.sets"
+msgstr "Sets after splitting"
+
+msgid "inspector.estimate.sets_value"
+msgstr "{0} (plus {1} gate Sets)"
+
+msgid "inspector.estimate.behaviors"
+msgstr "Parameter Behaviors"
+
+msgid "inspector.estimate.behaviors_value"
+msgstr "{0} by this tool ({1} existing)"
+
+msgid "inspector.estimate.instructions"
+msgstr "Custom expression instructions"
+
+msgid "inspector.estimate.instructions_value"
+msgstr "{0} / {1} ({2} by this tool)"
+
+msgid "inspector.estimate.operations"
+msgstr "Face Tracking Operations"
+
+msgid "inspector.estimate.synced_bits"
+msgstr "Synced bits"
+
+msgid "inspector.estimate.synced_bits_value"
+msgstr "{0} / {1} ({2} by this tool)"
+
+msgid "inspector.estimate.fx_layers"
+msgstr "FX layers"
+
+msgid "inspector.estimate.generator_note"
+msgstr "The Set of Kx VRC ARKit BlendShape Generator exists only during the build and is not included in the estimate."
+
+# M2: warnings and errors
+msgid "diag.W-12"
+msgstr "[KxNFTM-W-12] Too many custom expression instructions"
+
+msgid "diag.W-12:description"
+msgstr "Custom expressions can use up to 512 instructions per avatar ({1} are used by existing Parameter Behaviors). These lower-priority correction rules were not generated: {0}."
+
+msgid "diag.W-13"
+msgstr "[KxNFTM-W-13] Synced bits are likely to exceed the limit"
+
+msgid "diag.W-13:description"
+msgstr "Synced parameters are estimated at {0} bits, over the limit of {1} bits ({2} bits by this tool). Remove other parameters or show fewer toggles in the menu (the Minimal preset uses 3 bits)."
+
+msgid "diag.I-01"
+msgstr "[KxNFTM-I-01] Some corrections were skipped because the shapes are missing"
+
+msgid "diag.I-01:description"
+msgstr "These rules were not generated because no shape is assigned to their tracking keys in the split Sets: {0}. Sets that are not split are left out because their weights are controlled by the user."

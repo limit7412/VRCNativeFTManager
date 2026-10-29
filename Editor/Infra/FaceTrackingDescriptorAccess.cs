@@ -61,9 +61,6 @@ namespace NativeFTManager.Infra
         }
 
         /// <summary>
-        /// 既存のParameter BehaviorがtargetBlendSetNameかweightBlendSetNameに持つSet名
-        /// </summary>
-        /// <summary>
         /// Descriptorのアニメーションレイヤーに設定されたコントローラ（既定のものは除く）
         /// </summary>
         public static IEnumerable<UnityEditor.Animations.AnimatorController> GetAnimatorControllers(VRCAvatarDescriptor descriptor)
@@ -90,6 +87,9 @@ namespace NativeFTManager.Infra
             }
         }
 
+        /// <summary>
+        /// 既存のParameter BehaviorがtargetBlendSetNameかweightBlendSetNameに持つSet名
+        /// </summary>
         public static HashSet<string> GetSetNamesReferencedByBehaviors(VRCAvatarDescriptor descriptor)
         {
             var names = new HashSet<string>();
@@ -117,6 +117,108 @@ namespace NativeFTManager.Infra
             }
 
             return names;
+        }
+
+        /// <summary>
+        /// 既存のParameter Behaviorsの見積もり材料（命令数の残りと、Face Tracking Operationsの見積もりに使う）
+        /// </summary>
+        public static List<BuildEstimate.ExistingBehavior> ReadExistingBehaviors(VRCAvatarDescriptor descriptor)
+        {
+            var result = new List<BuildEstimate.ExistingBehavior>();
+            if (descriptor == null || descriptor.faceTrackingParameterBehaviors == null)
+            {
+                return result;
+            }
+
+            foreach (var behavior in descriptor.faceTrackingParameterBehaviors)
+            {
+                if (behavior == null)
+                {
+                    continue;
+                }
+
+                bool custom = behavior.combineMode == VRCAvatarDescriptor.ParameterBehaviorCombineMode.Custom;
+                result.Add(new BuildEstimate.ExistingBehavior(
+                    behavior.targetBlendshapeName,
+                    behavior.inputTrackingKeys != null ? behavior.inputTrackingKeys.Length : 0,
+                    custom ? behavior.customExpression ?? string.Empty : null));
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// 表情補正のParameter Behaviorsを、既存のものの後ろへ足す（仕様書8.1）。
+        /// 入力はCustom式の中にキー名で書くので、Input Tracking Keysは空にする
+        /// </summary>
+        public static void AppendBehaviors(VRCAvatarDescriptor descriptor, IEnumerable<CorrectionBehaviorPlan> behaviors)
+        {
+            var list = descriptor.faceTrackingParameterBehaviors
+                       ?? new List<VRCAvatarDescriptor.FaceTrackingParameterBehavior>();
+            foreach (var plan in behaviors)
+            {
+                list.Add(new VRCAvatarDescriptor.FaceTrackingParameterBehavior
+                {
+                    targetMode = ToTargetMode(plan.Mode),
+                    outputParameterName = string.Empty,
+                    targetBlendSetName = string.Empty,
+                    targetBlendshapeName = plan.TargetBlendShape,
+                    weightBlendSetName = plan.GateSetName ?? string.Empty,
+                    inputTrackingKeys = new int[0],
+                    inputTrackingKeyNames = new string[0],
+                    inputInverted = new bool[0],
+                    combineMode = VRCAvatarDescriptor.ParameterBehaviorCombineMode.Custom,
+                    customExpression = plan.Expression,
+                });
+            }
+
+            descriptor.faceTrackingParameterBehaviors = list;
+        }
+
+        private static VRCAvatarDescriptor.ParameterBehaviorTargetMode ToTargetMode(CorrectionMode mode)
+        {
+            switch (mode)
+            {
+                case CorrectionMode.ApplyToBlendshape:
+                    return VRCAvatarDescriptor.ParameterBehaviorTargetMode.ApplyToBlendshape;
+                case CorrectionMode.LimitMax:
+                    return VRCAvatarDescriptor.ParameterBehaviorTargetMode.LimitBlendshapeMax;
+                case CorrectionMode.LimitMin:
+                    return VRCAvatarDescriptor.ParameterBehaviorTargetMode.LimitBlendshapeMin;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(mode), mode, null);
+            }
+        }
+
+        /// <summary>
+        /// シェイプ名を持つFace Tracking Meshの数を返す関数。見積もり（F-13）に使う。
+        /// Face Tracking Meshesが空のときは、メッシュの数を数えられないので1つとして扱う
+        /// </summary>
+        public static Func<string, int> GetMeshCounter(VRCAvatarDescriptor descriptor)
+        {
+            var meshes = descriptor != null && descriptor.faceTrackingMeshes != null
+                ? descriptor.faceTrackingMeshes
+                    .Where(renderer => renderer != null && renderer.sharedMesh != null)
+                    .Select(renderer => renderer.sharedMesh)
+                    .Distinct()
+                    .ToArray()
+                : new Mesh[0];
+            if (meshes.Length == 0)
+            {
+                return shape => 1;
+            }
+
+            var cache = new Dictionary<string, int>();
+            return shape =>
+            {
+                if (!cache.TryGetValue(shape, out var count))
+                {
+                    count = meshes.Count(mesh => mesh.GetBlendShapeIndex(shape) >= 0);
+                    cache[shape] = count;
+                }
+
+                return count;
+            };
         }
 
         /// <summary>

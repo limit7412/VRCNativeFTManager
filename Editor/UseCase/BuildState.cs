@@ -13,6 +13,9 @@ namespace NativeFTManager.UseCase
         /// <summary>Prepareで生成したトグルのレイヤーの計画。Prepareが何もしなかったらnull</summary>
         public ToggleControllerPlan Plan;
 
+        /// <summary>Prepareで解決したトグル。Prepareが何もしなかったらnull</summary>
+        public ToggleSet Toggles;
+
         /// <summary>Generatorと連携し、ビルド用の複製でSet書き込みが有効になっているか</summary>
         public bool GeneratorSetExpected;
 

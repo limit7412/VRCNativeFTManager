@@ -111,6 +111,31 @@ namespace NativeFTManager.Tests
         }
 
         [Test]
+        public void Evaluate_SyncedBitsOverTheLimit_WarnsW13()
+        {
+            var facts = CleanFacts();
+            facts.PublishedSyncedBits = 8;
+            facts.OtherSyncedBits = 248;
+
+            Assert.That(Codes(facts), Is.Empty, "ちょうど256bitなら収まる");
+
+            facts.OtherSyncedBits = 249;
+            var diagnostic = AvatarDiagnostics.Evaluate(facts).Single();
+            Assert.That(diagnostic.Code, Is.EqualTo(DiagnosticCodes.SyncedBitsExceeded));
+            Assert.That(diagnostic.Args, Is.EqualTo(new object[] { 257, 256, 8 }));
+        }
+
+        [Test]
+        public void Evaluate_NoPublishedBits_DoesNotBlameOtherParameters()
+        {
+            // 本製品が同期パラメーターを作らないなら、超過は本製品の責任ではない
+            var facts = CleanFacts();
+            facts.OtherSyncedBits = 300;
+
+            Assert.That(Codes(facts), Is.Empty);
+        }
+
+        [Test]
         public void IsGeneratorSetSparse_RequiresTenKeys()
         {
             var set = FaceTrackingSetData.CreateEmpty("Generator", 1f);

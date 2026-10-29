@@ -31,7 +31,7 @@ msgstr "1つのアバターにKx VRC NativeFT Managerは1つだけ置けるた�
 
 # インスペクタ
 msgid "inspector.description"
-msgstr "ネイティブフェイストラッキングのトグルを、ビルド時にアバターへ組み込みます。\nEXメニューの「Face Tracking」から、FT全体・目・口を切り替えられます。"
+msgstr "ネイティブフェイストラッキングのトグルと表情補正を、ビルド時にアバターへ組み込みます。\nEXメニューの「Face Tracking」から、FT全体・目・口・瞳孔・ビゼームと、表情補正（Settings）を切り替えられます。"
 
 # 更新の確認
 msgid "update.available.vpm"
@@ -159,7 +159,7 @@ msgid "inspector.preset"
 msgstr "プリセット"
 
 msgid "inspector.preset.tooltip"
-msgstr "設定のまとまり。M1ではトグルの構成はどれも同じで、ARKitはGeneratorが無いときの警告に使います"
+msgstr "設定のまとまり。UEはJerry's相当、ARKitは瞳孔を除いたもの、Minimalは目と口のトグルだけです。中身を変えるとCustomになります"
 
 msgid "inspector.generator_integration"
 msgstr "Generator連携"
@@ -318,3 +318,101 @@ msgstr "[KxNFTM-W-15] SDKの版が古いため、Avatar Optimizerのネイティ
 
 msgid "diag.W-15:description"
 msgstr "Avatar OptimizerのネイティブFT対応は、VRChat SDK 3.10.6-beta.3以降でだけ有効になります。今のSDKでは最適化でFTのシェイプが壊れることがあります。SDKを3.10.6-beta.3以降に更新してください。"
+
+# M2: インスペクタ
+msgid "inspector.undo.preset"
+msgstr "プリセットの変更"
+
+msgid "inspector.undo.rules"
+msgstr "表情補正の規則の変更"
+
+msgid "inspector.undo.toggles"
+msgstr "トグルの追加"
+
+msgid "inspector.toggle.missing"
+msgstr "このコンポーネントには次のトグルの設定がありません: {0}。設定の無いトグルはメニューに出さず、以前の版と同じ挙動になります。"
+
+msgid "inspector.toggle.add_missing"
+msgstr "トグルを表に加える"
+
+msgid "inspector.section.corrections"
+msgstr "表情補正"
+
+msgid "inspector.enable_emulation"
+msgstr "エミュレーション"
+
+msgid "inspector.enable_emulation.tooltip"
+msgstr "笑うと頬とえくぼが上がる、口の動きで眉が動く、などをParameter Behaviorsで足します（Jerry's 7.0.5の移植）。オフならゲートSetもトグルも作りません"
+
+msgid "inspector.enable_limits"
+msgstr "制限"
+
+msgid "inspector.enable_limits.tooltip"
+msgstr "唇をすぼめたときに上唇を上げすぎない、などの上限をParameter Behaviorsで掛けます（Jerry's 7.0.5の移植）。オフならゲートSetもトグルも作りません"
+
+msgid "inspector.enable_eye_sync"
+msgstr "Eye Sync"
+
+msgid "inspector.enable_eye_sync.tooltip"
+msgstr "左右のまぶたを平均して揃えるトグルを作ります。オフならゲートSetもトグルも作りません"
+
+msgid "inspector.corrections.rules"
+msgstr "規則の一覧（チェックを外すと生成しません）"
+
+msgid "inspector.corrections.no_shape"
+msgstr "対象のシェイプなし"
+
+msgid "inspector.section.estimate"
+msgstr "見積もり（ビルド前の目安）"
+
+msgid "inspector.estimate.sets"
+msgstr "分割後のSet"
+
+msgid "inspector.estimate.sets_value"
+msgstr "{0}（ほかにゲートSet {1}）"
+
+msgid "inspector.estimate.behaviors"
+msgstr "Parameter Behaviors"
+
+msgid "inspector.estimate.behaviors_value"
+msgstr "本製品 {0}（既存 {1}）"
+
+msgid "inspector.estimate.instructions"
+msgstr "Custom式の命令数"
+
+msgid "inspector.estimate.instructions_value"
+msgstr "{0} / {1}（うち本製品 {2}）"
+
+msgid "inspector.estimate.operations"
+msgstr "Face Tracking Operations"
+
+msgid "inspector.estimate.synced_bits"
+msgstr "同期bit"
+
+msgid "inspector.estimate.synced_bits_value"
+msgstr "{0} / {1}（うち本製品 {2}）"
+
+msgid "inspector.estimate.fx_layers"
+msgstr "FXレイヤー"
+
+msgid "inspector.estimate.generator_note"
+msgstr "Kx VRC ARKit BlendShape GeneratorのSetはビルド中にしか無いため、見積もりに入っていません。"
+
+# M2: 警告とエラー
+msgid "diag.W-12"
+msgstr "[KxNFTM-W-12] Custom式の命令数が上限を超えます"
+
+msgid "diag.W-12:description"
+msgstr "Custom式の命令数はアバター全体で512までです（うち既存のParameter Behaviorsが{1}）。優先度の低い表情補正の規則を生成しませんでした: {0}。"
+
+msgid "diag.W-13"
+msgstr "[KxNFTM-W-13] 同期bitが上限を超える見込みです"
+
+msgid "diag.W-13:description"
+msgstr "同期パラメーターが合計{0}bitになり、上限の{1}bitを超える見込みです（うち本製品{2}bit）。ほかのパラメーターを減らすか、メニューに出すトグルを減らしてください（プリセットMinimalなら3bit）。"
+
+msgid "diag.I-01"
+msgstr "[KxNFTM-I-01] シェイプが無いため生成しなかった表情補正があります"
+
+msgid "diag.I-01:description"
+msgstr "分割したSetで対象のトラッキングキーにシェイプが割り当てられていないため、次の規則を生成しませんでした: {0}。分割しないSetの対応は、利用者が重みを制御しているので補正の対象にしません。"

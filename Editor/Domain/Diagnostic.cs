@@ -85,6 +85,15 @@ namespace NativeFTManager.Domain
         /// <summary>既存のParameter BehaviorかState Behaviorが分割対象のSet名を参照している</summary>
         public const string SetReferencedByBehavior = "W-10";
 
+        /// <summary>Custom式の命令数が上限（512）を超えるので、優先度の低い規則を落とした</summary>
+        public const string CorrectionInstructionsExceeded = "W-12";
+
+        /// <summary>Expression Parametersの同期bitが上限を超える見込み</summary>
+        public const string SyncedBitsExceeded = "W-13";
+
+        /// <summary>対象キーのシェイプがSetに無く、表情補正の規則を生成しなかった</summary>
+        public const string CorrectionTargetMissing = "I-01";
+
         /// <summary>アバターにAvatar Optimizerがあるが、ネイティブFTに対応していない版（1.9.21-beta.1未満）</summary>
         public const string AaoOutdated = "W-14";
 
@@ -111,6 +120,9 @@ namespace NativeFTManager.Domain
                 { JsTBridgePresent, DiagnosticSeverity.Warning },
                 { ParameterConflict, DiagnosticSeverity.Warning },
                 { SetReferencedByBehavior, DiagnosticSeverity.Warning },
+                { CorrectionInstructionsExceeded, DiagnosticSeverity.Warning },
+                { SyncedBitsExceeded, DiagnosticSeverity.Warning },
+                { CorrectionTargetMissing, DiagnosticSeverity.Information },
                 { AaoOutdated, DiagnosticSeverity.Warning },
                 { AaoSdkTooOld, DiagnosticSeverity.Warning },
             };
