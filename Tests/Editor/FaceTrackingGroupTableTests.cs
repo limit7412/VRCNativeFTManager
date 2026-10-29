@@ -6,7 +6,12 @@ namespace NativeFTManager.Tests
     /// <summary>
     /// UEキーとグループの対応（仕様書の付録B）
     /// </summary>
-    public class FaceTrackingGroupTableTests
+    /// <remarks>
+    /// 引数に internal の <see cref="FaceTrackingGroup"/> を取るテストがあるため、クラスも internal にする。
+    /// public のままだとメソッドの公開範囲が引数の型より広くなり CS0051 になる。
+    /// NUnit 3 は internal のフィクスチャも検出する。
+    /// </remarks>
+    internal class FaceTrackingGroupTableTests
     {
         [Test]
         public void KeyNames_CoverEveryKey()
