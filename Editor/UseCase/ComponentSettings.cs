@@ -10,9 +10,16 @@ namespace NativeFTManager.UseCase
     /// </summary>
     internal static class ComponentSettings
     {
+        /// <summary>
+        /// 生成する表情補正の機能。Eye Syncの規則を個別に外したときは、Eye Sync自体を生成しない扱いにする。
+        /// トグルだけが残ると、ONにしたときにEyeClosedのSetが止まり、代わりに出す規則も無いのでまばたきが消えるため
+        /// </summary>
         public static CorrectionFeatures GetFeatures(NativeFTManagerComponent component)
         {
-            return new CorrectionFeatures(component.enableEmulation, component.enableLimits, component.enableEyeSync);
+            bool eyeSync = component.enableEyeSync
+                           && (component.excludedRules == null
+                               || !component.excludedRules.Contains(CorrectionRuleTable.EyeSyncRuleId));
+            return new CorrectionFeatures(component.enableEmulation, component.enableLimits, eyeSync);
         }
 
         public static ToggleSet ResolveToggles(NativeFTManagerComponent component)

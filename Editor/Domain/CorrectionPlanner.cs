@@ -85,6 +85,20 @@ namespace NativeFTManager.Domain
         /// <summary>生成したCustom式の命令数の合計（定数の簡約後）</summary>
         public int Instructions { get; }
 
+        /// <summary>
+        /// Eye SyncのBehaviorを生成したか。生成しなかったときは、EyeClosedのSetを止めるとまばたきの出力が無くなる
+        /// </summary>
+        public bool ReplacesEyeClosed => Behaviors.Any(behavior => behavior.RuleId == CorrectionRuleTable.EyeSyncRuleId);
+
+        /// <summary>
+        /// グループのSetを切り替えるレイヤーのグループ。Eye SyncのBehaviorが無ければ、
+        /// EyeClosedはEye SyncでOFFにせず、Eyeと同じ条件（FT ∧ Eye）で切り替える
+        /// </summary>
+        public FaceTrackingGroup GetLayerGroup(FaceTrackingGroup group)
+        {
+            return group == FaceTrackingGroup.EyeClosed && !ReplacesEyeClosed ? FaceTrackingGroup.Eye : group;
+        }
+
         public static CorrectionPlan Empty =>
             new CorrectionPlan(new CorrectionBehaviorPlan[0], new GateSlot[0], new string[0], new string[0], 0);
     }
@@ -142,23 +156,24 @@ namespace NativeFTManager.Domain
 
                 foreach (var target in rule.Targets)
                 {
-                    var info = CustomExpression.Analyze(target.Expression);
-                    if (!info.IsValid)
+                    foreach (var (shape, multiplier) in GetShapes(sets, target.Key))
                     {
-                        throw new InvalidOperationException($"rule {rule.Id}: {info.Error}");
-                    }
+                        var expression = GetExpression(rule, target, multiplier);
+                        var info = CustomExpression.Analyze(expression);
+                        if (!info.IsValid)
+                        {
+                            throw new InvalidOperationException($"rule {rule.Id}: {info.Error}");
+                        }
 
-                    foreach (var shape in GetShapeNames(sets, target.Key))
-                    {
                         // 左右が同じシェイプ（両目で1つのまばたきなど）で式も同じなら、1つで足りる
                         if (ruleBehaviors.Any(existing => existing.TargetBlendShape == shape
-                                                          && existing.Expression == target.Expression))
+                                                          && existing.Expression == expression))
                         {
                             continue;
                         }
 
                         ruleBehaviors.Add(new CorrectionBehaviorPlan(
-                            rule.Id, rule.Mode, shape, target.Expression, gate?.SetName));
+                            rule.Id, rule.Mode, shape, expression, gate?.SetName));
                         ruleInstructions += info.Instructions;
                     }
                 }
@@ -333,13 +348,39 @@ namespace NativeFTManager.Domain
             return features.IsEnabled(GetFeatureToggle(feature));
         }
 
-        private static IEnumerable<string> GetShapeNames(IReadOnlyList<FaceTrackingSetData> sets, int key)
+        /// <summary>
+        /// 書き込む式。ApplyToBlendshapeはSetの出力の代わりにシェイプへ書くので、
+        /// Setの倍率を掛けて、Setが出していた値と同じ尺度にそろえる。LimitはSetの出力を含む最終値を抑えるので掛けない
+        /// </summary>
+        private static string GetExpression(CorrectionRule rule, CorrectionTarget target, float multiplier)
         {
-            return (sets ?? new FaceTrackingSetData[0])
-                .Where(set => set != null)
-                .Select(set => set.GetBlendShapeName(key))
-                .Where(name => name != null)
-                .Distinct();
+            if (rule.Mode != CorrectionMode.ApplyToBlendshape || Math.Abs(multiplier - 1f) < 1e-6f)
+            {
+                return target.Expression;
+            }
+
+            return "(" + target.Expression + ") * "
+                   + multiplier.ToString("0.####", System.Globalization.CultureInfo.InvariantCulture);
+        }
+
+        /// <summary>
+        /// キーに割り当てられたシェイプと、その対応の倍率（同じシェイプが複数のSetにあれば最初のもの）
+        /// </summary>
+        private static IEnumerable<(string Shape, float Multiplier)> GetShapes(IReadOnlyList<FaceTrackingSetData> sets, int key)
+        {
+            var seen = new HashSet<string>();
+            foreach (var set in sets ?? new FaceTrackingSetData[0])
+            {
+                var name = set?.GetBlendShapeName(key);
+                if (name == null || !seen.Add(name))
+                {
+                    continue;
+                }
+
+                var multipliers = set.BlendShapeMultipliers;
+                float multiplier = multipliers != null && key < multipliers.Length ? multipliers[key] : 1f;
+                yield return (name, multiplier);
+            }
         }
 
         private static int IndexOfKey(string name)

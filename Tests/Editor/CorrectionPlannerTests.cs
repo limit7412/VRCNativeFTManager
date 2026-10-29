@@ -104,6 +104,36 @@ namespace NativeFTManager.Tests
         }
 
         [Test]
+        public void Plan_EyeSync_KeepsTheSetMultiplier()
+        {
+            // Eye SyncはEyeClosedのSetの代わりに書くので、Setの倍率をそのまま掛ける
+            var set = SetWith(("EyeClosedRight", "blinkR"), ("EyeClosedLeft", "blinkL"));
+            var names = FaceTrackingGroupTable.GetKeyNames().ToList();
+            set.BlendShapeMultipliers[names.IndexOf("EyeClosedRight")] = 0.5f;
+            var plan = CorrectionPlanner.Plan(new[] { set }, UeToggles(CorrectionFeatures.All), null, 0);
+
+            var right = plan.Behaviors.Single(b => b.RuleId == "EyeSync" && b.TargetBlendShape == "blinkR");
+            var left = plan.Behaviors.Single(b => b.RuleId == "EyeSync" && b.TargetBlendShape == "blinkL");
+            Assert.That(right.Expression, Is.EqualTo("((EyeClosedRight + EyeClosedLeft) * 0.5) * 0.5"));
+            Assert.That(left.Expression, Is.EqualTo("(EyeClosedRight + EyeClosedLeft) * 0.5"));
+        }
+
+        [Test]
+        public void Plan_WithoutEyeSync_KeepsEyeClosedOnTheEyeLayer()
+        {
+            var full = CorrectionPlanner.Plan(new[] { FullSet() }, UeToggles(CorrectionFeatures.All), null, 0);
+            var excluded = CorrectionPlanner.Plan(new[] { FullSet() }, UeToggles(CorrectionFeatures.All), new[] { "EyeSync" }, 0);
+            var dropped = CorrectionPlanner.Plan(
+                new[] { FullSet() }, UeToggles(CorrectionFeatures.All), null, CustomExpression.AvatarInstructionLimit);
+
+            Assert.That(full.GetLayerGroup(FaceTrackingGroup.EyeClosed), Is.EqualTo(FaceTrackingGroup.EyeClosed));
+            Assert.That(excluded.GetLayerGroup(FaceTrackingGroup.EyeClosed), Is.EqualTo(FaceTrackingGroup.Eye));
+            Assert.That(dropped.DroppedRules, Has.Member("EyeSync"));
+            Assert.That(dropped.GetLayerGroup(FaceTrackingGroup.EyeClosed), Is.EqualTo(FaceTrackingGroup.Eye));
+            Assert.That(dropped.GetLayerGroup(FaceTrackingGroup.Lip), Is.EqualTo(FaceTrackingGroup.Lip));
+        }
+
+        [Test]
         public void Plan_SharedShapeWithDifferentExpressions_KeepsBoth()
         {
             var set = SetWith(("BrowOuterUpRight", "brow"), ("BrowOuterUpLeft", "brow"));

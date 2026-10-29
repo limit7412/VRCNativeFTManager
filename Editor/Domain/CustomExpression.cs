@@ -63,13 +63,16 @@ namespace NativeFTManager.Domain
         public const int MaxTokens = 128;
         public const int MaxInstructionsBeforeFolding = 64;
 
-        /// <summary>UEキー以外に使える入力（Voiceとビゼーム）</summary>
+        /// <summary>
+        /// UEキー以外に使える入力（Voiceとビゼーム）。大文字と小文字も一致させる必要があり、
+        /// ビゼームの名前はVRChatのドキュメントどおりすべて小文字で書く
+        /// </summary>
         private static readonly string[] ExtraInputs =
         {
             "Voice",
-            "Viseme_sil", "Viseme_PP", "Viseme_FF", "Viseme_TH", "Viseme_DD",
-            "Viseme_kk", "Viseme_CH", "Viseme_SS", "Viseme_nn", "Viseme_RR",
-            "Viseme_aa", "Viseme_E", "Viseme_ih", "Viseme_oh", "Viseme_ou",
+            "Viseme_sil", "Viseme_pp", "Viseme_ff", "Viseme_th", "Viseme_dd",
+            "Viseme_kk", "Viseme_ch", "Viseme_ss", "Viseme_nn", "Viseme_rr",
+            "Viseme_aa", "Viseme_e", "Viseme_ih", "Viseme_oh", "Viseme_ou",
         };
 
         private static readonly Dictionary<string, int> Functions = new Dictionary<string, int>

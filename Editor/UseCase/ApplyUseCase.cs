@@ -96,6 +96,13 @@ namespace NativeFTManager.UseCase
             }
 
             var corrections = PlanCorrections(descriptor, result, toggles, primary);
+
+            // Eye SyncのBehaviorが無いのにEyeClosedをEye Syncで止めると、まばたきが出なくなる。
+            // その場合はEyeと同じ条件で切り替えるので、既定の重みもEyeにそろえる
+            foreach (var split in result.Created.Where(split => corrections.GetLayerGroup(split.Group) != split.Group))
+            {
+                split.Data.Weight = plan.DefaultWeights[corrections.GetLayerGroup(split.Group)];
+            }
             var gateSets = corrections.Gates
                 .Select(gate => FaceTrackingSetData.CreateEmpty(gate.SetName, GetGateWeight(plan, gate, toggles)));
 
@@ -171,7 +178,7 @@ namespace NativeFTManager.UseCase
             foreach (var layer in plan.Layers)
             {
                 var setNames = result.Created
-                    .Where(split => layer.Groups.Contains(split.Group))
+                    .Where(split => layer.Groups.Contains(corrections.GetLayerGroup(split.Group)))
                     .Select(split => split.Data.Name)
                     .Concat(corrections.Gates
                         .Where(gate => layer.Gates.Any(planned => planned.Key == gate.Key))

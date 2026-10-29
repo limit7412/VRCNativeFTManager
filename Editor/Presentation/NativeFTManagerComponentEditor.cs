@@ -142,17 +142,27 @@ namespace NativeFTManager.Presentation
                 {
                     Undo.RecordObject(component, S("inspector.undo.preset"));
                     NativeFTPresets.Apply(component, component.preset);
-                    EditorUtility.SetDirty(component);
+                    MarkModified(component);
                 }
                 else if (!NativeFTPresets.Matches(component, component.preset))
                 {
                     Undo.RecordObject(component, S("inspector.undo.preset"));
                     component.preset = NativeFTPreset.Custom;
-                    EditorUtility.SetDirty(component);
+                    MarkModified(component);
                 }
             }
 
             serializedObject.Update();
+        }
+
+        /// <summary>
+        /// SerializedObjectを通さずに書き換えた後に呼ぶ。プレハブのインスタンスでは、
+        /// 変更をオーバーライドとして記録しないと、シーンを開き直したときにプレハブの値へ戻る
+        /// </summary>
+        private static void MarkModified(NativeFTManagerComponent component)
+        {
+            PrefabUtility.RecordPrefabInstancePropertyModifications(component);
+            EditorUtility.SetDirty(component);
         }
 
         private void DrawCorrections()
@@ -235,7 +245,7 @@ namespace NativeFTManager.Presentation
                     component.excludedRules.Add(id);
                 }
 
-                EditorUtility.SetDirty(component);
+                MarkModified(component);
             }
 
             serializedObject.Update();
@@ -408,7 +418,7 @@ namespace NativeFTManager.Presentation
                     }
                 }
 
-                EditorUtility.SetDirty(component);
+                MarkModified(component);
             }
 
             serializedObject.Update();

@@ -39,6 +39,14 @@ namespace NativeFTManager.Tests
             Assert.That(info.Inputs, Is.EqualTo(new[] { "EyeWideLeft", "Voice", "Viseme_aa" }));
         }
 
+        [Test]
+        public void Analyze_VisemeInputsAreLowerCase()
+        {
+            // VRChatのドキュメントの名前（Viseme_pp、Viseme_e など）。大文字の綴りは別の名前として扱われる
+            Assert.That(CustomExpression.Analyze("Viseme_pp + Viseme_e + Viseme_rr").IsValid, Is.True);
+            Assert.That(CustomExpression.Analyze("Viseme_PP").Error, Does.Contain("unknown input"));
+        }
+
         [TestCase("", "empty")]
         [TestCase("JawOpen +", "end")]
         [TestCase("(JawOpen", "')'")]

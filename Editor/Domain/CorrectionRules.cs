@@ -109,6 +109,9 @@ namespace NativeFTManager.Domain
 
         private const string MouthXMirrored = "(MouthUpperLeft + MouthLowerLeft - MouthUpperRight - MouthLowerRight)";
 
+        /// <summary>Eye Syncの規則のid。EyeClosedのSetを止めてよいかの判定に使う</summary>
+        public const string EyeSyncRuleId = "EyeSync";
+
         private static IReadOnlyList<CorrectionRule> _all;
 
         public static IReadOnlyList<CorrectionRule> All => _all ?? (_all = Build());
@@ -123,7 +126,7 @@ namespace NativeFTManager.Domain
             var rules = new List<CorrectionRule>
             {
                 // Eye Sync: EyeClosedのSetの重みを0にし、左右に平均を書く（仕様書5.4のEye Sync）
-                Rule("EyeSync", CorrectionFeature.EyeSync, CorrectionMode.ApplyToBlendshape, "Eye Sync",
+                Rule(EyeSyncRuleId, CorrectionFeature.EyeSync, CorrectionMode.ApplyToBlendshape, "Eye Sync",
                     Pair("EyeClosed{0}", "(EyeClosedRight + EyeClosedLeft) * 0.5")),
 
                 // 制限。Jerry'sの「Limits」の木

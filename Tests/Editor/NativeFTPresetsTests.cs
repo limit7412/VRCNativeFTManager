@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
+using NativeFTManager.UseCase;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -70,6 +71,19 @@ namespace NativeFTManager.Tests
             NativeFTPresets.Apply(component, NativeFTPreset.Minimal);
 
             Assert.That(component.enableEmulation || component.enableLimits || component.enableEyeSync, Is.False);
+        }
+
+        [Test]
+        public void GetFeatures_ExcludedEyeSyncRule_DisablesEyeSync()
+        {
+            // 規則を外したのにトグルだけ残ると、ONにしたときEyeClosedのSetだけが止まり、まばたきが消える
+            var component = CreateComponent();
+            NativeFTPresets.Apply(component, NativeFTPreset.UE);
+            component.excludedRules.Add("EyeSync");
+
+            var features = ComponentSettings.GetFeatures(component);
+            Assert.That(features.IsEnabled(NativeFTToggle.EyeSync), Is.False);
+            Assert.That(features.IsEnabled(NativeFTToggle.Limits), Is.True);
         }
     }
 }

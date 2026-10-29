@@ -139,7 +139,7 @@ namespace NativeFTManager.Domain
                 {
                     if (set.GetBlendShapeName(key) != null)
                     {
-                        groups.Add(FaceTrackingGroupTable.GetGroup(key));
+                        groups.Add(corrections.GetLayerGroup(FaceTrackingGroupTable.GetGroup(key)));
                     }
                 }
 
