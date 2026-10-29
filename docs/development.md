@@ -40,4 +40,7 @@ Avatar Optimizerの型には触らないため、AAO対策の処理は持たな�
 AAOは1.9.21-beta.1でネイティブFTに対応し、SetとParameter Behaviorsの対象シェイプを自分で保護する。
 本体のasmdefでは `versionDefines` でAAOの版（`KX_AAO_NATIVE_FT`）とSDKの版（`KX_VRC_SDK_AAO_FT`）を判定し、古い組み合わせのときに警告（W-14、W-15）を出すだけにしている。
 
-GeneratorCompatの版の範囲は、Generatorが連携に必要な定数（`FaceTrackingSetNames`）を公開する版（仕様書16章のP1）のリリースで確定する。今の `[0.2.1,1.0.0)` は、P1を含む次のリリースを0.2.1と見込んだ仮の値である。
+GeneratorCompatの版の範囲は、Generatorが連携に必要な定数（`FaceTrackingSetNames`）を公開する版（仕様書16章のP1）のリリースで確定する。
+今の下限は、この定数を最初に含んだプレリリースの0.2.1-test3である。
+版の比較ではプレリリースが正式版より小さいため、下限を `0.2.1` にすると0.2.1-testNが範囲から外れ、GeneratorCompatがコンパイルされない。
+0.2.1を正式にリリースしたら、下限を `0.2.1` に上げてよい。
