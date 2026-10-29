@@ -1,26 +1,6 @@
 namespace NativeFTManager
 {
     /// <summary>
-    /// FaceEmoの書き込みを止める方式（仕様書10.3、F-16）
-    ///
-    /// 値はシリアライズされるので、並びを変えずに末尾へ足す
-    /// </summary>
-    public enum FaceEmoControlMethod
-    {
-        /// <summary>
-        /// FaceEmoを動かしたまま、表情ロックとまばたき停止、表情の切り替えで無害な状態へ寄せる。
-        /// 素体の表情レイヤーは押さえ込まれたままになり、FT中もメニューから表情を選べる
-        /// </summary>
-        ExpressionControl = 0,
-
-        /// <summary>
-        /// FaceEmoの外部連携用パラメーターでバイパスさせ、FaceEmoごと止める。
-        /// FaceEmoが書き込みを止めた分だけ素体の表情レイヤーが表に出る
-        /// </summary>
-        Bypass = 1,
-    }
-
-    /// <summary>
     /// FaceEmoの抑制の発動条件（仕様書10.3、F-17）
     ///
     /// 値はシリアライズされるので、並びを変えずに末尾へ足す

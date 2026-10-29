@@ -8,7 +8,6 @@ namespace NativeFTManager.Tests
     public class SuppressionControllerPlannerTests
     {
         private static SuppressionControllerPlan Build(
-            FaceEmoControlMethod method = FaceEmoControlMethod.ExpressionControl,
             FaceEmoSuppressionTrigger trigger = FaceEmoSuppressionTrigger.EyeOrLip,
             int emote = 0,
             bool controlFaceEmo = true,
@@ -16,7 +15,7 @@ namespace NativeFTManager.Tests
             ToggleSet toggles = null)
         {
             return Planner.Build(
-                new SuppressionSettings(method, trigger, emote, controlFaceEmo, extra),
+                new SuppressionSettings(trigger, emote, controlFaceEmo, extra),
                 toggles ?? SuppressionTriggerTests.CreateToggles(),
                 FaceEmoParameterNames.Raw);
         }
@@ -91,7 +90,7 @@ namespace NativeFTManager.Tests
         {
             var faceEmo = new FaceEmoParameterNames("FaceEmo_Lock", "FaceEmo_Blink", "FaceEmo_Emote", true);
             var plan = Planner.Build(
-                new SuppressionSettings(FaceEmoControlMethod.ExpressionControl, FaceEmoSuppressionTrigger.EyeOrLip, 0),
+                new SuppressionSettings(FaceEmoSuppressionTrigger.EyeOrLip, 0),
                 SuppressionTriggerTests.CreateToggles(),
                 faceEmo);
 
@@ -111,31 +110,23 @@ namespace NativeFTManager.Tests
         }
 
         [Test]
-        public void Bypass_WritesForceBypassAndRedrives()
+        public void ExpressionControl_LipOnly_EngagesOnLipTracking()
         {
-            var plan = Build(FaceEmoControlMethod.Bypass, FaceEmoSuppressionTrigger.LipOnly);
-            Assert.That(plan.FindLayer(Planner.ExpressionControlLayerName), Is.Null);
-
-            var layer = plan.FindLayer(Planner.BypassLayerName);
+            var plan = Build(trigger: FaceEmoSuppressionTrigger.LipOnly);
+            var layer = plan.FindLayer(Planner.ExpressionControlLayerName);
             Assert.That(layer.Transitions.Select(Describe), Is.EqualTo(new[]
             {
-                $"Idle->Bypass: {FT} & {Lip}",
-                $"Bypass->Idle: !{FT}",
-                $"Bypass->Idle: !{Lip}",
-                "Idle->Redrive:  @1",
-                "Bypass->Redrive:  @1",
-                $"Redrive->Bypass: {FT} & {Lip}",
-                $"Redrive->Idle: !{FT}",
-                $"Redrive->Idle: !{Lip}",
+                $"Initial->Engaged: {FT} & {Lip}",
+                $"Engaged->Released: !{FT}",
+                $"Engaged->Released: !{Lip}",
+                $"Released->Engaged: {FT} & {Lip}",
             }));
 
-            var bypass = layer.FindState(Planner.BypassStateName).Driver;
-            Assert.That(bypass.LocalOnly, Is.False);
-            Assert.That(bypass.Entries.Single().Parameter, Is.EqualTo(FaceEmoParameterNames.ForceBypassEnable));
-            Assert.That(bypass.Entries.Single().Value, Is.EqualTo(1f));
+            // バイパスは使わないので、FaceEmoの外部連携用パラメーターは宣言も書き込みもしない
+            Assert.That(plan.Layers.Select(l => l.Name), Is.EqualTo(new[] { Planner.ExpressionControlLayerName }));
             Assert.That(
                 plan.Parameters.Select(parameter => parameter.Name),
-                Does.Contain(FaceEmoParameterNames.ForceBypassEnable));
+                Does.Not.Contain(FaceEmoParameterNames.ForceBypassEnable));
         }
 
         [Test]

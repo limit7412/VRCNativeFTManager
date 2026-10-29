@@ -10,7 +10,11 @@ namespace NativeFTManager
     ///
     /// FE-JsT Bridgeの同名の機能を移したもの。発動条件はJerry'sのパラメーターではなく、
     /// 本製品の公開パラメーター（FaceTracking、EyeTracking、LipTracking）で組む。
-    /// 既定は無効で、無効のあいだは抑制のレイヤーも追加パラメーターもFXレイヤーの除去も行わない
+    /// 既定は無効で、無効のあいだは抑制のレイヤーも追加パラメーターもFXレイヤーの除去も行わない。
+    ///
+    /// FaceEmoの止め方は表情制御（表情ロック、まばたき停止、表情の切り替え）に固定する。
+    /// FaceEmoごと止めるバイパス方式は持たない。素体の表情レイヤーが表に出て、別の対処が要るためである。
+    /// 以前のバージョンが保存したcontrolMethodの値は、Unityが読み込み時に捨てる
     /// </summary>
     [Serializable]
     public class FaceEmoSuppressionSettings
@@ -24,10 +28,7 @@ namespace NativeFTManager
         [Tooltip("Keep FaceEmo from writing expressions while face tracking is active")]
         public bool enabled;
 
-        [Tooltip("How to keep FaceEmo from writing while face tracking is active")]
-        public FaceEmoControlMethod controlMethod = FaceEmoControlMethod.ExpressionControl;
-
-        [Tooltip("Emote number to switch to while face tracking is active. It is the same number the FaceEmo expression select menu writes. Used only by Expression Control")]
+        [Tooltip("Emote number to switch to while face tracking is active. It is the same number the FaceEmo expression select menu writes")]
         [Min(0)]
         public int faceEmoteIndex = DefaultFaceEmoteIndex;
 

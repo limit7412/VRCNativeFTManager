@@ -6,18 +6,19 @@ namespace NativeFTManager.Domain
     /// FaceEmoの抑制が書き込むFaceEmo側のパラメーター名（仕様書10.3）
     ///
     /// いずれもFaceEmoの内部名であり、FaceEmoの更新時に再検証が必要な接点である。
-    /// CN_FORCE_BYPASS_ENABLEはFaceEmoが外部連携用として維持を明示しているが、
-    /// 表情制御方式が使う3つには明示的な約束がない。
+    /// 書き込む3つには、FaceEmoが外部連携用として維持する約束がない。
     ///
-    /// 表情制御方式の3つはFaceEmoがMA Parametersへ登録しており、AddParameterPrefix設定が有効なアバターでは
+    /// 3つはいずれもFaceEmoがMA Parametersへ登録しており、AddParameterPrefix設定が有効なアバターでは
     /// FaceEmo_ を前置した名前へリネームされる。リネームはMA Parametersに登録された名前にしか働かないため、
     /// 生成するコントローラにはリネーム後の名前を宣言しなければ接続されない。
-    /// バイパス方式が使うCN_FORCE_BYPASS_ENABLEだけはMA Parametersに登録されないため、この解決の対象にならない。
+    /// FaceEmoの検出に使うCN_FORCE_BYPASS_ENABLEはMA Parametersに登録されないため、この解決の対象にならない。
     /// FE-JsT Bridgeの同名の型を移したもの
     /// </summary>
     internal readonly struct FaceEmoParameterNames
     {
-        /// <summary>FaceEmoのバイパスを起動する外部連携用パラメーター。FaceEmoの検出にも使う</summary>
+        /// <summary>
+        /// FaceEmoのバイパスを起動する外部連携用パラメーター。抑制では書き込まず、FaceEmoの検出にだけ使う
+        /// </summary>
         public const string ForceBypassEnable = "CN_FORCE_BYPASS_ENABLE";
 
         /// <summary>

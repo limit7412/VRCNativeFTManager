@@ -59,23 +59,16 @@ namespace NativeFTManager.UseCase
             AvatarFacts facts,
             Action<Object> saveAsset)
         {
-            var faceEmo = FaceEmoParameterNames.Raw;
-
             // FaceEmoの制御パラメーターは設定次第で名前が変わる。
-            // 名前を必要とするのは表情制御方式だけなので、解決もそのときだけ行う。
             // FaceEmoが見つからないアバターでは解決できないのが当然なので、W-17は出さない
-            if (settings.controlMethod == FaceEmoControlMethod.ExpressionControl)
+            var faceEmo = FaceEmoParameterResolver.Resolve(context);
+            if (!faceEmo.Resolved && facts.HasFaceEmo)
             {
-                faceEmo = FaceEmoParameterResolver.Resolve(context);
-                if (!faceEmo.Resolved && facts.HasFaceEmo)
-                {
-                    DiagnosticReporter.Report(new Diagnostic(DiagnosticCodes.FaceEmoParametersUnresolved), component);
-                }
+                DiagnosticReporter.Report(new Diagnostic(DiagnosticCodes.FaceEmoParametersUnresolved), component);
             }
 
             var plan = SuppressionControllerPlanner.Build(
                 new SuppressionSettings(
-                    settings.controlMethod,
                     settings.trigger,
                     settings.faceEmoteIndex,
                     extraParameters: ResolveExtraParameters(context, settings.extraParameters)),
@@ -121,7 +114,7 @@ namespace NativeFTManager.UseCase
         /// <summary>
         /// 指定されたFXレイヤーを取り除く（F-19）
         ///
-        /// FaceEmoが書き込みを止めている間だけ表に出てくる素体の表情レイヤーが対象になる。
+        /// まばたきやTracking Controlの切り替えなど、フェイストラッキングとぶつかる素体のレイヤーが対象になる。
         /// 取り除く相手はビルド中のFXであり、素体のアセットには触れない
         /// </summary>
         private static void RemoveConflictingFxLayers(BuildContext context, IReadOnlyList<string> requestedNames)

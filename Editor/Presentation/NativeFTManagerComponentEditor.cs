@@ -21,13 +21,6 @@ namespace NativeFTManager.Presentation
     [CanEditMultipleObjects]
     public class NativeFTManagerComponentEditor : Editor
     {
-        /// <summary>並びはFaceEmoControlMethodの宣言順に一致させる (enumValueIndexで引くため)</summary>
-        internal static readonly IReadOnlyList<string> ControlMethodLabelKeys = new[]
-        {
-            "prop.control_method.expression_control",
-            "prop.control_method.bypass",
-        };
-
         /// <summary>並びはFaceEmoSuppressionTriggerの宣言順に一致させる (enumValueIndexで引くため)</summary>
         internal static readonly IReadOnlyList<string> TriggerLabelKeys = new[]
         {
@@ -287,22 +280,10 @@ namespace NativeFTManager.Presentation
             EditorGUI.indentLevel++;
             EditorGUILayout.HelpBox(S("inspector.face_emo.description"), MessageType.Info);
 
-            var method = _faceEmoSuppression.FindPropertyRelative(nameof(FaceEmoSuppressionSettings.controlMethod));
-            DrawLocalizedEnumPopup(method, "prop.control_method", ControlMethodLabelKeys);
-            if (!method.hasMultipleDifferentValues)
-            {
-                if (method.enumValueIndex == (int)FaceEmoControlMethod.ExpressionControl)
-                {
-                    EditorGUILayout.HelpBox(S("inspector.control_method.expression_control"), MessageType.Info);
-                    EditorGUILayout.PropertyField(
-                        _faceEmoSuppression.FindPropertyRelative(nameof(FaceEmoSuppressionSettings.faceEmoteIndex)),
-                        G("prop.face_emote_index"));
-                }
-                else
-                {
-                    EditorGUILayout.HelpBox(S("inspector.control_method.bypass"), MessageType.Info);
-                }
-            }
+            EditorGUILayout.HelpBox(S("inspector.face_emo.expression_control"), MessageType.Info);
+            EditorGUILayout.PropertyField(
+                _faceEmoSuppression.FindPropertyRelative(nameof(FaceEmoSuppressionSettings.faceEmoteIndex)),
+                G("prop.face_emote_index"));
 
             var trigger = _faceEmoSuppression.FindPropertyRelative(nameof(FaceEmoSuppressionSettings.trigger));
             DrawLocalizedEnumPopup(trigger, "prop.face_emo_trigger", TriggerLabelKeys);

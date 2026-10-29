@@ -117,10 +117,8 @@ namespace NativeFTManager.Tests
             "inspector.sensitivity.description",
             "inspector.face_emo.description",
             "inspector.face_emo.lip_only",
-            "prop.control_method",
             "prop.face_emote_index",
-            "inspector.control_method.expression_control",
-            "inspector.control_method.bypass",
+            "inspector.face_emo.expression_control",
             "prop.face_emo_trigger",
             "prop.extra_parameters",
             "inspector.extra_parameters",
@@ -156,8 +154,7 @@ namespace NativeFTManager.Tests
         /// enumの選択肢に当てる訳語のキー。インスペクタとドロワーの一覧から直接確かめる
         /// </summary>
         private static IEnumerable<string> EnumLabelKeys =>
-            Presentation.NativeFTManagerComponentEditor.ControlMethodLabelKeys
-                .Concat(Presentation.NativeFTManagerComponentEditor.TriggerLabelKeys)
+            Presentation.NativeFTManagerComponentEditor.TriggerLabelKeys
                 .Concat(Presentation.ExtraParameterEntryDrawer.SourceLabelKeys)
                 .Concat(Presentation.ExtraParameterEntryDrawer.ToggleStateLabelKeys)
                 .Concat(Presentation.ExtraParameterEntryDrawer.ReleaseModeLabelKeys)
