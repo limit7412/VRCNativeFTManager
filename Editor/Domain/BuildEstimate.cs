@@ -80,7 +80,7 @@ namespace NativeFTManager.Domain
                 BehaviorCount = corrections.Behaviors.Count,
                 ExistingBehaviorCount = existingBehaviors.Count,
                 Instructions = corrections.Instructions,
-                SyncedBits = toggles.Dynamic.Count,
+                SyncedBits = toggles.Dynamic.Count + toggles.Sensitivity.Channels.Count * 8,
                 OtherSyncedBits = otherSyncedBits,
                 FxLayerCount = CountUsedLayers(plan, sets, corrections),
             };

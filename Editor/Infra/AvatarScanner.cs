@@ -89,10 +89,13 @@ namespace NativeFTManager.Infra
                 maParameterNames,
                 avatarRoot.GetComponentsInChildren<Transform>(true).Select(t => t.name));
 
-            var published = new HashSet<string>(publishedParameters.Select(toggle => toggle.ParameterName));
+            var sensitivityParameters = toggles.Sensitivity.Channels.Select(SensitivityConfig.GetParameterName).ToArray();
+            var published = new HashSet<string>(
+                publishedParameters.Select(toggle => toggle.ParameterName).Concat(sensitivityParameters));
             facts.ConflictingParameters = maParameterNames.Where(published.Contains).Distinct().ToArray();
 
-            facts.PublishedSyncedBits = publishedParameters.Count;
+            // Floatは同期に8bitを使う
+            facts.PublishedSyncedBits = publishedParameters.Count + sensitivityParameters.Length * 8;
             facts.OtherSyncedBits = EstimateOtherSyncedBits(avatarRoot, descriptor, ownHolders, published);
 
             return facts;

@@ -8,7 +8,7 @@ namespace NativeFTManager.Domain
     /// EXメニューの生成計画（仕様書8.3）
     ///
     /// 表示名はVRChatのメニューに出るので、エディタの言語とは関係なく英語で固定する。
-    /// 日本語のメニューを選べるようにするかはM4で見直す
+    /// Jerry'sのメニューも英語なので、移行した利用者が迷わないようにそろえている（M4で見直し、変えないことにした）
     /// </summary>
     internal sealed class MenuPlan
     {
@@ -16,10 +16,16 @@ namespace NativeFTManager.Domain
 
         public const string SettingsMenuName = "Settings";
 
-        public MenuPlan(IReadOnlyList<MenuTogglePlan> toggles, IReadOnlyList<MenuTogglePlan> settings = null)
+        public const string SensitivityMenuName = "Sensitivity";
+
+        public MenuPlan(
+            IReadOnlyList<MenuTogglePlan> toggles,
+            IReadOnlyList<MenuTogglePlan> settings = null,
+            IReadOnlyList<MenuTogglePlan> sensitivity = null)
         {
             Toggles = toggles;
             Settings = settings ?? new MenuTogglePlan[0];
+            Sensitivity = sensitivity ?? new MenuTogglePlan[0];
         }
 
         /// <summary>「Face Tracking」サブメニューの直下に並べるトグル</summary>
@@ -28,7 +34,10 @@ namespace NativeFTManager.Domain
         /// <summary>「Settings」サブメニューに並べる表情補正のトグル</summary>
         public IReadOnlyList<MenuTogglePlan> Settings { get; }
 
-        public bool IsEmpty => Toggles.Count == 0 && Settings.Count == 0;
+        /// <summary>「Sensitivity」サブメニューに並べるRadial（仕様書5.6）。パラメーターはFloat</summary>
+        public IReadOnlyList<MenuTogglePlan> Sensitivity { get; }
+
+        public bool IsEmpty => Toggles.Count == 0 && Settings.Count == 0 && Sensitivity.Count == 0;
 
         public static MenuPlan Build(ToggleSet toggles)
         {
@@ -36,7 +45,11 @@ namespace NativeFTManager.Domain
             var settings = toggles.Dynamic.Where(toggle => IsSetting(toggle.Toggle));
             return new MenuPlan(
                 main.Select(toggle => new MenuTogglePlan(GetLabel(toggle.Toggle), toggle.ParameterName)).ToArray(),
-                settings.Select(toggle => new MenuTogglePlan(GetLabel(toggle.Toggle), toggle.ParameterName)).ToArray());
+                settings.Select(toggle => new MenuTogglePlan(GetLabel(toggle.Toggle), toggle.ParameterName)).ToArray(),
+                toggles.Sensitivity.Channels
+                    .Select(channel => new MenuTogglePlan(
+                        SensitivityConfig.GetLabel(channel), SensitivityConfig.GetParameterName(channel)))
+                    .ToArray());
         }
 
         /// <summary>Settingsサブメニューに入れるトグル（仕様書8.3）</summary>

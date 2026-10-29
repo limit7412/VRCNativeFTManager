@@ -738,3 +738,33 @@ msgstr "{0}番目の項目が指す{1}は値の自動設定が有効で、同じ
 
 msgid "warning.extra_parameter.automatic_value:hint"
 msgstr "メニューアイテムの値の自動設定を切り、値を入力してください。"
+
+msgid "inspector.section.sensitivity"
+msgstr "感度"
+
+msgid "inspector.sensitivity.eye"
+msgstr "目の感度"
+
+msgid "inspector.sensitivity.eye.tooltip"
+msgstr "EXメニューの「Sensitivity」に、目・まぶた・瞳孔・眉の効き方を変えるRadialを足します。同期bitが8増えます。"
+
+msgid "inspector.sensitivity.lip"
+msgstr "口の感度"
+
+msgid "inspector.sensitivity.lip.tooltip"
+msgstr "EXメニューの「Sensitivity」に、口・頬・舌・ビゼームの効き方を変えるRadialを足します。同期bitが8増えます。"
+
+msgid "inspector.sensitivity.max_multiplier"
+msgstr "上限の倍率"
+
+msgid "inspector.sensitivity.max_multiplier.tooltip"
+msgstr "Radialを右端まで回したときの倍率です。ビルド時に対象のSetの倍率をこの値まで上げ、Setの重みで割り戻します。"
+
+msgid "inspector.sensitivity.saved"
+msgstr "値を保存する"
+
+msgid "inspector.sensitivity.saved.tooltip"
+msgstr "ワールドをまたいでRadialの値を保存します。"
+
+msgid "inspector.sensitivity.description"
+msgstr "Radialの中央（既定値）が等倍で、8段階で切り替わります。左側は0.2〜0.8倍、右側は等倍から上限の倍率までです。トグルでSetを止めたときは、感度にかかわらず止まります。"

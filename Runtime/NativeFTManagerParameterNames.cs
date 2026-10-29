@@ -42,6 +42,12 @@ namespace NativeFTManager
         /// <summary>Eye Syncのトグル（M2）</summary>
         public const string EyeSync = Prefix + "EyeSync";
 
+        /// <summary>目の感度（M4、Float）</summary>
+        public const string SensitivityEye = Prefix + "Sensitivity/Eye";
+
+        /// <summary>口の感度（M4、Float）</summary>
+        public const string SensitivityLip = Prefix + "Sensitivity/Lip";
+
         /// <summary>分割後のSetの名前の接頭辞。後ろにグループ名が付く（例: KxNFTM/Lip）</summary>
         public const string SetPrefix = Prefix;
 

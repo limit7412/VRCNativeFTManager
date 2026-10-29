@@ -738,3 +738,33 @@ msgstr "Entry {0} was skipped because {1} uses an automatic value and other menu
 
 msgid "warning.extra_parameter.automatic_value:hint"
 msgstr "Turn off the automatic value on the menu item and enter a value."
+
+msgid "inspector.section.sensitivity"
+msgstr "Sensitivity"
+
+msgid "inspector.sensitivity.eye"
+msgstr "Eye Sensitivity"
+
+msgid "inspector.sensitivity.eye.tooltip"
+msgstr "Adds a Radial to the Sensitivity menu that changes the strength of the eyes, eyelids, pupils and brows. Uses 8 more synced bits."
+
+msgid "inspector.sensitivity.lip"
+msgstr "Lip Sensitivity"
+
+msgid "inspector.sensitivity.lip.tooltip"
+msgstr "Adds a Radial to the Sensitivity menu that changes the strength of the mouth, cheeks, tongue and visemes. Uses 8 more synced bits."
+
+msgid "inspector.sensitivity.max_multiplier"
+msgstr "Max Multiplier"
+
+msgid "inspector.sensitivity.max_multiplier.tooltip"
+msgstr "Strength when the Radial is turned all the way up. The Blendshapes Set multipliers are raised to this value at build time and divided back with the Set weight."
+
+msgid "inspector.sensitivity.saved"
+msgstr "Saved"
+
+msgid "inspector.sensitivity.saved.tooltip"
+msgstr "Keeps the Radial value across worlds."
+
+msgid "inspector.sensitivity.description"
+msgstr "The center of the Radial (the default) is 1x, and the strength changes in 8 steps: 0.2x to 0.8x on the left, and 1x up to the max multiplier on the right. Turning a group off with its toggle stops it regardless of the sensitivity."

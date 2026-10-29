@@ -107,9 +107,13 @@ namespace NativeFTManager.Domain
     {
         private readonly Dictionary<NativeFTToggle, ResolvedToggle> _toggles;
 
-        public ToggleSet(IEnumerable<ResolvedToggle> toggles, CorrectionFeatures features = default)
+        public ToggleSet(
+            IEnumerable<ResolvedToggle> toggles,
+            CorrectionFeatures features = default,
+            SensitivityConfig sensitivity = null)
         {
             Features = features;
+            Sensitivity = sensitivity ?? SensitivityConfig.None;
             _toggles = toggles.ToDictionary(toggle => toggle.Toggle);
             foreach (NativeFTToggle toggle in Enum.GetValues(typeof(NativeFTToggle)))
             {
@@ -124,7 +128,10 @@ namespace NativeFTManager.Domain
         /// コンポーネントの設定から解決する。同じトグルが複数あれば先のものを使う。
         /// 生成しない表情補正のトグルは、設定にかかわらずメニューに出さず無効にする
         /// </summary>
-        public static ToggleSet Resolve(Func<NativeFTToggle, ToggleSettings> getSettings, CorrectionFeatures features)
+        public static ToggleSet Resolve(
+            Func<NativeFTToggle, ToggleSettings> getSettings,
+            CorrectionFeatures features,
+            SensitivityConfig sensitivity = null)
         {
             var resolved = new List<ResolvedToggle>();
             foreach (NativeFTToggle toggle in Enum.GetValues(typeof(NativeFTToggle)))
@@ -139,12 +146,15 @@ namespace NativeFTManager.Domain
                     settings.saved));
             }
 
-            return new ToggleSet(resolved, features);
+            return new ToggleSet(resolved, features, sensitivity);
         }
 
         public ResolvedToggle this[NativeFTToggle toggle] => _toggles[toggle];
 
         public CorrectionFeatures Features { get; }
+
+        /// <summary>感度（仕様書5.6）。作らないときはどの系統も無効</summary>
+        public SensitivityConfig Sensitivity { get; }
 
         /// <summary>同期パラメーターを作るトグル（列挙体の順）</summary>
         public IReadOnlyList<ResolvedToggle> Dynamic =>
