@@ -1,0 +1,364 @@
+using System.Collections.Generic;
+using UnityEditor;
+using UnityEngine;
+using nadena.dev.modular_avatar.core;
+using NativeFTManager.Infra;
+using static NativeFTManager.Localization;
+
+namespace NativeFTManager.Presentation
+{
+    /// <summary>
+    /// 追加パラメーター1件分の描画
+    ///
+    /// 指定方法に応じて、使う側のフィールドだけを出す。
+    /// 使わない側の値はシリアライズされたまま残るため、指定方法を戻せば元の設定に戻る。
+    /// </summary>
+    [CustomPropertyDrawer(typeof(ExtraParameterEntry))]
+    internal class ExtraParameterEntryDrawer : PropertyDrawer
+    {
+        /// <summary>並びはExtraParameterSourceの宣言順に一致させる (enumValueIndexで引くため)</summary>
+        internal static readonly IReadOnlyList<string> SourceLabelKeys = new[]
+        {
+            "prop.extra_parameter.source.menu_item",
+            "prop.extra_parameter.source.parameter_name",
+        };
+
+        /// <summary>並びはExtraToggleStateの宣言順に一致させる (enumValueIndexで引くため)</summary>
+        internal static readonly IReadOnlyList<string> ToggleStateLabelKeys = new[]
+        {
+            "prop.extra_parameter.state.on",
+            "prop.extra_parameter.state.off",
+        };
+
+        /// <summary>並びはExtraReleaseModeの宣言順に一致させる (enumValueIndexで引くため)</summary>
+        internal static readonly IReadOnlyList<string> ReleaseModeLabelKeys = new[]
+        {
+            "prop.extra_parameter.release_mode.revert",
+            "prop.extra_parameter.release_mode.keep",
+            "prop.extra_parameter.release_mode.restore",
+        };
+
+        /// <summary>並びはExtraSyncModeの宣言順に一致させる (enumValueIndexで引くため)</summary>
+        internal static readonly IReadOnlyList<string> SyncModeLabelKeys = new[]
+        {
+            "prop.extra_parameter.sync_mode.auto",
+            "prop.extra_parameter.sync_mode.synced",
+            "prop.extra_parameter.sync_mode.unsynced",
+        };
+
+        /// <summary>
+        /// 項目をExtraParameterEntryの既定値へ揃える
+        /// 既定値はフィールドの初期化子から取り、ここに値を重ねて書かない
+        /// </summary>
+        internal static void ApplyDefaults(SerializedProperty element)
+        {
+            var defaults = new ExtraParameterEntry();
+
+            element.FindPropertyRelative(nameof(ExtraParameterEntry.source)).enumValueIndex =
+                (int)defaults.source;
+            element.FindPropertyRelative(nameof(ExtraParameterEntry.menuItem)).objectReferenceValue =
+                defaults.menuItem;
+            element.FindPropertyRelative(nameof(ExtraParameterEntry.menuItemState)).enumValueIndex =
+                (int)defaults.menuItemState;
+            element.FindPropertyRelative(nameof(ExtraParameterEntry.parameterName)).stringValue =
+                defaults.parameterName;
+            element.FindPropertyRelative(nameof(ExtraParameterEntry.parameterType)).enumValueIndex =
+                (int)defaults.parameterType;
+            element.FindPropertyRelative(nameof(ExtraParameterEntry.engagedValue)).floatValue =
+                defaults.engagedValue;
+            element.FindPropertyRelative(nameof(ExtraParameterEntry.releaseMode)).enumValueIndex =
+                (int)defaults.releaseMode;
+            element.FindPropertyRelative(nameof(ExtraParameterEntry.releasedValue)).floatValue =
+                defaults.releasedValue;
+            element.FindPropertyRelative(nameof(ExtraParameterEntry.syncMode)).enumValueIndex =
+                (int)defaults.syncMode;
+        }
+
+        private static float LineHeight => EditorGUIUtility.singleLineHeight;
+
+        private static float Spacing => EditorGUIUtility.standardVerticalSpacing;
+
+        public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
+        {
+            var lines = 1;
+            var extra = 0f;
+            if (property.isExpanded)
+            {
+                lines += CountFieldLines(property);
+                extra = NoteExtraHeight(property);
+            }
+
+            return lines * LineHeight + (lines - 1) * Spacing + extra;
+        }
+
+        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+        {
+            EditorGUI.BeginProperty(position, label, property);
+
+            var line = new Rect(position.x, position.y, position.width, LineHeight);
+            property.isExpanded = EditorGUI.Foldout(line, property.isExpanded, DescribeEntry(property), true);
+
+            if (property.isExpanded)
+            {
+                using (new EditorGUI.IndentLevelScope())
+                {
+                    DrawFields(ref line, property);
+                }
+            }
+
+            EditorGUI.EndProperty();
+        }
+
+        /// <summary>
+        /// 折りたたんだときにも、どのパラメーターを指しているかが分かる見出しにする
+        /// </summary>
+        private static GUIContent DescribeEntry(SerializedProperty property)
+        {
+            var source = property.FindPropertyRelative(nameof(ExtraParameterEntry.source));
+
+            string target;
+            if (source.enumValueIndex == (int)ExtraParameterSource.MenuItem)
+            {
+                var menuItem = property.FindPropertyRelative(nameof(ExtraParameterEntry.menuItem))
+                    .objectReferenceValue;
+                target = menuItem != null ? menuItem.name : "-";
+            }
+            else
+            {
+                var name = property.FindPropertyRelative(nameof(ExtraParameterEntry.parameterName)).stringValue;
+                target = string.IsNullOrEmpty(name) ? "-" : name;
+            }
+
+            return new GUIContent(target);
+        }
+
+        private static int CountFieldLines(SerializedProperty property)
+        {
+            var source = property.FindPropertyRelative(nameof(ExtraParameterEntry.source));
+
+            // 指定方法、指定の本体、トラッキング中の値 (状態)、解除時、同期
+            var lines = 5;
+
+            if (source.enumValueIndex == (int)ExtraParameterSource.MenuItem)
+            {
+                if (MenuItemNoteKey(property) != null)
+                {
+                    // パラメーター名が空のときの注記の行が加わる
+                    lines++;
+                }
+
+                return lines;
+            }
+
+            // 型の行が加わる
+            lines++;
+
+            if (IsRevert(property))
+            {
+                // 解除時の値の行が加わる
+                lines++;
+            }
+
+            return lines;
+        }
+
+        private static void DrawFields(ref Rect line, SerializedProperty property)
+        {
+            var source = property.FindPropertyRelative(nameof(ExtraParameterEntry.source));
+
+            NextLine(ref line);
+            DrawLocalizedEnumPopup(line, source, "prop.extra_parameter.source", SourceLabelKeys);
+
+            if (source.enumValueIndex == (int)ExtraParameterSource.MenuItem)
+            {
+                NextLine(ref line);
+                EditorGUI.PropertyField(
+                    line,
+                    property.FindPropertyRelative(nameof(ExtraParameterEntry.menuItem)),
+                    G("prop.extra_parameter.menu_item"));
+
+                var noteKey = MenuItemNoteKey(property);
+                if (noteKey != null)
+                {
+                    // 注記は折り返しで1行に収まらないので、文言から高さを求めて後続の行を押し下げる
+                    NextLine(ref line);
+                    var height = NoteHeight(noteKey, line.width);
+                    EditorGUI.HelpBox(
+                        new Rect(line.x, line.y, line.width, height),
+                        S(noteKey),
+                        noteKey == NoParameterNoteKey ? MessageType.Warning : MessageType.Info);
+                    line.y += height - LineHeight;
+                }
+
+                NextLine(ref line);
+                DrawLocalizedEnumPopup(
+                    line,
+                    property.FindPropertyRelative(nameof(ExtraParameterEntry.menuItemState)),
+                    "prop.extra_parameter.menu_item_state",
+                    ToggleStateLabelKeys);
+
+                NextLine(ref line);
+                DrawReleaseMode(line, property);
+
+                NextLine(ref line);
+                DrawSyncMode(line, property);
+                return;
+            }
+
+            NextLine(ref line);
+            EditorGUI.PropertyField(
+                line,
+                property.FindPropertyRelative(nameof(ExtraParameterEntry.parameterName)),
+                G("prop.extra_parameter.parameter_name"));
+
+            NextLine(ref line);
+            EditorGUI.PropertyField(
+                line,
+                property.FindPropertyRelative(nameof(ExtraParameterEntry.parameterType)),
+                G("prop.extra_parameter.parameter_type"));
+
+            NextLine(ref line);
+            EditorGUI.PropertyField(
+                line,
+                property.FindPropertyRelative(nameof(ExtraParameterEntry.engagedValue)),
+                G("prop.extra_parameter.engaged_value"));
+
+            NextLine(ref line);
+            DrawReleaseMode(line, property);
+
+            if (IsRevert(property))
+            {
+                NextLine(ref line);
+                EditorGUI.PropertyField(
+                    line,
+                    property.FindPropertyRelative(nameof(ExtraParameterEntry.releasedValue)),
+                    G("prop.extra_parameter.released_value"));
+            }
+
+            NextLine(ref line);
+            DrawSyncMode(line, property);
+        }
+
+        private static void DrawSyncMode(Rect line, SerializedProperty property)
+        {
+            DrawLocalizedEnumPopup(
+                line,
+                property.FindPropertyRelative(nameof(ExtraParameterEntry.syncMode)),
+                "prop.extra_parameter.sync_mode",
+                SyncModeLabelKeys);
+        }
+
+        private static void DrawReleaseMode(Rect line, SerializedProperty property)
+        {
+            var content = G("prop.extra_parameter.release_mode");
+
+            // メニューアイテムの「解除時の値を書く」は、書き込む値が入力欄に出ない。
+            // 何を書くのかをツールチップで補う
+            var source = property.FindPropertyRelative(nameof(ExtraParameterEntry.source));
+            if (source.enumValueIndex == (int)ExtraParameterSource.MenuItem)
+            {
+                content.tooltip = S("inspector.extra_parameter.menu_item_revert");
+            }
+
+            DrawLocalizedEnumPopup(
+                line,
+                property.FindPropertyRelative(nameof(ExtraParameterEntry.releaseMode)),
+                content,
+                ReleaseModeLabelKeys);
+        }
+
+        /// <summary>MAが名前を振るメニューアイテムを指しているときの注記</summary>
+        internal const string AutoNameNoteKey = "inspector.extra_parameter.auto_name";
+
+        /// <summary>パラメーター名が空で、MAも名前を振らないメニューアイテムを指しているときの注記</summary>
+        internal const string NoParameterNoteKey = "inspector.extra_parameter.no_parameter";
+
+        /// <summary>
+        /// 指定したメニューアイテムのパラメーター名が空のときに出す注記のキー
+        /// 名前が入っていれば注記はない (null)
+        /// </summary>
+        internal static string MenuItemNoteKey(SerializedProperty property)
+        {
+            var menuItem = property.FindPropertyRelative(nameof(ExtraParameterEntry.menuItem))
+                .objectReferenceValue as ModularAvatarMenuItem;
+            if (menuItem == null || !string.IsNullOrWhiteSpace(menuItem.Control?.parameter?.name))
+            {
+                return null;
+            }
+
+            return MenuItemAutoParameter.IsAssigned(menuItem) ? AutoNameNoteKey : NoParameterNoteKey;
+        }
+
+        /// <summary>
+        /// 注記のHelpBoxの高さ
+        /// アイコンの分で最低2行とし、折り返しが増えればその分だけ伸ばす
+        /// </summary>
+        private static float NoteHeight(string noteKey, float width)
+        {
+            var wrapped = EditorStyles.helpBox.CalcHeight(new GUIContent(S(noteKey)), width);
+            return Mathf.Max(wrapped, LineHeight * 2f);
+        }
+
+        /// <summary>
+        /// 注記が1行分を超える高さ。注記がなければ0
+        /// GetPropertyHeightでは描画幅が渡されないため、インスペクタの幅からインデントの分を引いて見積もる
+        /// </summary>
+        private static float NoteExtraHeight(SerializedProperty property)
+        {
+            var noteKey = MenuItemNoteKey(property);
+            if (noteKey == null)
+            {
+                return 0f;
+            }
+
+            var width = EditorGUIUtility.currentViewWidth - (EditorGUI.indentLevel + 2) * 15f - 20f;
+            return NoteHeight(noteKey, width) - LineHeight;
+        }
+
+        private static bool IsRevert(SerializedProperty property)
+        {
+            return property.FindPropertyRelative(nameof(ExtraParameterEntry.releaseMode)).enumValueIndex
+                   == (int)ExtraReleaseMode.Revert;
+        }
+
+        private static void NextLine(ref Rect line)
+        {
+            line.y += LineHeight + Spacing;
+        }
+
+        private static void DrawLocalizedEnumPopup(
+            Rect rect, SerializedProperty property, string labelKey, IReadOnlyList<string> optionKeys)
+        {
+            DrawLocalizedEnumPopup(rect, property, G(labelKey), optionKeys);
+        }
+
+        /// <summary>
+        /// 訳語を当てたenumのポップアップを描く
+        /// BeginPropertyで囲み、プレハブの上書き表示とRevertを通常のフィールドと揃える
+        /// </summary>
+        private static void DrawLocalizedEnumPopup(
+            Rect rect, SerializedProperty property, GUIContent labelContent, IReadOnlyList<string> optionKeys)
+        {
+            var options = new GUIContent[optionKeys.Count];
+            for (var i = 0; i < options.Length; i++)
+            {
+                options[i] = G(optionKeys[i]);
+            }
+
+            var label = EditorGUI.BeginProperty(rect, labelContent, property);
+
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+
+            var selected = EditorGUI.Popup(rect, label, property.enumValueIndex, options);
+
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+            {
+                property.enumValueIndex = selected;
+            }
+
+            EditorGUI.EndProperty();
+        }
+    }
+}

@@ -36,7 +36,7 @@ namespace NativeFTManager.UseCase
             }
 
             var toggles = ComponentSettings.ResolveToggles(primary);
-            var facts = AvatarScanner.Scan(avatarRoot, primary, toggles.Dynamic);
+            var facts = AvatarScanner.Scan(avatarRoot, primary, toggles);
             DiagnosticReporter.Report(AvatarDiagnostics.Evaluate(facts), primary);
 
             var state = context.GetState<BuildState>();
@@ -64,12 +64,17 @@ namespace NativeFTManager.UseCase
                 ? ToggleControllerWriter.Write(plan, asset => SaveAsset(context, asset))
                 : null;
 
+            // FaceEmoの抑制（仕様書9章の手順2）。トグルと同じくMAのマージより前に置き終える
+            var suppression = FaceEmoSuppressionUseCase.Prepare(
+                context, primary, toggles, facts, asset => SaveAsset(context, asset));
+
             GeneratedObjectsInstaller.Install(
                 avatarRoot,
                 controller,
                 toggles.Dynamic,
                 MenuPlan.Build(toggles),
-                asset => SaveAsset(context, asset));
+                asset => SaveAsset(context, asset),
+                suppression);
         }
 
         private static void SaveAsset(BuildContext context, Object asset)

@@ -293,7 +293,7 @@ msgid "diag.W-08"
 msgstr "[KxNFTM-W-08] Kx VRC FE-JsT Bridgeと併用しないでください"
 
 msgid "diag.W-08:description"
-msgstr "アバターにKx VRC FE-JsT Bridgeがあります。FaceEmoの抑制は本製品が持つ予定の機能で、FE-JsT Bridgeはネイティブフェイストラッキングのアバターでは発動しません。FE-JsT Bridgeを外してください。"
+msgstr "アバターにKx VRC FE-JsT Bridgeがあります。FaceEmoの抑制は本製品の「FaceEmoの抑制」で行えます。FE-JsT Bridgeはネイティブフェイストラッキングのアバターでは発動しません。FE-JsT Bridgeを外してください。"
 
 msgid "diag.W-09"
 msgstr "[KxNFTM-W-09] パラメーター名が重なっています"
@@ -416,3 +416,316 @@ msgstr "[KxNFTM-I-01] シェイプが無いため生成しなかった表情補�
 
 msgid "diag.I-01:description"
 msgstr "分割したSetで対象のトラッキングキーにシェイプが割り当てられていないため、次の規則を生成しませんでした: {0}。分割しないSetの対応は、利用者が重みを制御しているので補正の対象にしません。"
+
+# M3: FaceEmoの抑制
+msgid "inspector.section.face_emo"
+msgstr "FaceEmoの抑制"
+
+msgid "inspector.face_emo.enabled"
+msgstr "FaceEmoを抑制する"
+
+msgid "inspector.face_emo.enabled.tooltip"
+msgstr "フェイストラッキング中に、FaceEmoの表情とまばたきが顔のシェイプを書き込まないようにします。"
+
+msgid "inspector.face_emo.description"
+msgstr "メニューのトグルで発動します。トラッカーが値を送っているかは見ないので、トラッカーを使わないときはFace Trackingのトグルを切ってください。"
+
+msgid "prop.face_emo_trigger"
+msgstr "発動条件"
+
+msgid "prop.face_emo_trigger.tooltip"
+msgstr "どのトグルが有効なときにFaceEmoを止めるかを選びます。"
+
+msgid "prop.face_emo_trigger.eye_or_lip"
+msgstr "目か口のトラッキングが有効"
+
+msgid "prop.face_emo_trigger.eye_or_lip.tooltip"
+msgstr "Face Trackingが有効で、Eye TrackingかLip Trackingのどちらかが有効なときに止めます。"
+
+msgid "prop.face_emo_trigger.lip_only"
+msgstr "口のトラッキングが有効"
+
+msgid "prop.face_emo_trigger.lip_only.tooltip"
+msgstr "Face TrackingとLip Trackingが有効なときだけ止めます。目だけのトラッキングでは、FaceEmoの表情とまばたきが残ります。"
+
+msgid "inspector.face_emo.lip_only"
+msgstr "目だけのトラッキングではFaceEmoを止めないので、FaceEmoのまばたきや目の表情がトラッキングの目と重なります。"
+
+msgid "diag.W-16"
+msgstr "[KxNFTM-W-16] FaceEmoの抑制が発動しません"
+
+msgid "diag.W-16:description"
+msgstr "発動条件に使うトグル（Face Tracking、Eye Tracking、Lip Tracking）をメニューに出さず、既定値で無効にしているため、条件が成り立ちません。抑制のレイヤーと追加で書き込むパラメーターは生成しません。トグルをメニューに出すか、既定値を有効にしてください。"
+
+msgid "diag.W-17"
+msgstr "[KxNFTM-W-17] FaceEmoのパラメーター名を解決できません"
+
+msgid "diag.W-17:description"
+msgstr "FaceEmoのMA Parametersから、表情制御方式が書き込むパラメーターの名前を引けませんでした。FaceEmoの元の名前で書き込みます。FaceEmoの「パラメーターに接頭辞を付ける」設定を使っている場合は効かないので、FaceEmoを適用し直すか、制御方式をバイパスにしてください。"
+
+msgid "diag.I-03"
+msgstr "[KxNFTM-I-03] FaceEmoがありますが、FaceEmoの抑制は無効です"
+
+msgid "diag.I-03:description"
+msgstr "フェイストラッキング中もFaceEmoの表情とまばたきが顔のシェイプを書き込み、トラッキングと重なります。止めるには「FaceEmoの抑制」を有効にしてください。"
+
+msgid "diag.I-04"
+msgstr "[KxNFTM-I-04] FaceEmoが見つかりません"
+
+msgid "diag.I-04:description"
+msgstr "FaceEmoの抑制が有効ですが、アバターのMerge AnimatorにFaceEmoが見つかりません。FaceEmoを後から追加する場合や、ビルド中にFaceEmoを生成する構成なら、このままで構いません。FaceEmoを使わないなら、抑制を無効にしてください。"
+
+msgid "prop.control_method"
+msgstr "制御方式"
+
+msgid "prop.control_method.tooltip"
+msgstr "フェイストラッキング中に、FaceEmoの書き込みを止める方法を選びます。"
+
+msgid "prop.control_method.bypass"
+msgstr "バイパス"
+
+msgid "prop.control_method.bypass.tooltip"
+msgstr "FaceEmoの外部連携用パラメーターでバイパスさせ、FaceEmoごと止めます。"
+
+msgid "prop.control_method.expression_control"
+msgstr "表情制御"
+
+msgid "prop.control_method.expression_control.tooltip"
+msgstr "FaceEmoを動かしたまま、表情ロックとまばたき停止、表情の切り替えで無害な状態へ寄せます。"
+
+msgid "inspector.control_method.bypass"
+msgstr "FaceEmoが書き込みを止めるため、その分だけ素体の表情レイヤーが表に出てきます。下の「取り除くFXレイヤー」で対処してください。"
+
+msgid "inspector.control_method.expression_control"
+msgstr "FaceEmoが書き込みを続けるため、素体の表情レイヤーは通常時と同じく押さえ込まれ、トラッキング中もメニューから表情を選べます。\nFaceEmoのデフォルト表情はトラッキングと同じブレンドシェイプを書くので、あらかじめFaceEmoの「除外するブレンドシェイプ」へトラッキング用のシェイプを登録しておいてください。"
+
+msgid "prop.face_emote_index"
+msgstr "切り替え先の表情番号"
+
+msgid "prop.face_emote_index.tooltip"
+msgstr "フェイストラッキング中に切り替える表情の番号です。FaceEmoの「表情選択」メニューが書き込む番号と同じで、表情パターンの先頭から0、1、2…と数えます。"
+
+msgid "prop.remove_fx_layers"
+msgstr "取り除くFXレイヤー"
+
+msgid "prop.remove_fx_layers.tooltip"
+msgstr "ビルド時にFXから取り除くレイヤーの名前です。アバター素体のアセットは書き換わりません。"
+
+msgid "inspector.remove_fx_layers"
+msgstr "バイパス方式では、FaceEmoが書き込みを止めた分だけ、素体の表情レイヤーが表に出てきます。\n素体の表情レイヤー (ジェスチャー表情、まばたき、Tracking Controlの切り替えなど) の名前をここに並べると、ビルド時にFXから取り除きます。\nレイヤー名はビルド後のFXをAnimatorウィンドウで開くと確認できます。"
+
+msgid "warning.fx_not_found"
+msgstr "FXコントローラが見つかりません"
+
+msgid "warning.fx_not_found:description"
+msgstr "取り除くFXレイヤーが指定されていますが、アバターにFXコントローラがありません。"
+
+msgid "warning.layer_not_found"
+msgstr "FXレイヤーが見つかりません"
+
+msgid "warning.layer_not_found:description"
+msgstr "{0}という名前のレイヤーがFXにないため、取り除けませんでした。名前を確認してください。"
+
+msgid "warning.layer_not_found:hint"
+msgstr "Merge Animatorであとからマージされるレイヤーは対象外です。取り除けるのは素体のFXにあるレイヤーだけです。"
+
+msgid "warning.synced_layer_detached"
+msgstr "Syncedレイヤーの参照先が無くなりました"
+
+msgid "warning.synced_layer_detached:description"
+msgstr "{0}が参照していたレイヤーを取り除いたため、参照を外しました。"
+
+msgid "info.layers_removed"
+msgstr "FXレイヤーを取り除きました"
+
+msgid "info.layers_removed:description"
+msgstr "{0}"
+
+msgid "warning.fx_not_editable"
+msgstr "FXコントローラを書き換えられません"
+
+msgid "warning.fx_not_editable:description"
+msgstr "FXがプロジェクトのアセットのままのため、レイヤーの除去を見送りました。素体のアセットを壊さないための処置です。"
+
+msgid "warning.fx_not_editable:hint"
+msgstr "Modular Avatarがビルド中にコントローラを複製するため、通常はこの警告は出ません。"
+
+msgid "warning.layer_control_detached"
+msgstr "レイヤー操作の参照先が無くなりました"
+
+msgid "warning.layer_control_detached:description"
+msgstr "{0}にあるVRC Animator Layer Controlが、除去したFXレイヤーを指していました。誤って別のレイヤーを操作しないよう、参照を無効にしました。"
+
+msgid "warning.layer_control_not_editable"
+msgstr "レイヤー操作の索引を付け替えられません"
+
+msgid "warning.layer_control_not_editable:description"
+msgstr "{0}がプロジェクトのアセットのままのため、VRC Animator Layer Controlの索引を付け替えられませんでした。除去したレイヤーより後ろを指す操作が、別のレイヤーへずれます。"
+
+msgid "prop.extra_parameters"
+msgstr "追加で書き込むパラメーター"
+
+msgid "prop.extra_parameters.tooltip"
+msgstr "フェイストラッキングが有効な間だけ値を書き込むパラメーターです。MAで作ったトグルなどを指定します。"
+
+msgid "inspector.extra_parameters"
+msgstr "フェイストラッキングを有効にしたときに値を書き込み、無効にしたときに解除時の扱いに従って書き込みます。\n同期パラメーターは切り替わった瞬間に一度だけ書くので、フェイストラッキング中でもメニューから選び直せます。\n同期しないパラメーターは各クライアントで書き、フェイストラッキング中は約1秒ごとに書き直します。"
+
+msgid "inspector.extra_parameters.multi_edit"
+msgstr "複数のコンポーネントを選択している間は編集できません。1つだけ選択してください。"
+
+msgid "prop.extra_parameter.source"
+msgstr "指定方法"
+
+msgid "prop.extra_parameter.source.menu_item"
+msgstr "MA Menu Item"
+
+msgid "prop.extra_parameter.source.parameter_name"
+msgstr "パラメーター名"
+
+msgid "prop.extra_parameter.menu_item"
+msgstr "メニューアイテム"
+
+msgid "prop.extra_parameter.menu_item.tooltip"
+msgstr "トグルかボタンのMA Menu Itemを指定します。パラメーター名とトグルの値はビルド時に読み取ります。"
+
+msgid "prop.extra_parameter.menu_item_state"
+msgstr "トラッキング中の状態"
+
+msgid "prop.extra_parameter.state.on"
+msgstr "ON"
+
+msgid "prop.extra_parameter.state.off"
+msgstr "OFF"
+
+msgid "prop.extra_parameter.parameter_name"
+msgstr "パラメーター名"
+
+msgid "prop.extra_parameter.parameter_name.tooltip"
+msgstr "Modular Avatarがリネームしたあとの、FXで使われる名前を書きます。"
+
+msgid "prop.extra_parameter.parameter_type"
+msgstr "型"
+
+msgid "prop.extra_parameter.engaged_value"
+msgstr "トラッキング中の値"
+
+msgid "prop.extra_parameter.release_mode"
+msgstr "解除時"
+
+msgid "prop.extra_parameter.release_mode.revert"
+msgstr "解除時の値を書く"
+
+msgid "prop.extra_parameter.release_mode.keep"
+msgstr "何もしない"
+
+msgid "prop.extra_parameter.released_value"
+msgstr "解除時の値"
+
+msgid "prop.extra_parameter.release_mode.restore"
+msgstr "元の値に戻す"
+
+msgid "prop.extra_parameter.sync_mode"
+msgstr "同期"
+
+msgid "prop.extra_parameter.sync_mode.tooltip"
+msgstr "同期パラメーターは装着者のクライアントだけで書き、同期しないパラメーターは各クライアントで書きます。"
+
+msgid "prop.extra_parameter.sync_mode.auto"
+msgstr "自動"
+
+msgid "prop.extra_parameter.sync_mode.synced"
+msgstr "同期する"
+
+msgid "prop.extra_parameter.sync_mode.unsynced"
+msgstr "同期しない"
+
+msgid "inspector.extra_parameter.menu_item_revert"
+msgstr "「解除時の値を書く」では、トラッキング中と反対の状態へ切り替えます。"
+
+msgid "inspector.extra_parameter.auto_name"
+msgstr "パラメーター名が空なので、Modular Avatarがビルド中に振る名前へ書き込みます。"
+
+msgid "inspector.extra_parameter.no_parameter"
+msgstr "パラメーター名が空で、Modular Avatarも名前を振らないため、書き込む先がありません。"
+
+msgid "warning.extra_parameter.empty_name"
+msgstr "追加パラメーターの名前が空です"
+
+msgid "warning.extra_parameter.empty_name:description"
+msgstr "{0}番目の項目はパラメーター名が空のため、生成から外しました。"
+
+msgid "warning.extra_parameter.empty_name:hint"
+msgstr "パラメーター名を入力するか、使わない項目を削除してください。"
+
+msgid "warning.extra_parameter.missing_menu_item"
+msgstr "追加パラメーターのメニューアイテムが指定されていません"
+
+msgid "warning.extra_parameter.missing_menu_item:description"
+msgstr "{0}番目の項目はメニューアイテムが空のため、生成から外しました。"
+
+msgid "warning.extra_parameter.missing_menu_item:hint"
+msgstr "メニューアイテムを指定するか、使わない項目を削除してください。"
+
+msgid "warning.extra_parameter.outside_avatar"
+msgstr "追加パラメーターのメニューアイテムがアバターの外にあります"
+
+msgid "warning.extra_parameter.outside_avatar:description"
+msgstr "{0}番目の項目が指す{1}はビルド中のアバターに含まれないため、生成から外しました。"
+
+msgid "warning.extra_parameter.outside_avatar:hint"
+msgstr "このアバターの中にあるメニューアイテムを指定してください。"
+
+msgid "warning.extra_parameter.unsupported_control"
+msgstr "追加パラメーターのメニューアイテムがトグルでもボタンでもありません"
+
+msgid "warning.extra_parameter.unsupported_control:description"
+msgstr "{0}番目の項目が指す{1}は、ON/OFFで書き込む値が決まらない種類のため、生成から外しました。"
+
+msgid "warning.extra_parameter.unsupported_control:hint"
+msgstr "トグルかボタンのメニューアイテムを指定するか、パラメーター名で直接指定してください。"
+
+msgid "warning.extra_parameter.unnamed_parameter"
+msgstr "追加パラメーターのメニューアイテムにパラメーター名がありません"
+
+msgid "warning.extra_parameter.unnamed_parameter:description"
+msgstr "{0}番目の項目が指す{1}はパラメーター名が空で、Object ToggleなどのReactive Componentも持たないため、Modular Avatarは名前を振りません。書き込む先がないので生成から外しました。"
+
+msgid "warning.extra_parameter.unnamed_parameter:hint"
+msgstr "メニューアイテムにパラメーター名を入力してください。"
+
+msgid "warning.extra_parameter.shared_auto_name"
+msgstr "追加パラメーターのメニューアイテムが自動の名前を共有しています"
+
+msgid "warning.extra_parameter.shared_auto_name:description"
+msgstr "{0}番目の項目が指す{1}と同じ名前をModular Avatarが振るメニューアイテムが、ほかにもあります (同じオブジェクトに載っている、同名の兄弟オブジェクトにあるなど)。枝番で区別された名前を追えないため、生成から外しました。"
+
+msgid "warning.extra_parameter.shared_auto_name:hint"
+msgstr "メニューアイテムにパラメーター名を入力するか、オブジェクトの名前を変えて重ならないようにしてください。"
+
+msgid "warning.extra_parameter.reserved_name"
+msgstr "追加パラメーターの名前が本製品の予約名です"
+
+msgid "warning.extra_parameter.reserved_name:description"
+msgstr "{0}番目の項目のパラメーター名は KxNFTM/Stash/ で始まります。この名前は本製品が元の値の退避に使うため、生成から外しました。"
+
+msgid "warning.extra_parameter.reserved_name:hint"
+msgstr "KxNFTM/Stash/ で始まらない名前のパラメーターを指定してください。"
+
+msgid "warning.extra_parameter.duplicate_name"
+msgstr "追加パラメーターの書き込み先が重複しています"
+
+msgid "warning.extra_parameter.duplicate_name:description"
+msgstr "{0}番目の項目は、先に並んだ項目と同じパラメーターへ書き込むため、生成から外しました。"
+
+msgid "warning.extra_parameter.duplicate_name:hint"
+msgstr "同じパラメーターを指す項目は1つにまとめてください。"
+
+msgid "warning.extra_parameter.automatic_value"
+msgstr "追加パラメーターのメニューアイテムの値を決められません"
+
+msgid "warning.extra_parameter.automatic_value:description"
+msgstr "{0}番目の項目が指す{1}は値の自動設定が有効で、同じパラメーターを使うメニューアイテムが複数あります。Modular Avatarがビルド中に振る値を求められないため、生成から外しました。"
+
+msgid "warning.extra_parameter.automatic_value:hint"
+msgstr "メニューアイテムの値の自動設定を切り、値を入力してください。"

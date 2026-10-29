@@ -52,6 +52,15 @@ namespace NativeFTManager.Domain
         public bool GeneratorSetWriteEnabled;
         public IReadOnlyList<string> JerrysEvidence = new string[0];
         public bool HasJsTBridge;
+
+        /// <summary>アバターにFaceEmoがあるか（Merge AnimatorのコントローラがCN_FORCE_BYPASS_ENABLEを宣言している）</summary>
+        public bool HasFaceEmo;
+
+        /// <summary>コンポーネントでFaceEmoの抑制が有効か</summary>
+        public bool FaceEmoSuppressionEnabled;
+
+        /// <summary>FaceEmoの抑制の発動条件が、メニューに出さないトグルのせいで決して成り立たないか</summary>
+        public bool FaceEmoSuppressionNeverEngaged;
         public AaoPresence Aao;
         public bool SetUseAllTrackingKeys;
         public bool DescriptorUseAllTrackingKeys;
@@ -86,6 +95,23 @@ namespace NativeFTManager.Domain
             if (facts.HasJsTBridge)
             {
                 diagnostics.Add(new Diagnostic(DiagnosticCodes.JsTBridgePresent));
+            }
+
+            if (facts.FaceEmoSuppressionEnabled)
+            {
+                if (!facts.HasFaceEmo)
+                {
+                    diagnostics.Add(new Diagnostic(DiagnosticCodes.FaceEmoMissing));
+                }
+
+                if (facts.FaceEmoSuppressionNeverEngaged)
+                {
+                    diagnostics.Add(new Diagnostic(DiagnosticCodes.SuppressionNeverEngaged));
+                }
+            }
+            else if (facts.HasFaceEmo)
+            {
+                diagnostics.Add(new Diagnostic(DiagnosticCodes.SuppressionDisabled));
             }
 
             switch (facts.Generator)

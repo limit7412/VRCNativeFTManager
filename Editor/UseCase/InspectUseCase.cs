@@ -48,7 +48,7 @@ namespace NativeFTManager.UseCase
             report.HasAvatar = true;
 
             var toggles = ComponentSettings.ResolveToggles(component);
-            var facts = AvatarScanner.Scan(avatarRoot, component, toggles.Dynamic);
+            var facts = AvatarScanner.Scan(avatarRoot, component, toggles);
             report.Diagnostics.AddRange(AvatarDiagnostics.Evaluate(facts));
 
             var descriptor = avatarRoot.GetComponent<VRCAvatarDescriptor>();
@@ -120,6 +120,7 @@ namespace NativeFTManager.UseCase
                 plan,
                 FaceTrackingDescriptorAccess.GetMeshCounter(descriptor),
                 facts.OtherSyncedBits);
+            report.Estimate.FxLayerCount += CountSuppressionLayers(component, facts);
 
             if (report.Corrections.DroppedRules.Count > 0)
             {
@@ -128,6 +129,28 @@ namespace NativeFTManager.UseCase
                     string.Join(", ", report.Corrections.DroppedRules),
                     existingInstructions));
             }
+        }
+
+        /// <summary>
+        /// FaceEmoの抑制で増えるFXレイヤーの数。FaceEmoを止めるレイヤーはFaceEmoが見つからなくても作る。
+        /// 追加パラメーターは同期の判定にビルド中の情報が要るので、
+        /// 同期するものとしないものが混ざると1つ少なく数える
+        /// </summary>
+        private static int CountSuppressionLayers(NativeFTManagerComponent component, AvatarFacts facts)
+        {
+            var settings = component.faceEmoSuppression;
+            if (settings == null || !settings.enabled || facts.FaceEmoSuppressionNeverEngaged)
+            {
+                return 0;
+            }
+
+            int count = 1;
+            if (settings.extraParameters != null && settings.extraParameters.Any(entry => entry != null))
+            {
+                count++;
+            }
+
+            return count;
         }
 
         /// <summary>

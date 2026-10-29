@@ -30,11 +30,16 @@ namespace NativeFTManager.Infra
         public static AvatarFacts Scan(
             GameObject avatarRoot,
             NativeFTManagerComponent component,
-            IReadOnlyList<ResolvedToggle> publishedParameters)
+            ToggleSet toggles)
         {
+            var publishedParameters = toggles.Dynamic;
             var descriptor = avatarRoot != null ? avatarRoot.GetComponent<VRCAvatarDescriptor>() : null;
+            var suppression = component.faceEmoSuppression;
             var facts = new AvatarFacts
             {
+                FaceEmoSuppressionEnabled = suppression != null && suppression.enabled,
+                FaceEmoSuppressionNeverEngaged = suppression != null && suppression.enabled
+                    && SuppressionTrigger.Build(suppression.trigger, toggles).IsNeverEngaged,
                 Preset = component.preset,
                 Integration = component.generatorIntegration,
                 SetUseAllTrackingKeys = component.setUseAllTrackingKeys,
@@ -76,8 +81,11 @@ namespace NativeFTManager.Infra
                 .Where(name => !string.IsNullOrEmpty(name))
                 .ToArray();
 
+            var controllerParameterNames = CollectControllerParameterNames(avatarRoot, descriptor).ToArray();
+            facts.HasFaceEmo = controllerParameterNames.Any(names => names.Contains(FaceEmoParameterNames.ForceBypassEnable));
+
             facts.JerrysEvidence = JerrysDetection.Detect(
-                CollectControllerParameterNames(avatarRoot, descriptor),
+                controllerParameterNames,
                 maParameterNames,
                 avatarRoot.GetComponentsInChildren<Transform>(true).Select(t => t.name));
 
