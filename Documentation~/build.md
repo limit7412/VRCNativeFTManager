@@ -6,8 +6,8 @@ English: [build.en.md](build.en.md)
 それぞれを有効にする設定は、READMEの[設定項目](../README.md#設定項目)にあります。
 
 - DescriptorのBlendshapes Setを、トラッキングキーの種類でEye / EyeClosed / Pupil / Brow / Lip / Otherに分ける（`KxNFTM/Eye` など）。元のSetは消え、キーとシェイプの対応の総数は変わらない。「分割しないSet」に入れたSetと、既存のParameter BehaviorかState Behaviorが名前で参照しているSet（KxNFTM-W-10）は分けずに残す
-- メニューに出すトグルごとに同期Boolのパラメーターとメニューを作り、FXのレイヤーでSetの重みを0と1に切り替える。パラメーターは `KxNFTM/FaceTracking`、`KxNFTM/EyeTracking`、`KxNFTM/LipTracking`、`KxNFTM/Pupil`、`KxNFTM/Visemes`、`KxNFTM/Emulation`、`KxNFTM/Limits`、`KxNFTM/EyeSync` で、UEプリセットなら計8bit
-- 切り替えるSetが無いトグル（ARKitのシェイプしか持たないアバターのPupilなど）は、EXメニューの項目と同期パラメーターを外す（KxNFTM-I-05）
+- メニューに出すトグルごとに同期Boolのパラメーターを作り（ビルド時に作る形ならメニューも作り、ヒエラルキーのMenu Itemの形ならMenu Itemから既定値と保存を読み）、FXのレイヤーでSetの重みを0と1に切り替える。パラメーターは `KxNFTM/FaceTracking`、`KxNFTM/EyeTracking`、`KxNFTM/LipTracking`、`KxNFTM/Pupil`、`KxNFTM/Visemes`、`KxNFTM/Emulation`、`KxNFTM/Limits`、`KxNFTM/EyeSync` で、UEプリセットなら計8bit
+- 切り替えるSetが無いトグル（ARKitのシェイプしか持たないアバターのPupilなど）は、EXメニューの項目と同期パラメーターを外す（KxNFTM-I-05）。生成しない表情補正のトグルのMenu Itemがヒエラルキーに残っているときも同じく外す
 - 感度を有効にした系統は、Setの倍率を上限の倍率まで上げ、Radialの段階ごとのステートでSetの重みを書く（下の「感度の仕組み」）
 - Visemesを切ると、FXのTracking ControlでMouth & JawをAnimationにしてビゼームを止める
 - 表情補正を、DescriptorのParameter Behaviors（Custom式）として足す。係数はJerry's 7.0.5のFXから移した（出典は[THIRD_PARTY_NOTICES](../Editor/THIRD_PARTY_NOTICES.md)）

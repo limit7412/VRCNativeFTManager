@@ -19,4 +19,4 @@ This package does not remove Jerry's for you, so remove its prefab before upload
 | Sensitivity | Seven continuous values | Two channels (eyes, mouth) in 8 steps, not created by default |
 
 The `KxNFTM/` prefix is provisional and will be finalized before 1.0.
-Menu labels are in English, as in Jerry's.
+The labels of the menu generated at build time are in English, as in Jerry's. The menu created in the hierarchy from the right-click menu (MA Menu Items) gets labels in the editor language at creation time, and can be reordered and renamed in the hierarchy as with Jerry's.
