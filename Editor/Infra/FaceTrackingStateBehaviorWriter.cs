@@ -12,15 +12,18 @@ namespace NativeFTManager.Infra
     /// <summary>
     /// ステートへVRC Animator Face Tracking Blendshapes Set（State Behavior）を付ける
     ///
-    /// このState BehaviorはSDKのランタイムDLLにあり、型名とフィールド名をまだ確かめていない
-    /// （仕様書14.1の確認項目6）。そのため型を直接参照せず、SDKのStateMachineBehaviourの中から
-    /// 名前で探してリフレクションで値を書く。見つからなければ書かずに理由を返すので、
-    /// ビルドはSetの分割までは進み、トグルだけが効かない状態になる。
-    /// 確認項目6で型が確定したら、ここを型の直接参照へ置き換える
+    /// このState BehaviorはSDKのランタイムDLLにあり、ベータの間に形が変わりうる。
+    /// そのため型を直接参照せず、SDKのStateMachineBehaviourの中から名前で探してリフレクションで値を書く。
+    /// 見つからなければ書かずに理由を返すので、ビルドはSetの分割までは進み、トグルだけが効かない状態になる。
+    ///
+    /// SDK 3.10.6-beta.2のBehaviorは、Set名と重みを直下に持たず、要素の一覧（blendSets）に持つ。
+    /// 要素1つが「Set 1つの重みを、固定値かパラメーターの値で書く」指定で、1つのBehaviorで複数のSetを書ける。
+    /// 2026-10-30の実機確認（fttest）でこの形を確かめた。直下に持つ形も、念のため残して両方を探す
     /// </summary>
     internal static class FaceTrackingStateBehaviorWriter
     {
-        private sealed class Binding
+        /// <summary>Set 1つ分の指定を書くフィールドの組。Behavior直下か、一覧の要素の型に属する</summary>
+        private sealed class EntryFields
         {
             public Type Type;
             public FieldInfo SetName;
@@ -28,6 +31,16 @@ namespace NativeFTManager.Infra
             public FieldInfo LerpSpeed;
             public FieldInfo Mode;
             public object FixedValueMode;
+        }
+
+        private sealed class Binding
+        {
+            public Type Type;
+
+            /// <summary>指定の一覧（blendSets）。nullならBehavior直下にSet 1つ分を持つ形</summary>
+            public FieldInfo List;
+
+            public EntryFields Entry;
         }
 
         private static Binding _binding;
@@ -50,25 +63,57 @@ namespace NativeFTManager.Infra
         }
 
         /// <summary>
-        /// ステートに入ったときSetの重みをweightへ書くBehaviorを付ける（Type = Value）
+        /// ステートに入ったとき、各Setの重みを固定値で書くBehaviorを付ける（Type = Value）。
+        /// 一覧を持つ形なら1つのBehaviorにまとめ、直下に持つ形ならSetごとに1つ付ける
         /// </summary>
-        public static StateMachineBehaviour Add(AnimatorState state, string setName, float weight, float lerpSpeed)
+        public static IReadOnlyList<StateMachineBehaviour> Add(
+            AnimatorState state,
+            IReadOnlyList<(string SetName, float Weight)> sets,
+            float lerpSpeed)
         {
-            if (!TryResolve(out _))
+            var added = new List<StateMachineBehaviour>();
+            if (!TryResolve(out _) || sets.Count == 0)
             {
-                return null;
+                return added;
+            }
+
+            if (_binding.List == null)
+            {
+                foreach (var (setName, weight) in sets)
+                {
+                    var single = state.AddStateMachineBehaviour(_binding.Type);
+                    WriteEntry(single, setName, weight, lerpSpeed);
+                    added.Add(single);
+                }
+
+                return added;
             }
 
             var behaviour = state.AddStateMachineBehaviour(_binding.Type);
-            _binding.SetName.SetValue(behaviour, setName);
-            _binding.Weight.SetValue(behaviour, weight);
-            _binding.LerpSpeed?.SetValue(behaviour, lerpSpeed);
-            if (_binding.Mode != null)
+            var list = _binding.List.GetValue(behaviour) as System.Collections.IList
+                       ?? (System.Collections.IList)Activator.CreateInstance(_binding.List.FieldType);
+            foreach (var (setName, weight) in sets)
             {
-                _binding.Mode.SetValue(behaviour, _binding.FixedValueMode);
+                var entry = Activator.CreateInstance(_binding.Entry.Type);
+                WriteEntry(entry, setName, weight, lerpSpeed);
+                list.Add(entry);
             }
 
-            return behaviour;
+            _binding.List.SetValue(behaviour, list);
+            added.Add(behaviour);
+            return added;
+        }
+
+        private static void WriteEntry(object target, string setName, float weight, float lerpSpeed)
+        {
+            var fields = _binding.Entry;
+            fields.SetName.SetValue(target, setName);
+            fields.Weight.SetValue(target, weight);
+            fields.LerpSpeed?.SetValue(target, lerpSpeed);
+            if (fields.Mode != null)
+            {
+                fields.Mode.SetValue(target, fields.FixedValueMode);
+            }
         }
 
         /// <summary>
@@ -125,10 +170,21 @@ namespace NativeFTManager.Infra
 
             foreach (var behaviour in behaviours)
             {
-                if (behaviour != null && _binding.Type.IsInstanceOfType(behaviour)
-                    && _binding.SetName.GetValue(behaviour) is string name && !string.IsNullOrEmpty(name))
+                if (behaviour == null || !_binding.Type.IsInstanceOfType(behaviour))
                 {
-                    names.Add(name);
+                    continue;
+                }
+
+                var entries = _binding.List == null
+                    ? new object[] { behaviour }
+                    : (_binding.List.GetValue(behaviour) as System.Collections.IEnumerable)?.Cast<object>()
+                      ?? Enumerable.Empty<object>();
+                foreach (var entry in entries)
+                {
+                    if (entry != null && _binding.Entry.SetName.GetValue(entry) is string name && !string.IsNullOrEmpty(name))
+                    {
+                        names.Add(name);
+                    }
                 }
             }
         }
@@ -150,23 +206,51 @@ namespace NativeFTManager.Infra
                 builder.AppendLine($"type: {type.FullName} ({type.Assembly.GetName().Name})"
                                    + (type.IsAbstract ? " abstract" : "")
                                    + $" base={type.BaseType?.FullName}");
+                DescribeFields(builder, type, "  ");
                 foreach (var field in type.GetFields(BindingFlags.Public | BindingFlags.Instance))
                 {
-                    builder.AppendLine($"  field: {field.FieldType.FullName} {field.Name}");
-                    if (field.FieldType.IsEnum)
+                    var element = GetElementType(field.FieldType);
+                    if (element != null && !element.IsPrimitive && element != typeof(string))
                     {
-                        builder.AppendLine("    values: " + string.Join(", ", Enum.GetNames(field.FieldType)));
+                        builder.AppendLine($"  element of {field.Name}: {element.FullName}");
+                        DescribeFields(builder, element, "    ");
                     }
                 }
             }
 
             TryResolve(out var failure);
             builder.AppendLine(_binding != null
-                ? $"resolved: setName={_binding.SetName.Name}, weight={_binding.Weight.Name}, "
-                  + $"lerpSpeed={_binding.LerpSpeed?.Name ?? "-"}, mode={_binding.Mode?.Name ?? "-"}"
+                ? $"resolved: list={_binding.List?.Name ?? "-"}, setName={_binding.Entry.SetName.Name}, "
+                  + $"weight={_binding.Entry.Weight.Name}, lerpSpeed={_binding.Entry.LerpSpeed?.Name ?? "-"}, "
+                  + $"mode={_binding.Entry.Mode?.Name ?? "-"}"
                 : "not resolved: " + failure);
 
             return builder.ToString();
+        }
+
+        private static void DescribeFields(StringBuilder builder, Type type, string indent)
+        {
+            foreach (var field in type.GetFields(BindingFlags.Public | BindingFlags.Instance))
+            {
+                builder.AppendLine($"{indent}field: {field.FieldType.FullName} {field.Name}");
+                if (field.FieldType.IsEnum)
+                {
+                    builder.AppendLine($"{indent}  values: " + string.Join(", ", Enum.GetNames(field.FieldType)));
+                }
+            }
+        }
+
+        /// <summary>List&lt;T&gt;か配列の要素の型。どちらでもなければnull</summary>
+        private static Type GetElementType(Type type)
+        {
+            if (type.IsArray)
+            {
+                return type.GetElementType();
+            }
+
+            return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>)
+                ? type.GetGenericArguments()[0]
+                : null;
         }
 
         private static IEnumerable<Type> FindCandidates()
@@ -193,8 +277,50 @@ namespace NativeFTManager.Infra
 
             var fields = behaviourType.GetFields(BindingFlags.Public | BindingFlags.Instance);
 
+            // 一覧の形を先に探す。直下にもSet名らしいフィールドがある形へ変わっても、一覧があればそちらが本体である。
+            // 一覧はList<T>だけを相手にする。配列は要素を足すたびに作り直しが要り、SDKもこの形を使っていない
+            foreach (var field in fields)
+            {
+                var element = field.FieldType.IsGenericType
+                              && field.FieldType.GetGenericTypeDefinition() == typeof(List<>)
+                    ? field.FieldType.GetGenericArguments()[0]
+                    : null;
+                if (element == null || element.IsPrimitive || element == typeof(string) || element.IsAbstract
+                    || element.GetConstructor(Type.EmptyTypes) == null)
+                {
+                    continue;
+                }
+
+                var entry = ResolveEntry(element);
+                if (entry != null)
+                {
+                    failure = null;
+                    return new Binding { Type = behaviourType, List = field, Entry = entry };
+                }
+            }
+
+            var direct = ResolveEntry(behaviourType);
+            if (direct == null)
+            {
+                failure = $"fields not found in {behaviourType.FullName}: "
+                          + string.Join(", ", fields.Select(field => $"{field.FieldType.Name} {field.Name}"));
+                return null;
+            }
+
+            failure = null;
+            return new Binding { Type = behaviourType, Entry = direct };
+        }
+
+        /// <summary>
+        /// Set 1つ分の指定（Set名、重み、追従の速さ、固定値か否か）を書くフィールドを型から探す。
+        /// Set名と重みが無ければnull
+        /// </summary>
+        private static EntryFields ResolveEntry(Type type)
+        {
+            var fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
+
             var setName = PickField(fields, typeof(string),
-                new[] { "setName", "blendshapesSetName", "blendShapeSetName", "blendshapeSetName", "targetSetName" },
+                new[] { "blendshapesSetName", "setName", "blendShapeSetName", "blendshapeSetName", "targetSetName" },
                 name => Contains(name, "set") && !Contains(name, "param"));
             var weight = PickField(fields, typeof(float),
                 new[] { "weight", "setWeight", "value", "targetWeight", "blendWeight" },
@@ -205,12 +331,10 @@ namespace NativeFTManager.Infra
 
             if (setName == null || weight == null)
             {
-                failure = $"fields not found in {behaviourType.FullName}: "
-                          + string.Join(", ", fields.Select(field => $"{field.FieldType.Name} {field.Name}"));
                 return null;
             }
 
-            // 固定値と「突入時のパラメーター値」を切り替える列挙体があれば、固定値の側へ合わせる
+            // 固定値と「パラメーターの値」を切り替える列挙体があれば、固定値の側へ合わせる
             FieldInfo mode = null;
             object fixedValue = null;
             foreach (var field in fields.Where(field => field.FieldType.IsEnum))
@@ -225,10 +349,9 @@ namespace NativeFTManager.Infra
                 }
             }
 
-            failure = null;
-            return new Binding
+            return new EntryFields
             {
-                Type = behaviourType,
+                Type = type,
                 SetName = setName,
                 Weight = weight,
                 LerpSpeed = lerp,

@@ -475,6 +475,12 @@ msgstr "[KxNFTM-I-04] FaceEmoが見つかりません"
 msgid "diag.I-04:description"
 msgstr "FaceEmoの抑制が有効ですが、アバターのMerge AnimatorにFaceEmoが見つかりません。FaceEmoを後から追加する場合や、ビルド中にFaceEmoを生成する構成なら、このままで構いません。FaceEmoを使わないなら、抑制を無効にしてください。"
 
+msgid "diag.I-05"
+msgstr "[KxNFTM-I-05] 切り替えるSetが無いトグルをメニューから外しました"
+
+msgid "diag.I-05:description"
+msgstr "トグル「{0}」が切り替えるBlendshapes Setが無いため、EXメニューの項目と同期パラメーターを外しました。ARKitのシェイプには瞳孔が無いので、Pupilはこうなります。Setにキーを割り当てれば、トグルは残ります。"
+
 msgid "inspector.face_emo.expression_control"
 msgstr "FaceEmoが書き込みを続けるため、素体の表情レイヤーは通常時と同じく押さえ込まれ、トラッキング中もメニューから表情を選べます。\nFaceEmoのデフォルト表情はトラッキングと同じブレンドシェイプを書くので、あらかじめFaceEmoの「除外するブレンドシェイプ」へトラッキング用のシェイプを登録しておいてください。"
 

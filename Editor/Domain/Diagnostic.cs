@@ -112,6 +112,9 @@ namespace NativeFTManager.Domain
         /// <summary>FaceEmoの抑制が有効だが、アバターにFaceEmoが無い（M3で追加）</summary>
         public const string FaceEmoMissing = "I-04";
 
+        /// <summary>切り替えるSetが無いトグルを、メニューと同期パラメーターから外した</summary>
+        public const string UnusedToggleRemoved = "I-05";
+
         /// <summary>W-04の判定に使う、割り当てキー数の下限</summary>
         public const int GeneratorSetMinimumKeys = 10;
 
@@ -141,6 +144,7 @@ namespace NativeFTManager.Domain
                 { FaceEmoParametersUnresolved, DiagnosticSeverity.Warning },
                 { SuppressionDisabled, DiagnosticSeverity.Information },
                 { FaceEmoMissing, DiagnosticSeverity.Information },
+                { UnusedToggleRemoved, DiagnosticSeverity.Information },
             };
 
         public static IEnumerable<string> All => Severities.Keys;

@@ -113,6 +113,29 @@ namespace NativeFTManager.UseCase
             FaceTrackingDescriptorAccess.AppendBehaviors(descriptor, corrections.Behaviors);
             AttachBehaviors(context, fx, plan, result, corrections, primary);
             FaceTrackingDescriptorAccess.ApplySettings(descriptor, primary);
+            RemoveUnusedToggles(context, descriptor, toggles, primary);
+        }
+
+        /// <summary>
+        /// 切り替えるSetが無くレイヤーごと取り除いたトグルを、メニューと同期パラメーターから外す。
+        /// 押しても何も変わらない項目を残さず、同期bitも空ける
+        /// </summary>
+        private static void RemoveUnusedToggles(
+            BuildContext context,
+            VRCAvatarDescriptor descriptor,
+            ToggleSet toggles,
+            NativeFTManagerComponent primary)
+        {
+            var removed = UnusedToggleRemover.Remove(
+                descriptor,
+                FxLayerRemover.CollectAvatarControllers(context.AvatarRootObject),
+                toggles.Dynamic.Select(toggle => toggle.ParameterName));
+            if (removed.Count > 0)
+            {
+                DiagnosticReporter.Report(
+                    new Diagnostic(DiagnosticCodes.UnusedToggleRemoved, string.Join(", ", removed)),
+                    primary);
+            }
         }
 
         /// <summary>
