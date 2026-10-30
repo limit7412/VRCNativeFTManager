@@ -67,16 +67,15 @@ namespace NativeFTManager.Infra
                 return Outcome.LayerMissing;
             }
 
-            foreach (var setName in setNames)
+            // 感度の段階では重みが1より小さい。Setの倍率はApplyで上限の倍率まで上げてある（仕様書5.6）
+            foreach (var (weight, state) in on)
             {
-                // 感度の段階では重みが1より小さい。Setの倍率はApplyで上限の倍率まで上げてある（仕様書5.6）
-                foreach (var (weight, state) in on)
-                {
-                    Save(FaceTrackingStateBehaviorWriter.Add(state, setName, weight, lerpSpeed), saveAsset);
-                }
-
-                Save(FaceTrackingStateBehaviorWriter.Add(off, setName, 0f, lerpSpeed), saveAsset);
+                Save(FaceTrackingStateBehaviorWriter.Add(
+                    state, setNames.Select(setName => (setName, weight)).ToArray(), lerpSpeed), saveAsset);
             }
+
+            Save(FaceTrackingStateBehaviorWriter.Add(
+                off, setNames.Select(setName => (setName, 0f)).ToArray(), lerpSpeed), saveAsset);
 
             return Outcome.Attached;
         }
@@ -86,13 +85,16 @@ namespace NativeFTManager.Infra
             return stateMachine.states.Select(child => child.state).FirstOrDefault(state => state.name == name);
         }
 
-        private static void Save(Object behaviour, System.Action<Object> saveAsset)
+        private static void Save(IEnumerable<StateMachineBehaviour> behaviours, System.Action<Object> saveAsset)
         {
             // 永続化済みのコントローラへ付けたBehaviorは、Unityが同じアセットへ自動で入れる。
             // そうでなければ、ビルドの一時アセットへ登録する
-            if (behaviour != null && !EditorUtility.IsPersistent(behaviour))
+            foreach (var behaviour in behaviours)
             {
-                saveAsset?.Invoke(behaviour);
+                if (behaviour != null && !EditorUtility.IsPersistent(behaviour))
+                {
+                    saveAsset?.Invoke(behaviour);
+                }
             }
         }
     }

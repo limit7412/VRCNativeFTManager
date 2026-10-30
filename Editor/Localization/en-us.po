@@ -475,6 +475,12 @@ msgstr "[KxNFTM-I-04] FaceEmo was not found"
 msgid "diag.I-04:description"
 msgstr "FaceEmo suppression is on, but no FaceEmo was found among the avatar's Merge Animators. If you add FaceEmo later, or FaceEmo is generated during the build, you can leave it as it is. If you do not use FaceEmo, turn the suppression off."
 
+msgid "diag.I-05"
+msgstr "[KxNFTM-I-05] Toggles with no Set to switch were removed from the menu"
+
+msgid "diag.I-05:description"
+msgstr "No Blendshapes Set is switched by the toggle \"{0}\", so its Expressions Menu item and synced parameter were removed. This happens to Pupil with ARKit shapes, which have no pupil shapes. Assign the keys in a Set to keep the toggle."
+
 msgid "inspector.face_emo.expression_control"
 msgstr "FaceEmo keeps writing, so the avatar's own expression layers stay covered as usual and the menu can still switch expressions while tracking.\nFaceEmo's default face writes the same blend shapes as face tracking, so register the tracking blend shapes in FaceEmo's Excluded Blend Shapes first."
 
