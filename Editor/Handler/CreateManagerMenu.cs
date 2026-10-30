@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using NativeFTManager.Infra;
@@ -57,10 +58,18 @@ namespace NativeFTManager.Handler
             NativeFTPresets.Apply(component, preset);
             component.generatorIntegration = generatorIntegration;
 
-            // プリセットのトグルの構成をそのままMenu Itemにし、以後はMenu Itemの側を正にする
-            var toggles = ComponentSettings.ResolveToggles(component);
-            component.menuMode = NativeFTMenuMode.Hierarchy;
-            MenuHierarchyBuilder.Expand(component, toggles, "Create " + name);
+            // プリセットのトグルの構成をそのままMenu Itemにし、以後はMenu Itemの側を正にする。
+            // アバターにすでにManagerがあり、こちらが重複として消される側なら作らない。
+            // コンポーネントだけが消え、Menu Installerが残ってメニューが二重になるため
+            var searchRoot = MenuHierarchyScanner.GetSearchRoot(component);
+            var duplicates = ComponentSelection.SelectDuplicateComponents(
+                searchRoot.transform, ComponentSelection.CollectComponents(searchRoot));
+            if (!duplicates.Contains(component))
+            {
+                var toggles = ComponentSettings.ResolveToggles(component);
+                component.menuMode = NativeFTMenuMode.Hierarchy;
+                MenuHierarchyBuilder.Expand(component, toggles, "Create " + name);
+            }
 
             Selection.activeGameObject = gameObject;
             return gameObject;

@@ -702,6 +702,22 @@ namespace NativeFTManager.Presentation
                 var toggles = ComponentSettings.ResolveToggles(component);
                 Undo.RecordObject(component, undoName);
                 component.menuMode = NativeFTMenuMode.Hierarchy;
+
+                // Menu Itemにしないトグルの固定の値はtogglesに残るので、古い版で保存して表に無いトグルを、
+                // 持たないときと同じ値で加えておく。加えないと、展開後の表で固定の値を編集できない
+                if (component.toggles == null)
+                {
+                    component.toggles = new System.Collections.Generic.List<ToggleSettings>();
+                }
+
+                foreach (NativeFTToggle toggle in System.Enum.GetValues(typeof(NativeFTToggle)))
+                {
+                    if (component.toggles.All(settings => settings == null || settings.toggle != toggle))
+                    {
+                        component.toggles.Add(ToggleSettings.CreateMissing(toggle));
+                    }
+                }
+
                 MarkModified(component);
                 MenuHierarchyBuilder.Expand(component, toggles, undoName);
             }
