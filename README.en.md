@@ -94,7 +94,7 @@ At build time, the MA Menu Items on the avatar whose parameter name (after the r
 
 - A toggle with a Menu Item appears in the menu and gets a synced Bool parameter (1 bit each). Its default follows the Default setting of the Menu Item, and saving follows its Saved setting. Syncing is always on regardless of the setting, because remote clients decide the Set weights with their own animators
 - A toggle whose Menu Item is deleted stays out of the menu and has no parameter. It works with the fixed value shown in the Default column of the inspector table (right after creating from the right-click menu, the preset value; after migrating with the expand button, the default from the table before migration)
-- The value of a toggle Menu Item must be 1 (or use the automatic value). Menu Items with another value are not read, with a warning (KxNFTM-W-19)
+- The value of a toggle Menu Item must be 1 (or use the automatic value). Menu Items with another value, and Menu Items that use the automatic value while the same parameter has several items, are not read, with a warning (KxNFTM-W-19)
 - When no Menu Item points to a public name, a warning (KxNFTM-W-18) appears
 - Menu Items whose parameter name differs from the public names are treated as your own and are not read
 

@@ -85,6 +85,19 @@ namespace NativeFTManager.Tests
         }
 
         [Test]
+        public void Read_DuplicatedToggleWithAutomaticValue_IsReportedAndNotRead()
+        {
+            var menu = MenuHierarchy.Read(new[]
+            {
+                Toggle(NativeFTManagerParameterNames.Visemes),
+                new MenuEntry(MenuEntryKind.Toggle, NativeFTManagerParameterNames.Visemes, 1f, true, false, true),
+            });
+
+            Assert.That(menu.Contains(NativeFTToggle.Visemes), Is.False);
+            Assert.That(menu.InvalidValues, Is.EqualTo(new[] { NativeFTManagerParameterNames.Visemes }));
+        }
+
+        [Test]
         public void Read_DuplicatedToggle_IsDefaultWhenAnyIsDefault()
         {
             var menu = MenuHierarchy.Read(new[]

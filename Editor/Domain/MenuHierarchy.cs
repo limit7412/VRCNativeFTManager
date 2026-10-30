@@ -124,7 +124,17 @@ namespace NativeFTManager.Domain
             var invalid = new List<string>();
             bool sensitivitySaved = false;
 
-            foreach (var entry in entries.Where(entry => entry != null && !string.IsNullOrEmpty(entry.Parameter)))
+            var list = entries.Where(entry => entry != null && !string.IsNullOrEmpty(entry.Parameter)).ToArray();
+
+            // 同じパラメーターを複数のMenu Itemが指し、どれかが値の自動設定を使うと、MAは階層順に1、2…と値を振る。
+            // その順はビルド時のヒエラルキーで決まりなぞれないので（MenuItemToggleValue）、その組は読まない
+            var sharedAutomatic = new HashSet<string>(list
+                .Where(entry => entry.Kind == MenuEntryKind.Toggle)
+                .GroupBy(entry => entry.Parameter)
+                .Where(group => group.Count() > 1 && group.Any(entry => entry.AutomaticValue))
+                .Select(group => group.Key));
+
+            foreach (var entry in list)
             {
                 switch (entry.Kind)
                 {
@@ -135,9 +145,10 @@ namespace NativeFTManager.Domain
                             break;
                         }
 
-                        // 値の自動割り当てでは、本製品が宣言する既定値（0か1）を避けずに1が振られる（MenuItemToggleValue）。
-                        // 手で1以外にしたトグルはBoolのオン・オフにならないので読まない
-                        if (!entry.AutomaticValue && Math.Abs(entry.Value - 1f) > 0.01f)
+                        // 単独のMenu Itemの値の自動割り当てでは、本製品が宣言する既定値（0か1）にかかわらず1が振られる
+                        // （MenuItemToggleValue）。手で1以外にしたトグルはBoolのオン・オフにならないので読まない
+                        if (sharedAutomatic.Contains(entry.Parameter)
+                            || (!entry.AutomaticValue && Math.Abs(entry.Value - 1f) > 0.01f))
                         {
                             if (!invalid.Contains(entry.Parameter))
                             {

@@ -837,7 +837,7 @@ msgid "diag.W-18:description"
 msgstr "The menu is set to be kept in the hierarchy, but the avatar has no MA Menu Item that points to a parameter of this tool (KxNFTM/). No toggle appears in the menu, and every toggle works with a fixed value. Add toggles from the toggle table in the inspector."
 
 msgid "diag.W-19"
-msgstr "[KxNFTM-W-19] A toggle Menu Item has a value other than 1"
+msgstr "[KxNFTM-W-19] A toggle Menu Item does not have the value 1"
 
 msgid "diag.W-19:description"
-msgstr "The toggle Menu Items that point to \"{0}\" were not read because their value is not 1. The toggles of this tool are Bool, so set the value of the Menu Item to 1 or turn on the automatic value."
+msgstr "The toggle Menu Items that point to \"{0}\" were not read, because their value is not 1 or because several items for the same parameter use the automatic value. The toggles of this tool are Bool, so set the value to 1. The automatic value can be used only when the parameter has a single item."
