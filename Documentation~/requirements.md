@@ -8,6 +8,7 @@ English: [requirements.en.md](requirements.en.md)
 - VRChat SDK Avatars 3.10.6-beta.2 以降（プレリリース。Avatar Optimizerと併用するなら 3.10.6-beta.3 以降）
 - NDMF 1.6.0 以降
 - Modular Avatar 1.12.0 以降
+- Kx VRC ARKit BlendShape Generator 0.2.1-test3 以降（プレリリース）
 
 ## プレリリースのSDKを入れる
 
@@ -17,18 +18,27 @@ English: [requirements.en.md](requirements.en.md)
 2. プロジェクトの管理画面で「VRChat SDK - Avatars」の版を 3.10.6-beta.2 以降（Avatar Optimizerと併用するなら 3.10.6-beta.3 以降）に変える
 3. 本製品を追加する。本製品はこのSDKを依存に持つので、SDKが古いままだと追加できない
 
+本製品が依存に持つKx VRC ARKit BlendShape Generatorも、対応する版はまだプレリリースです。
+プレリリースの表示を有効にしてあれば、本製品を追加したときにVCC/ALCOMが一緒に入れます。
+
+## Kx VRC ARKit BlendShape Generator
+
+Generatorは本製品の必須の依存です。
+本製品はGeneratorの型を直接使うので、Generatorが入っていないプロジェクトではコンパイルが通りません。
+booth版のzipには、本製品とGeneratorのunitypackageが入っています（[インストールと更新](install.md)）。
+
+Generatorを使うかどうかはアバターごとに決められます。
+アバターにGeneratorのコンポーネントが無ければ連携は何もせず、DescriptorのBlendshapes Setをそのまま使います。
+
+インスペクタの「Generator連携」が Auto のとき、アバターにGeneratorがあれば、ビルド中だけGeneratorのSet書き込みを有効にします。
+右クリックで作ったManagerは、最初からAutoになっています。
+GeneratorのSetはビルド中にしか作られないので、インスペクタの見積もりには入りません。
+
 ## 入っているときだけ連携するパッケージ
 
 次のパッケージは依存に含めていません。入っているときだけ連携が有効になります。
 
-- Kx VRC ARKit BlendShape Generator
 - Avatar Optimizer 1.9.21-beta.1 以降（併用する場合）
-
-### Kx VRC ARKit BlendShape Generator
-
-インスペクタの「Generator連携」を Auto にすると、アバターにGeneratorがあるとき、ビルド中だけGeneratorのSet書き込みを有効にします。
-ARKit版（右クリックの `Kx NativeFT Manager (ARKit)`）は、最初からAutoになっています。
-GeneratorのSetはビルド中にしか作られないので、インスペクタの見積もりには入りません。
 
 ### Avatar Optimizer
 

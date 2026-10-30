@@ -1,7 +1,7 @@
 # Kx VRC NativeFT Manager
 
 An NDMF plugin that brings Jerry's Templates style toggles and expression corrections, operated from the Expressions Menu, to avatars that use VRChat's native Face Tracking.
-Add it to your avatar from the Hierarchy context menu and it works. It integrates with [Kx VRC ARKit BlendShape Generator](https://github.com/limit7412/VRCARKitBlendShapeGenerator).
+Add it to your avatar from the Hierarchy context menu and it works. It depends on [Kx VRC ARKit BlendShape Generator](https://github.com/limit7412/VRCARKitBlendShapeGenerator) and integrates with it when the avatar has one.
 It also suppresses FaceEmo while face tracking is active. It does not integrate with [Kx VRC FE-JsT Bridge](https://github.com/limit7412/VRCFE-JsTBridge), and the two should not be used on the same avatar.
 
 日本語: [README.md](README.md)
@@ -17,8 +17,9 @@ It also suppresses FaceEmo while face tracking is active. It does not integrate 
 - VRChat SDK Avatars 3.10.6-beta.2 or later (a pre-release; 3.10.6-beta.3 or later if you use Avatar Optimizer)
 - NDMF 1.6.0 or later
 - Modular Avatar 1.12.0 or later
+- Kx VRC ARKit BlendShape Generator 0.2.1-test3 or later (a pre-release; VCC/ALCOM installs it together with this package)
 
-How to install the pre-release SDK, and the conditions for using Kx VRC ARKit BlendShape Generator and Avatar Optimizer together, are in [Requirements and companion packages](Documentation~/requirements.en.md).
+How to install the pre-release SDK and Generator, and the conditions for using Avatar Optimizer together, are in [Requirements and companion packages](Documentation~/requirements.en.md).
 
 ## Installation
 
@@ -29,9 +30,9 @@ Manual installation from the zip, the booth version (unitypackage), and how upda
 
 ## Usage
 
-1. Right-click the avatar in the Hierarchy and choose one of the following under "Kx VRC NativeFT Manager". An object with the component is created directly under the avatar, with the Expressions Menu "Face Tracking" (an MA Menu Installer and MA Menu Items) as its children. You can also add the component to an existing object (including the avatar root) with "Add Component"; its menu is then generated at build time (see "Expressions Menu" below)
-   - Generic (`Kx NativeFT Manager`): for avatars whose Blendshapes Sets on the Descriptor are prepared with Auto Fill or by hand
-   - ARKit (`Kx NativeFT Manager (ARKit)`): for avatars that use Kx VRC ARKit BlendShape Generator. The Generator's Set output is enabled during the build only
+1. Right-click the avatar in the Hierarchy and choose `Kx NativeFT Manager` under "Kx VRC NativeFT Manager". An object with the component is created directly under the avatar, with the Expressions Menu "Face Tracking" (an MA Menu Installer and MA Menu Items) as its children. You can also add the component to an existing object (including the avatar root) with "Add Component"; its menu is then generated at build time (see "Expressions Menu" below)
+   - If the avatar has Kx VRC ARKit BlendShape Generator, the preset is ARKit. The Generator's Set output is enabled during the build only
+   - Otherwise the preset is UE. Prepare the Blendshapes Sets on the Descriptor with Auto Fill or by hand
 2. Choose a preset in the inspector, and change individual settings as described in "Settings" below if needed
 3. Upload. Use "Face Tracking" in the Expressions Menu to switch Face Tracking, Eye Tracking, Lip Tracking, Pupil and Visemes. The corrections (Emulation, Limits, Eye Sync) are in "Settings" below it. The labels are written in the editor language at the time the object is created, and can be changed freely in the hierarchy
 
@@ -51,8 +52,8 @@ Below that, errors, warnings and notices about the settings or the avatar appear
 
 | Item | Default | Meaning |
 | --- | --- | --- |
-| Preset | UE for the generic version, ARKit for the ARKit version | A combination of the toggle layout and which corrections to generate. Choosing a preset rewrites the toggles and the correction settings. With Menu Items in the hierarchy, it deletes the Menu Items of toggles not in the preset, adds the missing ones, and sets the defaults to the preset values (existing Menu Items keep their names, icons and places; Undo restores them). Changing a toggle or a correction away from the preset switches it to Custom |
-| Generator Integration | Off for the generic version, Auto for the ARKit version | With Auto, when the avatar has Kx VRC ARKit BlendShape Generator, its Set output is enabled during the build only. The Generator's settings in the scene are not changed. Off does nothing |
+| Preset | From the context menu, ARKit if the avatar has the Generator and UE otherwise. UE with Add Component | A combination of the toggle layout and which corrections to generate. Choosing a preset rewrites the toggles and the correction settings. With Menu Items in the hierarchy, it deletes the Menu Items of toggles not in the preset, adds the missing ones, and sets the defaults to the preset values (existing Menu Items keep their names, icons and places; Undo restores them). Changing a toggle or a correction away from the preset switches it to Custom |
+| Generator Integration | Auto | With Auto, when the avatar has Kx VRC ARKit BlendShape Generator, its Set output is enabled during the build only. The Generator's settings in the scene are not changed. Off does nothing |
 
 The presets contain the following.
 
@@ -210,7 +211,7 @@ Shows how much the build will generate, calculated from the current Descriptor. 
 | Synced bits | The avatar-wide synced bits against the limit, and this package's share. A warning (KxNFTM-W-13) appears when the limit is likely to be exceeded |
 | FX layers | The number of FX layers this package generates |
 
-With the ARKit version, the Generator's Set exists only during the build and is not included in the estimate.
+When the Generator's Set is used, it exists only during the build and is not included in the estimate.
 
 ### Details
 

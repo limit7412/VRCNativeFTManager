@@ -19,11 +19,6 @@ namespace NativeFTManager.Infra
         /// <summary>FE-JsT Bridgeのコンポーネントの型名。型は参照しない（仕様書10.2）</summary>
         private const string JsTBridgeComponentType = "FEJsTBridge.FEJsTBridgeComponent";
 
-        /// <summary>
-        /// Generatorのコンポーネントの型名。連携用アセンブリが無いときに、Generatorの有無だけを判定するのに使う
-        /// </summary>
-        private const string GeneratorComponentType = "ARKitBlendShapeGenerator.ARKitBlendShapeGeneratorComponent";
-
         /// <summary>Avatar Optimizerのコンポーネントの名前空間。型は参照しない</summary>
         private const string AaoNamespace = "Anatawa12.AvatarOptimizer";
 
@@ -63,15 +58,10 @@ namespace NativeFTManager.Infra
                 facts.Aao = GetAaoSupport();
             }
 
-            var integration = GeneratorIntegrationRegistry.Current;
-            if (integration != null && integration.IsPresent(avatarRoot))
+            if (GeneratorAccess.IsPresent(avatarRoot))
             {
-                facts.Generator = GeneratorPresence.Supported;
-                facts.GeneratorSetWriteEnabled = integration.IsSetWriteEnabled(avatarRoot);
-            }
-            else if (behaviours.Any(b => b.GetType().FullName == GeneratorComponentType))
-            {
-                facts.Generator = GeneratorPresence.Unsupported;
+                facts.Generator = GeneratorPresence.Present;
+                facts.GeneratorSetWriteEnabled = GeneratorAccess.IsSetWriteEnabled(avatarRoot);
             }
 
             var ownHolders = avatarRoot.GetComponentsInChildren<Transform>(true)

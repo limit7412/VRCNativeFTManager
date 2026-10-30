@@ -1,7 +1,7 @@
 # Kx VRC NativeFT Manager
 
 VRChatのネイティブFace Tracking向けに、Jerry's Templates相当のトグルと表情補正をEXメニューから操作できるようにするNDMFプラグインです。
-ヒエラルキーの右クリックからアバターへ追加するだけで使え、[Kx VRC ARKit BlendShape Generator](https://github.com/limit7412/VRCARKitBlendShapeGenerator)に連携します。
+ヒエラルキーの右クリックからアバターへ追加するだけで使えます。[Kx VRC ARKit BlendShape Generator](https://github.com/limit7412/VRCARKitBlendShapeGenerator)を依存に持ち、アバターにGeneratorがあれば連携します。
 FaceEmoの抑制も本製品が行います。[Kx VRC FE-JsT Bridge](https://github.com/limit7412/VRCFE-JsTBridge)とは連携せず、同じアバターでの併用もしません。
 
 English: [README.en.md](README.en.md)
@@ -17,8 +17,9 @@ English: [README.en.md](README.en.md)
 - VRChat SDK Avatars 3.10.6-beta.2 以降（プレリリース。Avatar Optimizerと併用するなら 3.10.6-beta.3 以降）
 - NDMF 1.6.0 以降
 - Modular Avatar 1.12.0 以降
+- Kx VRC ARKit BlendShape Generator 0.2.1-test3 以降（プレリリース。VCC/ALCOMでは本製品と一緒に入る）
 
-プレリリースのSDKの入れ方と、Kx VRC ARKit BlendShape Generator・Avatar Optimizerとの併用の条件は[必要環境と併用するパッケージ](Documentation~/requirements.md)にあります。
+プレリリースのSDKとGeneratorの入れ方と、Avatar Optimizerとの併用の条件は[必要環境と併用するパッケージ](Documentation~/requirements.md)にあります。
 
 ## インストール
 
@@ -29,9 +30,9 @@ zipからの手動インストールとbooth版（unitypackage）の手順、お
 
 ## 使い方
 
-1. ヒエラルキーでアバターを右クリックし、「Kx VRC NativeFT Manager」から次のどちらかを選ぶ。アバター直下に、コンポーネントを付けたオブジェクトができ、その子にEXメニューの「フェイストラッキング」（MA Menu InstallerとMA Menu Itemの階層）ができる。既存のオブジェクト（アバタールートを含む）へ「Add Component」でコンポーネントを付けてもよいが、その場合のメニューはビルド時に作られる（下の「EXメニュー」）
-   - 汎用版（`Kx NativeFT Manager`）: DescriptorのBlendshapes Setを、オートフィルか手入力で用意してあるアバター向け
-   - ARKit版（`Kx NativeFT Manager (ARKit)`）: Kx VRC ARKit BlendShape Generatorを使うアバター向け。GeneratorのSet書き込みを、ビルド中だけ有効にする
+1. ヒエラルキーでアバターを右クリックし、「Kx VRC NativeFT Manager」の `Kx NativeFT Manager` を選ぶ。アバター直下に、コンポーネントを付けたオブジェクトができ、その子にEXメニューの「フェイストラッキング」（MA Menu InstallerとMA Menu Itemの階層）ができる。既存のオブジェクト（アバタールートを含む）へ「Add Component」でコンポーネントを付けてもよいが、その場合のメニューはビルド時に作られる（下の「EXメニュー」）
+   - アバターにKx VRC ARKit BlendShape Generatorがあれば、プリセットはARKitになる。GeneratorのSet書き込みはビルド中だけ有効になる
+   - Generatorが無ければ、プリセットはUEになる。DescriptorのBlendshapes Setは、オートフィルか手入力で用意しておく
 2. インスペクタでプリセットを選び、必要なら下の「設定項目」に沿って個別に変える
 3. アップロードする。EXメニューの「フェイストラッキング」から、フェイストラッキング全体・目・口・瞳孔・ビゼームを切り替える。表情補正の切り替え（エミュレーション・制限・両目の連動）は、その下の「設定」にある。表示名は右クリックで作ったときのエディタの言語で付き、ヒエラルキーで自由に変えられる
 
@@ -51,8 +52,8 @@ Jerry'sとの違いは[Jerry'sからの移行](Documentation~/jerrys.md)に、�
 
 | 項目 | 既定 | 意味 |
 | --- | --- | --- |
-| プリセット | 汎用版 UE、ARKit版 ARKit | トグルの構成と表情補正を作るかの組。選び直すとトグルと表情補正の設定を書き換える。ヒエラルキーのMenu Itemのときは、プリセットに無いトグルのMenu Itemを消し、足りないMenu Itemを足し、既定値をプリセットの値にする（今あるMenu Itemの名前・アイコン・場所はそのまま。Undoで戻せる）。トグルや表情補正をプリセットから変えると Custom になる |
-| Generator連携 | 汎用版 Off、ARKit版 Auto | Auto にすると、アバターにKx VRC ARKit BlendShape Generatorがあるとき、ビルド中だけそのSet書き込みを有効にする。シーンのGeneratorの設定は変わらない。Off なら何もしない |
+| プリセット | 右クリックで作るとき、アバターにGeneratorがあれば ARKit、無ければ UE。Add Componentでは UE | トグルの構成と表情補正を作るかの組。選び直すとトグルと表情補正の設定を書き換える。ヒエラルキーのMenu Itemのときは、プリセットに無いトグルのMenu Itemを消し、足りないMenu Itemを足し、既定値をプリセットの値にする（今あるMenu Itemの名前・アイコン・場所はそのまま。Undoで戻せる）。トグルや表情補正をプリセットから変えると Custom になる |
+| Generator連携 | Auto | Auto にすると、アバターにKx VRC ARKit BlendShape Generatorがあるとき、ビルド中だけそのSet書き込みを有効にする。シーンのGeneratorの設定は変わらない。Off なら何もしない |
 
 プリセットの中身は次のとおりです。
 
@@ -210,7 +211,7 @@ Descriptorの今の値から、ビルドで作るものの量を計算して表�
 | 同期bit | アバター全体の同期bitと上限、そのうち本製品の分。超える見込みなら警告（KxNFTM-W-13） |
 | FXレイヤー | 本製品が作るFXのレイヤーの数 |
 
-ARKit版でGeneratorのSetを使う場合、そのSetはビルド中にしか無いので、見積もりに入りません。
+GeneratorのSetを使う場合、そのSetはビルド中にしか無いので、見積もりに入りません。
 
 ### 詳細
 

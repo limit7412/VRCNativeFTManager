@@ -19,8 +19,20 @@ Kx VRC NativeFT Managerの入れ方は3通りあり、どの経路で入れた�
 
 ## booth版（unitypackage）
 
-Releasesの `VRCNativeFTManager_<バージョン>.zip` に、unitypackageが1つ入っています。
-展開してUnityへドラッグすると `Assets/AtelierKairox/VRCNativeFTManager/` へ取り込まれます。
+Releasesの `VRCNativeFTManager_<バージョン>.zip` に、unitypackageが2つ入っています。
+
+| ファイル | 取り込み先 |
+| --- | --- |
+| `VRCNativeFTManager_<バージョン>.unitypackage` | `Assets/AtelierKairox/VRCNativeFTManager/` |
+| `VRCARKitBlendShapeGenerator_<バージョン>.unitypackage` | `Assets/AtelierKairox/VRCARKitBlendShapeGenerator/` |
+
+本製品はKx VRC ARKit BlendShape Generatorを必須の依存に持ち、Generatorが無いとコンパイルが通りません。
+booth版はVCC/ALCOMの依存解決を通らないので、Generatorのunitypackageを同梱しています。
+同梱するのは、本製品のリリースを作った時点で最新のGeneratorです。
+両方を展開してUnityへドラッグしてください。
+
+Generatorをすでに入れている場合は、Generatorのunitypackageは取り込まなくて構いません。
+GeneratorをVCC/ALCOMで入れている場合は、Generatorのunitypackageを取り込まないでください。Generatorが二組になり、コンパイルが通らなくなります。
 
 **VPM版と同時に入れないでください。**
 どちらもアセンブリ名が同じため、1つのプロジェクトへ両方を入れるとコンパイルが通りません。
@@ -52,6 +64,7 @@ unitypackageの取り込みはファイルの追加と上書きだけを行う�
 そこで「あとで」を選んだ場合は、インスペクタの先頭に出る「更新する」ボタンからいつでも実行できます。
 
 更新は、Releasesからbooth用zipを取得し、GitHubが示すダイジェスト（sha256）と照合してから取り込みます。
+取り込むのは本製品のunitypackageだけです。同梱のGeneratorは取り込まないので、Generatorは別に更新してください。
 取り込みの前に、新しいバージョンに無くなったファイルを削除し、更新前のフォルダを `Temp/` へ控えます。
 取り込みは取り消せないため、実行前に確認を挟みます。
 フォルダの中を自分で書き換えている場合は、先に控えを取ってください。

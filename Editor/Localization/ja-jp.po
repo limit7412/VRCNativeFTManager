@@ -146,9 +146,6 @@ msgstr "ARKit BlendShape Generator"
 msgid "inspector.status.generator_none"
 msgstr "なし"
 
-msgid "inspector.status.generator_unsupported"
-msgstr "連携に対応していない版"
-
 msgid "inspector.status.generator_present"
 msgstr "あり（Set書き込みはオフ）"
 
@@ -264,12 +261,6 @@ msgstr "[KxNFTM-W-02] GeneratorのシェイプがFTに使われません"
 
 msgid "diag.W-02:description"
 msgstr "Generator連携がOffで、GeneratorのSet書き込みもオフです。生成したシェイプがBlendshapes Setに入りません。Generator連携をAutoにしてください。"
-
-msgid "diag.W-03"
-msgstr "[KxNFTM-W-03] Generatorの版が連携に対応していません"
-
-msgid "diag.W-03:description"
-msgstr "アバターのKx VRC ARKit BlendShape Generatorは、連携に必要な版ではありません。Generatorを更新してください。連携できない間は、GeneratorのSet書き込みを手で有効にすれば分割とトグルは動きます。"
 
 msgid "diag.W-04"
 msgstr "[KxNFTM-W-04] GeneratorのSetの割り当てが少なすぎます"

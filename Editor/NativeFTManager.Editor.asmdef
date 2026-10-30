@@ -8,6 +8,7 @@
         "nadena.dev.modular-avatar.core",
         "VRC.SDKBase",
         "VRC.SDK3A",
+        "ARKitBlendShapeGenerator.Runtime",
         "NativeFTManager.Runtime"
     ],
     "includePlatforms": [

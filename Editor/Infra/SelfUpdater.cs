@@ -437,7 +437,8 @@ namespace NativeFTManager.Infra
                 ZipArchiveEntry found = null;
                 foreach (var entry in archive.Entries)
                 {
-                    if (!entry.FullName.EndsWith(UnityPackageExtension, StringComparison.OrdinalIgnoreCase))
+                    // 同梱したGeneratorのunitypackageは取り込まない
+                    if (!SelfUpdatePlan.IsOwnUnityPackage(entry.FullName))
                     {
                         continue;
                     }

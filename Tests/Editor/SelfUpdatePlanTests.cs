@@ -29,6 +29,19 @@ namespace NativeFTManager.Tests
             Assert.That(SelfUpdatePlan.BoothAssetName(tag), Is.EqualTo("VRCNativeFTManager_0.2.0.zip"));
         }
 
+        // booth用zipにはGeneratorのunitypackageも並ぶ。取り込むのはこのパッケージの分だけ
+        [TestCase("VRCNativeFTManager_0.2.0.unitypackage", true)]
+        [TestCase("VRCNativeFTManager_0.2.0.UNITYPACKAGE", true)]
+        [TestCase("VRCARKitBlendShapeGenerator_0.2.1.unitypackage", false)]
+        [TestCase("Dependencies/VRCARKitBlendShapeGenerator_0.2.1.unitypackage", false)]
+        [TestCase("VRCNativeFTManager_0.2.0.zip", false)]
+        [TestCase("", false)]
+        [TestCase(null, false)]
+        public void IsOwnUnityPackage_PicksOnlyThisPackage(string entryName, bool expected)
+        {
+            Assert.That(SelfUpdatePlan.IsOwnUnityPackage(entryName), Is.EqualTo(expected));
+        }
+
         [Test]
         public void IsExpectedPackage_AcceptsThePackageItself()
         {

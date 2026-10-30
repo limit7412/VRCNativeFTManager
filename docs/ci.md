@@ -13,14 +13,17 @@
 検証するのは、同梱対象すべてに `.meta` があること、GUIDが重複していないこと、配布後に変えてはならないGUID（`NativeFTManagerComponent`）が変わっていないこと、取り込み先が `Assets/AtelierKairox/VRCNativeFTManager/` の外へ出ていないこと、booth用zipの直下にVPM用の `package.json` が居ないこと、同じ入力から2回作って同一のバイト列になること、自己更新（`Editor/Domain/SelfUpdatePlan.cs`）が前提とする取り込み先と同梱物が配布物と一致することである。
 
 このリポジトリはUnityプロジェクトではないため、ワークフローは実行のたびに最小のUnityプロジェクトを組み立て、その `Packages/` へこのリポジトリを置く。
-VPM依存（VRChat SDK / NDMF / Modular Avatar）はUnity Package Managerでは解決できないので、[vrc-get](https://github.com/vrc-get/vrc-get)で先に導入してから[game-ci](https://game.ci/)のテストランナーを回す。
+VPM依存（VRChat SDK / NDMF / Modular Avatar / ARKit BlendShape Generator）はUnity Package Managerでは解決できないので、[vrc-get](https://github.com/vrc-get/vrc-get)で先に導入してから[game-ci](https://game.ci/)のテストランナーを回す。
 game-ciのCLIはテストでもプロジェクトでgitを呼んでバージョンを決めるため、組み立てたプロジェクトは空のコミットを1つ持つgitリポジトリにしてから渡す（詳細はワークフロー内のコメントに書いている）。
 CLIの版はワークフローの `UNITY_TEST_RUNNER_CLI_VERSION` で固定している。既定の `latest` は版の解決にGitHub APIを使い、共有ランナーでは無認証の上限に達して失敗することがある。
 
 VRChat SDKはネイティブFace Tracking対応のプレリリースを必須とするため、ワークフローの `VRC_SDK_VERSION` で版を固定して入れる。
 `package.json` の `vpmDependencies` の下限を変えたときは、ここも揃えること。
 AAOの版で切り替わる警告の分岐をコンパイルするため、任意依存のAvatar Optimizerも入れている。
-ARKit BlendShape Generatorは、連携に必要な版（仕様書16章のP1）が出たら同じように入れる。
+ARKit BlendShape Generatorは必須の依存なので、作者のVPMリポジトリを登録して、ワークフローの `GENERATOR_VERSION` の版を入れる。
+この版は `package.json` の下限と揃え、下限の版でコンパイルできることを確かめる。
+
+`packaging` ジョブのzipの組み立ては、booth用zipへ同梱するGeneratorをGeneratorのリリースから取得するため、GitHub APIとリリースの配布URLへ通信する。
 
 ## Unityライセンスの設定
 

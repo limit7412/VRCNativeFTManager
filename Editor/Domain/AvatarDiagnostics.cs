@@ -11,11 +11,8 @@ namespace NativeFTManager.Domain
         /// <summary>アバターに無い</summary>
         None,
 
-        /// <summary>あるが、連携用のアセンブリがコンパイルされていない（版が古い、または新しすぎる）</summary>
-        Unsupported,
-
-        /// <summary>あり、連携できる</summary>
-        Supported,
+        /// <summary>ある</summary>
+        Present,
     }
 
     /// <summary>
@@ -126,10 +123,7 @@ namespace NativeFTManager.Domain
                     }
 
                     break;
-                case GeneratorPresence.Unsupported:
-                    diagnostics.Add(new Diagnostic(DiagnosticCodes.GeneratorUnsupported));
-                    break;
-                case GeneratorPresence.Supported:
+                case GeneratorPresence.Present:
                     if (facts.Integration == GeneratorIntegration.Off && !facts.GeneratorSetWriteEnabled)
                     {
                         diagnostics.Add(new Diagnostic(DiagnosticCodes.GeneratorSetWriteOff));
