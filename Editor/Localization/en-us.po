@@ -479,7 +479,7 @@ msgid "diag.I-05"
 msgstr "[KxNFTM-I-05] Toggles with no Set to switch were removed from the menu"
 
 msgid "diag.I-05:description"
-msgstr "No Blendshapes Set is switched by the toggle \"{0}\", so its Expressions Menu item and synced parameter were removed. This happens to Pupil with ARKit shapes, which have no pupil shapes. Assign the keys in a Set to keep the toggle."
+msgstr "No Blendshapes Set is switched by the toggle \"{0}\", so its Expressions Menu item and synced parameter were removed. This happens to Pupil with ARKit shapes, which have no pupil shapes. Assign the keys in a Set to keep the toggle. The Menu Item of a correction toggle left in the hierarchy is also removed when that correction is not generated."
 
 msgid "inspector.face_emo.expression_control"
 msgstr "FaceEmo keeps writing, so the avatar's own expression layers stay covered as usual and the menu can still switch expressions while tracking.\nFaceEmo's default face writes the same blend shapes as face tracking, so register the tracking blend shapes in FaceEmo's Excluded Blend Shapes first."
@@ -753,3 +753,91 @@ msgstr "Keeps the Radial value across worlds."
 
 msgid "inspector.sensitivity.description"
 msgstr "The center of the Radial (the default) is 1x, and the strength changes in 8 steps: 0.2x to 0.8x on the left, and 1x up to the max multiplier on the right. Turning a group off with its toggle stops it regardless of the sensitivity."
+
+# Menu in the hierarchy (MA Menu Items)
+msgid "menu.label.root"
+msgstr "Face Tracking"
+
+msgid "menu.label.face_tracking"
+msgstr "Face Tracking"
+
+msgid "menu.label.eye_tracking"
+msgstr "Eye Tracking"
+
+msgid "menu.label.lip_tracking"
+msgstr "Lip Tracking"
+
+msgid "menu.label.pupil"
+msgstr "Pupil"
+
+msgid "menu.label.visemes"
+msgstr "Visemes"
+
+msgid "menu.label.emulation"
+msgstr "Emulation"
+
+msgid "menu.label.limits"
+msgstr "Limits"
+
+msgid "menu.label.eye_sync"
+msgstr "Eye Sync"
+
+msgid "menu.label.settings"
+msgstr "Settings"
+
+msgid "menu.label.sensitivity"
+msgstr "Sensitivity"
+
+msgid "menu.label.sensitivity_eye"
+msgstr "Eye"
+
+msgid "menu.label.sensitivity_lip"
+msgstr "Lip"
+
+msgid "inspector.menu.generated"
+msgstr "The Expressions Menu is generated at build time (the form used up to 0.1.0-test8). The button below places the menu in the hierarchy as MA Menu Items, so that it can be reordered, renamed, given icons, and moved to another submenu there."
+
+msgid "inspector.menu.expand"
+msgstr "Expand the menu into the hierarchy"
+
+msgid "inspector.menu.hierarchy"
+msgstr "The Expressions Menu is edited with the MA Menu Items in the hierarchy. Which toggles are in the menu, and their default and saved settings, are read from the Default and Saved settings of the Menu Items. A toggle whose Menu Item is deleted is left out of the menu and always on (Eye Sync is always off)."
+
+msgid "inspector.menu.mixed_modes"
+msgstr "The selected components make their menus in different ways. Select them one at a time to edit the toggles."
+
+msgid "inspector.menu.add"
+msgstr "Add"
+
+msgid "inspector.menu.feature_disabled"
+msgstr "\"{0}\" is not generated, so its Menu Item is removed from the menu at build time."
+
+msgid "inspector.menu.add_radial"
+msgstr "Add Radial"
+
+msgid "inspector.menu.remove_radial"
+msgstr "Remove Radial"
+
+msgid "inspector.toggle.in_menu"
+msgstr "In menu"
+
+msgid "inspector.toggle.in_menu.tooltip"
+msgstr "Whether the avatar has an MA Menu Item that points to the public parameter"
+
+msgid "inspector.undo.expand_menu"
+msgstr "Expand the menu into the hierarchy"
+
+msgid "inspector.undo.menu_item"
+msgstr "Change Menu Items"
+
+msgid "diag.W-18"
+msgstr "[KxNFTM-W-18] No menu toggles were found"
+
+msgid "diag.W-18:description"
+msgstr "The menu is set to be kept in the hierarchy, but the avatar has no MA Menu Item that points to a parameter of this tool (KxNFTM/). No toggle appears in the menu, and every toggle works with a fixed value. Add toggles from the toggle table in the inspector."
+
+msgid "diag.W-19"
+msgstr "[KxNFTM-W-19] A toggle Menu Item has a value other than 1"
+
+msgid "diag.W-19:description"
+msgstr "The toggle Menu Items that point to \"{0}\" were not read because their value is not 1. The toggles of this tool are Bool, so set the value of the Menu Item to 1 or turn on the automatic value."

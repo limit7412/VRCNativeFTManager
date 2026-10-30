@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using UnityEngine;
 using NativeFTManager.Domain;
+using NativeFTManager.Infra;
 
 namespace NativeFTManager.UseCase
 {
@@ -22,17 +24,54 @@ namespace NativeFTManager.UseCase
             return new CorrectionFeatures(component.enableEmulation, component.enableLimits, eyeSync);
         }
 
-        public static ToggleSet ResolveToggles(NativeFTManagerComponent component)
+        /// <summary>
+        /// メニューをヒエラルキーのMA Menu Itemで持つか（仕様書8.3）
+        /// </summary>
+        public static bool UsesHierarchyMenu(NativeFTManagerComponent component)
         {
-            return ToggleSet.Resolve(component.GetToggle, GetFeatures(component), GetSensitivity(component));
+            return component.menuMode == NativeFTMenuMode.Hierarchy;
         }
 
         /// <summary>
-        /// 感度の設定（仕様書5.6）。M3までに保存したコンポーネントは設定を持たないので、どの系統も作らない
+        /// ヒエラルキーのメニューを読む。ビルド時に作るメニューのコンポーネントではnullを返す。
+        /// Menu ItemはMAのマージで消えるので、MAより前（Generating）か、ビルドの外で呼ぶ
         /// </summary>
-        public static SensitivityConfig GetSensitivity(NativeFTManagerComponent component)
+        public static MenuHierarchy ReadMenu(NativeFTManagerComponent component, GameObject avatarRoot)
+        {
+            return UsesHierarchyMenu(component) ? MenuHierarchyScanner.Scan(avatarRoot) : null;
+        }
+
+        /// <summary>
+        /// トグルを解決する。menuを渡すと、トグルの表示・既定値・保存はコンポーネントのtogglesではなくMenu Itemから決める
+        /// </summary>
+        public static ToggleSet ResolveToggles(NativeFTManagerComponent component, MenuHierarchy menu = null)
+        {
+            System.Func<NativeFTToggle, ToggleSettings> getToggle = component.GetToggle;
+            if (menu != null)
+            {
+                getToggle = menu.GetToggle;
+            }
+
+            return ToggleSet.Resolve(getToggle, GetFeatures(component), GetSensitivity(component, menu));
+        }
+
+        /// <summary>
+        /// 感度の設定（仕様書5.6）。M3までに保存したコンポーネントは設定を持たないので、どの系統も作らない。
+        /// menuを渡すと、作る系統と保存はRadialのMenu Itemから決め、上限の倍率だけをコンポーネントから読む
+        /// </summary>
+        public static SensitivityConfig GetSensitivity(NativeFTManagerComponent component, MenuHierarchy menu = null)
         {
             var settings = component.sensitivity;
+            float maxMultiplier = settings != null ? settings.maxMultiplier : 1f;
+            if (menu != null)
+            {
+                return new SensitivityConfig(
+                    menu.Contains(SensitivityChannel.Eye),
+                    menu.Contains(SensitivityChannel.Lip),
+                    maxMultiplier,
+                    menu.SensitivitySaved);
+            }
+
             if (settings == null)
             {
                 return SensitivityConfig.None;

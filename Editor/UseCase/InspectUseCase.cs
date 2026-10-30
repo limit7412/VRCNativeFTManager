@@ -33,6 +33,9 @@ namespace NativeFTManager.UseCase
 
             /// <summary>GeneratorのSetがビルド中にしか無く、見積もりに入っていないか</summary>
             public bool EstimateExcludesGenerator;
+
+            /// <summary>ヒエラルキーから読んだメニュー。ビルド時にメニューを作るコンポーネントではnull</summary>
+            public MenuHierarchy Menu;
         }
 
         public static Report Inspect(NativeFTManagerComponent component)
@@ -47,8 +50,10 @@ namespace NativeFTManager.UseCase
 
             report.HasAvatar = true;
 
-            var toggles = ComponentSettings.ResolveToggles(component);
-            var facts = AvatarScanner.Scan(avatarRoot, component, toggles);
+            var menu = ComponentSettings.ReadMenu(component, avatarRoot);
+            report.Menu = menu;
+            var toggles = ComponentSettings.ResolveToggles(component, menu);
+            var facts = AvatarScanner.Scan(avatarRoot, component, toggles, menu);
             report.Diagnostics.AddRange(AvatarDiagnostics.Evaluate(facts));
 
             var descriptor = avatarRoot.GetComponent<VRCAvatarDescriptor>();

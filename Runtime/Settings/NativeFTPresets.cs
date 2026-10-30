@@ -92,6 +92,20 @@ namespace NativeFTManager
         /// </summary>
         public static bool Matches(NativeFTManagerComponent component, NativeFTPreset preset)
         {
+            return Matches(component, preset, component.GetToggle, true);
+        }
+
+        /// <summary>
+        /// トグルの設定を別の場所（ヒエラルキーのMenu Item）から読むときの一致判定。
+        /// compareHiddenDefaultsがfalseなら、メニューに出さないトグルの既定値は比べない。
+        /// Menu Itemが無いトグルには既定値の置き場が無いため
+        /// </summary>
+        public static bool Matches(
+            NativeFTManagerComponent component,
+            NativeFTPreset preset,
+            System.Func<NativeFTToggle, ToggleSettings> getToggle,
+            bool compareHiddenDefaults)
+        {
             if (preset == NativeFTPreset.Custom)
             {
                 return true;
@@ -108,8 +122,13 @@ namespace NativeFTManager
 
             foreach (var expected in CreateToggles(preset))
             {
-                var actual = component.GetToggle(expected.toggle);
-                if (actual.showInMenu != expected.showInMenu || actual.defaultValue != expected.defaultValue)
+                var actual = getToggle(expected.toggle);
+                if (actual.showInMenu != expected.showInMenu)
+                {
+                    return false;
+                }
+
+                if ((compareHiddenDefaults || expected.showInMenu) && actual.defaultValue != expected.defaultValue)
                 {
                     return false;
                 }

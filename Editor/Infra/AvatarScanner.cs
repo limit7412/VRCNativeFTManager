@@ -30,7 +30,8 @@ namespace NativeFTManager.Infra
         public static AvatarFacts Scan(
             GameObject avatarRoot,
             NativeFTManagerComponent component,
-            ToggleSet toggles)
+            ToggleSet toggles,
+            MenuHierarchy menu = null)
         {
             var publishedParameters = toggles.Dynamic;
             var descriptor = avatarRoot != null ? avatarRoot.GetComponent<VRCAvatarDescriptor>() : null;
@@ -45,6 +46,7 @@ namespace NativeFTManager.Infra
                 SetUseAllTrackingKeys = component.setUseAllTrackingKeys,
                 DescriptorUseAllTrackingKeys = FaceTrackingDescriptorAccess.GetUseAllTrackingKeys(descriptor),
                 EyeLookAngles = FaceTrackingDescriptorAccess.GetEyeLookAngles(descriptor),
+                Menu = menu,
             };
 
             if (avatarRoot == null)

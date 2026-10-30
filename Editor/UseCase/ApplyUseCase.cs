@@ -117,7 +117,7 @@ namespace NativeFTManager.UseCase
         }
 
         /// <summary>
-        /// 切り替えるSetが無くレイヤーごと取り除いたトグルを、メニューと同期パラメーターから外す。
+        /// 切り替えるSetが無くレイヤーごと取り除いたトグルと、機能を無効にしたトグルを、メニューと同期パラメーターから外す。
         /// 押しても何も変わらない項目を残さず、同期bitも空ける
         /// </summary>
         private static void RemoveUnusedToggles(
@@ -129,7 +129,11 @@ namespace NativeFTManager.UseCase
             var removed = UnusedToggleRemover.Remove(
                 descriptor,
                 FxLayerRemover.CollectAvatarControllers(context.AvatarRootObject),
-                toggles.Dynamic.Select(toggle => toggle.ParameterName));
+                // ヒエラルキーのメニューでは、機能を無効にした表情補正のトグルもMenu Itemが残っていればメニューに出る。
+                // 同期パラメーターを作らないトグルも含めて、どのレイヤーからも読まれないものを外す
+                System.Enum.GetValues(typeof(NativeFTToggle))
+                    .Cast<NativeFTToggle>()
+                    .Select(ResolvedToggle.GetParameterName));
             if (removed.Count > 0)
             {
                 DiagnosticReporter.Report(

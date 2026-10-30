@@ -115,6 +115,12 @@ namespace NativeFTManager.Domain
         /// <summary>切り替えるSetが無いトグルを、メニューと同期パラメーターから外した</summary>
         public const string UnusedToggleRemoved = "I-05";
 
+        /// <summary>ヒエラルキーのメニューに、公開パラメーターを指すMA Menu Itemが1つも無い（仕様書8.3）</summary>
+        public const string MenuItemsMissing = "W-18";
+
+        /// <summary>公開パラメーターを指すトグルのMenu Itemで、値が1でない（仕様書8.3）</summary>
+        public const string MenuItemValueInvalid = "W-19";
+
         /// <summary>W-04の判定に使う、割り当てキー数の下限</summary>
         public const int GeneratorSetMinimumKeys = 10;
 
@@ -145,6 +151,8 @@ namespace NativeFTManager.Domain
                 { SuppressionDisabled, DiagnosticSeverity.Information },
                 { FaceEmoMissing, DiagnosticSeverity.Information },
                 { UnusedToggleRemoved, DiagnosticSeverity.Information },
+                { MenuItemsMissing, DiagnosticSeverity.Warning },
+                { MenuItemValueInvalid, DiagnosticSeverity.Warning },
             };
 
         public static IEnumerable<string> All => Severities.Keys;

@@ -10,6 +10,7 @@ namespace NativeFTManager.UseCase
     /// Generating Phaseの処理（仕様書9章の手順1）
     ///
     /// Modular Avatarのマージより前に、FXのトグルレイヤー、同期パラメーター、メニューを用意する。
+    /// メニューをヒエラルキーのMA Menu Itemで持つときは、Menu Itemからトグルの構成を読み、メニューは作らない。
     /// Generatorと連携するときは、ビルド用の複製の上でGeneratorのSet書き込みを有効にする。
     /// レイヤーのステートにSetの重みを書くBehaviorは、Setを分割した後のApplyで付ける
     /// </summary>
@@ -35,8 +36,10 @@ namespace NativeFTManager.UseCase
                     primary);
             }
 
-            var toggles = ComponentSettings.ResolveToggles(primary);
-            var facts = AvatarScanner.Scan(avatarRoot, primary, toggles);
+            // ヒエラルキーのMenu ItemはMAのマージで消えるので、MAより前のここで読む
+            var menu = ComponentSettings.ReadMenu(primary, avatarRoot);
+            var toggles = ComponentSettings.ResolveToggles(primary, menu);
+            var facts = AvatarScanner.Scan(avatarRoot, primary, toggles, menu);
             DiagnosticReporter.Report(AvatarDiagnostics.Evaluate(facts), primary);
 
             var state = context.GetState<BuildState>();
@@ -72,7 +75,9 @@ namespace NativeFTManager.UseCase
                 avatarRoot,
                 controller,
                 toggles.Dynamic,
-                MenuPlan.Build(toggles),
+                // ヒエラルキーにメニューを置く形では、メニューはMAがMenu Itemから組むので作らない。
+                // 同期パラメーターは、既定値と保存をMenu Itemから読んだ値で宣言する
+                menu == null ? MenuPlan.Build(toggles) : null,
                 asset => SaveAsset(context, asset),
                 suppression,
                 plan.FloatParameters);
