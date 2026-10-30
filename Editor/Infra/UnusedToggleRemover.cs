@@ -1,8 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor.Animations;
+using UnityEngine;
 using VRC.SDK3.Avatars.Components;
 using VRC.SDK3.Avatars.ScriptableObjects;
+using VRC.SDKBase;
 
 namespace NativeFTManager.Infra
 {
@@ -16,9 +18,10 @@ namespace NativeFTManager.Infra
     internal static class UnusedToggleRemover
     {
         /// <summary>
-        /// アバターのどのコントローラの遷移条件にも出てこない候補を、メニューとExpression Parametersから外す。
+        /// アバターのどのコントローラからも読まれない候補を、メニューとExpression Parametersから外す。
         /// 外した名前を返す。FXだけでなく全レイヤーを見るのは、公開パラメーターを利用者のアニメーターが
-        /// 名前で読むことがあるため（仕様書7.1）
+        /// 名前で読むことがあるため（仕様書7.1）。読み方は遷移条件のほか、ブレンドツリー、
+        /// ステートの速度などのパラメーター、Parameter Driverの読み取り元（Copy、Add）も数える
         /// </summary>
         public static IReadOnlyList<string> Remove(
             VRCAvatarDescriptor descriptor,
@@ -30,7 +33,7 @@ namespace NativeFTManager.Infra
                 return new string[0];
             }
 
-            var used = CollectConditionParameters(controllers);
+            var used = CollectReadParameters(controllers);
             var unused = new HashSet<string>(candidates.Where(name => !string.IsNullOrEmpty(name) && !used.Contains(name)));
             if (unused.Count == 0)
             {
@@ -51,7 +54,7 @@ namespace NativeFTManager.Infra
             return unused.OrderBy(name => name, System.StringComparer.Ordinal).ToArray();
         }
 
-        private static HashSet<string> CollectConditionParameters(IEnumerable<AnimatorController> controllers)
+        private static HashSet<string> CollectReadParameters(IEnumerable<AnimatorController> controllers)
         {
             var used = new HashSet<string>();
             var visited = new HashSet<AnimatorStateMachine>();
@@ -72,11 +75,36 @@ namespace NativeFTManager.Infra
 
             AddConditions(stateMachine.anyStateTransitions, used);
             AddConditions(stateMachine.entryTransitions, used);
+            AddDriverSources(stateMachine.behaviours, used);
             foreach (var child in stateMachine.states)
             {
-                if (child.state != null)
+                var state = child.state;
+                if (state == null)
                 {
-                    AddConditions(child.state.transitions, used);
+                    continue;
+                }
+
+                AddConditions(state.transitions, used);
+                AddDriverSources(state.behaviours, used);
+                AddMotion(state.motion, used, new HashSet<BlendTree>());
+                if (state.speedParameterActive)
+                {
+                    used.Add(state.speedParameter);
+                }
+
+                if (state.timeParameterActive)
+                {
+                    used.Add(state.timeParameter);
+                }
+
+                if (state.mirrorParameterActive)
+                {
+                    used.Add(state.mirrorParameter);
+                }
+
+                if (state.cycleOffsetParameterActive)
+                {
+                    used.Add(state.cycleOffsetParameter);
                 }
             }
 
@@ -99,6 +127,48 @@ namespace NativeFTManager.Infra
                 foreach (var condition in transition.conditions)
                 {
                     used.Add(condition.parameter);
+                }
+            }
+        }
+
+        private static void AddMotion(Motion motion, HashSet<string> used, HashSet<BlendTree> visited)
+        {
+            if (!(motion is BlendTree tree) || !visited.Add(tree))
+            {
+                return;
+            }
+
+            used.Add(tree.blendParameter);
+            used.Add(tree.blendParameterY);
+            foreach (var child in tree.children)
+            {
+                used.Add(child.directBlendParameter);
+                AddMotion(child.motion, used, visited);
+            }
+        }
+
+        /// <summary>
+        /// Parameter Driverが値を読むパラメーター。Copyの元と、Addで足す相手（自身の値を読む）を数える
+        /// </summary>
+        private static void AddDriverSources(StateMachineBehaviour[] behaviours, HashSet<string> used)
+        {
+            foreach (var driver in (behaviours ?? new StateMachineBehaviour[0]).OfType<VRC_AvatarParameterDriver>())
+            {
+                foreach (var parameter in driver.parameters ?? new List<VRC_AvatarParameterDriver.Parameter>())
+                {
+                    if (parameter == null)
+                    {
+                        continue;
+                    }
+
+                    if (parameter.type == VRC_AvatarParameterDriver.ChangeType.Copy)
+                    {
+                        used.Add(parameter.source);
+                    }
+                    else if (parameter.type == VRC_AvatarParameterDriver.ChangeType.Add)
+                    {
+                        used.Add(parameter.name);
+                    }
                 }
             }
         }

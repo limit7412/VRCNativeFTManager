@@ -4,6 +4,7 @@ using UnityEditor.Animations;
 using UnityEngine;
 using VRC.SDK3.Avatars.Components;
 using VRC.SDK3.Avatars.ScriptableObjects;
+using VRC.SDKBase;
 using NativeFTManager.Infra;
 
 namespace NativeFTManager.Tests
@@ -90,6 +91,32 @@ namespace NativeFTManager.Tests
             var stateMachine = gesture.layers[0].stateMachine;
             stateMachine.AddState("A").AddTransition(stateMachine.AddState("B"))
                 .AddCondition(AnimatorConditionMode.If, 0f, "KxNFTM/Pupil");
+
+            var removed = UnusedToggleRemover.Remove(
+                _avatar.GetComponent<VRCAvatarDescriptor>(),
+                new[] { _fx, gesture },
+                new[] { "KxNFTM/FaceTracking", "KxNFTM/Pupil" });
+
+            Assert.That(removed, Is.Empty);
+            Object.DestroyImmediate(gesture);
+        }
+
+        [Test]
+        public void Remove_LeavesAToggle_ThatAParameterDriverCopies()
+        {
+            var gesture = new AnimatorController();
+            gesture.AddLayer("User");
+            var state = gesture.layers[0].stateMachine.AddState("Copy");
+            var driver = state.AddStateMachineBehaviour<VRCAvatarParameterDriver>();
+            driver.parameters = new List<VRC_AvatarParameterDriver.Parameter>
+            {
+                new VRC_AvatarParameterDriver.Parameter
+                {
+                    type = VRC_AvatarParameterDriver.ChangeType.Copy,
+                    source = "KxNFTM/Pupil",
+                    name = "UserPupil",
+                },
+            };
 
             var removed = UnusedToggleRemover.Remove(
                 _avatar.GetComponent<VRCAvatarDescriptor>(),
