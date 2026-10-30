@@ -1,7 +1,7 @@
 # Kx VRC NativeFT Manager
 
 An NDMF plugin that brings Jerry's Templates style toggles and expression corrections, operated from the Expressions Menu, to avatars that use VRChat's native Face Tracking.
-Drop the prefab on your avatar and it works. It integrates with [Kx VRC ARKit BlendShape Generator](https://github.com/limit7412/VRCARKitBlendShapeGenerator).
+Add it to your avatar from the Hierarchy context menu and it works. It integrates with [Kx VRC ARKit BlendShape Generator](https://github.com/limit7412/VRCARKitBlendShapeGenerator).
 It also suppresses FaceEmo while face tracking is active. It does not integrate with [Kx VRC FE-JsT Bridge](https://github.com/limit7412/VRCFE-JsTBridge), and the two should not be used on the same avatar.
 
 日本語: [README.md](README.md)
@@ -49,7 +49,7 @@ Manual installation from the zip, the booth version (unitypackage), and how upda
 
 ## Usage
 
-1. Put a prefab from `Packages/Kx VRC NativeFT Manager/Runtime/Prefabs/` directly under the avatar
+1. Right-click the avatar in the Hierarchy and choose one of the following under "Kx VRC NativeFT Manager". An object with the component is created directly under the avatar. Adding the component to an existing object (including the avatar root) with "Add Component" works the same way
    - Generic (`Kx NativeFT Manager`): for avatars whose Blendshapes Sets on the Descriptor are prepared with Auto Fill or by hand
    - ARKit (`Kx NativeFT Manager (ARKit)`): for avatars that use Kx VRC ARKit BlendShape Generator. The Generator's Set output is enabled during the build only
 2. Choose a preset in the inspector. UE (default) and ARKit have the same toggles and corrections as Jerry's, and Minimal has only three toggles and no corrections. Changing a toggle or a rule switches the preset to Custom

@@ -1,7 +1,7 @@
 # Kx VRC NativeFT Manager
 
 VRChatのネイティブFace Tracking向けに、Jerry's Templates相当のトグルと表情補正をEXメニューから操作できるようにするNDMFプラグインです。
-プレハブをアバターへ置くだけで使え、[Kx VRC ARKit BlendShape Generator](https://github.com/limit7412/VRCARKitBlendShapeGenerator)に連携します。
+ヒエラルキーの右クリックからアバターへ追加するだけで使え、[Kx VRC ARKit BlendShape Generator](https://github.com/limit7412/VRCARKitBlendShapeGenerator)に連携します。
 FaceEmoの抑制も本製品が行います。[Kx VRC FE-JsT Bridge](https://github.com/limit7412/VRCFE-JsTBridge)とは連携せず、同じアバターでの併用もしません。
 
 English: [README.en.md](README.en.md)
@@ -49,7 +49,7 @@ zipからの手動インストールとbooth版（unitypackage）の手順、お
 
 ## 使い方
 
-1. `Packages/Kx VRC NativeFT Manager/Runtime/Prefabs/` のプレハブをアバター直下に置く
+1. ヒエラルキーでアバターを右クリックし、「Kx VRC NativeFT Manager」から次のどちらかを選ぶ。アバター直下に、コンポーネントを付けたオブジェクトができる。既存のオブジェクト（アバタールートを含む）へ「Add Component」でコンポーネントを付けても同じように動く
    - 汎用版（`Kx NativeFT Manager`）: DescriptorのBlendshapes Setを、オートフィルか手入力で用意してあるアバター向け
    - ARKit版（`Kx NativeFT Manager (ARKit)`）: Kx VRC ARKit BlendShape Generatorを使うアバター向け。GeneratorのSet書き込みを、ビルド中だけ有効にする
 2. インスペクタでプリセットを選ぶ。UE（既定）とARKitはJerry'sと同じトグルと表情補正を持ち、Minimalは表情補正を作らずトグルも3つだけにする。トグルや補正の規則を個別に変えるとCustomになる
