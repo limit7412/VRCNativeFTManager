@@ -29,13 +29,12 @@ namespace NativeFTManager.Presentation
         };
 
         private SerializedProperty _preset;
-        private SerializedProperty _toggles;
         private SerializedProperty _lerpSpeed;
         private SerializedProperty _excludedSetNames;
         private SerializedProperty _setUseAllTrackingKeys;
         private SerializedProperty _visemeDampenOverride;
         private SerializedProperty _visemeDampenAmount;
-        private SerializedProperty _generatorIntegration;
+        private SerializedProperty _useGeneratorComponent;
         private SerializedProperty _enableEmulation;
         private SerializedProperty _enableLimits;
         private SerializedProperty _enableEyeSync;
@@ -57,13 +56,12 @@ namespace NativeFTManager.Presentation
             UpdateCheck.ResultChanged += Repaint;
 
             _preset = serializedObject.FindProperty(nameof(NativeFTManagerComponent.preset));
-            _toggles = serializedObject.FindProperty(nameof(NativeFTManagerComponent.toggles));
             _lerpSpeed = serializedObject.FindProperty(nameof(NativeFTManagerComponent.lerpSpeed));
             _excludedSetNames = serializedObject.FindProperty(nameof(NativeFTManagerComponent.excludedSetNames));
             _setUseAllTrackingKeys = serializedObject.FindProperty(nameof(NativeFTManagerComponent.setUseAllTrackingKeys));
             _visemeDampenOverride = serializedObject.FindProperty(nameof(NativeFTManagerComponent.visemeDampenOverride));
             _visemeDampenAmount = serializedObject.FindProperty(nameof(NativeFTManagerComponent.visemeDampenAmount));
-            _generatorIntegration = serializedObject.FindProperty(nameof(NativeFTManagerComponent.generatorIntegration));
+            _useGeneratorComponent = serializedObject.FindProperty(nameof(NativeFTManagerComponent.useGeneratorComponent));
             _enableEmulation = serializedObject.FindProperty(nameof(NativeFTManagerComponent.enableEmulation));
             _enableLimits = serializedObject.FindProperty(nameof(NativeFTManagerComponent.enableLimits));
             _enableEyeSync = serializedObject.FindProperty(nameof(NativeFTManagerComponent.enableEyeSync));
@@ -106,7 +104,7 @@ namespace NativeFTManager.Presentation
             EditorGUI.BeginChangeCheck();
             EditorGUILayout.PropertyField(_preset, G("inspector.preset"));
             bool presetChanged = EditorGUI.EndChangeCheck();
-            EditorGUILayout.PropertyField(_generatorIntegration, G("inspector.generator_integration"));
+            EditorGUILayout.PropertyField(_useGeneratorComponent, G("inspector.use_generator_component"));
 
             EditorGUILayout.Space();
             DrawToggles();
@@ -579,107 +577,7 @@ namespace NativeFTManager.Presentation
             if (GUILayout.Button(S("inspector.menu.expand")))
             {
                 ExpandMenus();
-                return;
             }
-
-            using (new EditorGUILayout.HorizontalScope())
-            {
-                EditorGUILayout.LabelField(GUIContent.none, GUILayout.MinWidth(100f));
-                EditorGUILayout.LabelField(G("inspector.toggle.show_in_menu"), GUILayout.Width(80f));
-                EditorGUILayout.LabelField(G("inspector.toggle.default_value"), GUILayout.Width(80f));
-                EditorGUILayout.LabelField(G("inspector.toggle.saved"), GUILayout.Width(80f));
-            }
-
-            for (int i = 0; i < _toggles.arraySize; i++)
-            {
-                var element = _toggles.GetArrayElementAtIndex(i);
-                var kind = element.FindPropertyRelative(nameof(ToggleSettings.toggle));
-                var showInMenu = element.FindPropertyRelative(nameof(ToggleSettings.showInMenu));
-                var defaultValue = element.FindPropertyRelative(nameof(ToggleSettings.defaultValue));
-                var saved = element.FindPropertyRelative(nameof(ToggleSettings.saved));
-
-                var toggle = (NativeFTToggle)kind.intValue;
-                using (new EditorGUI.DisabledScope(!IsToggleAvailable(toggle)))
-                using (new EditorGUILayout.HorizontalScope())
-                {
-                    EditorGUILayout.LabelField(MenuPlan.GetLabel(toggle), GUILayout.MinWidth(100f));
-                    DrawToggleCell(showInMenu);
-                    DrawToggleCell(defaultValue);
-                    using (new EditorGUI.DisabledScope(!showInMenu.hasMultipleDifferentValues && !showInMenu.boolValue))
-                    {
-                        DrawToggleCell(saved);
-                    }
-                }
-            }
-
-            DrawMissingToggles();
-        }
-
-        /// <summary>
-        /// 表情補正のトグルは、その機能を生成しないあいだ効かないので操作できなくする
-        /// </summary>
-        private bool IsToggleAvailable(NativeFTToggle toggle)
-        {
-            switch (toggle)
-            {
-                case NativeFTToggle.Emulation:
-                    return _enableEmulation.hasMultipleDifferentValues || _enableEmulation.boolValue;
-                case NativeFTToggle.Limits:
-                    return _enableLimits.hasMultipleDifferentValues || _enableLimits.boolValue;
-                case NativeFTToggle.EyeSync:
-                    return _enableEyeSync.hasMultipleDifferentValues || _enableEyeSync.boolValue;
-                default:
-                    return true;
-            }
-        }
-
-        /// <summary>
-        /// 古い版で保存したコンポーネントは、後から足したトグルを持たない。
-        /// 持たないトグルはメニューに出さない扱いになるので、その旨を出し、表に加えるボタンを置く
-        /// </summary>
-        private void DrawMissingToggles()
-        {
-            var components = targets.OfType<NativeFTManagerComponent>().ToArray();
-            var missing = System.Enum.GetValues(typeof(NativeFTToggle))
-                .Cast<NativeFTToggle>()
-                .Where(toggle => components.Any(component =>
-                    component.toggles == null || component.toggles.All(settings => settings == null || settings.toggle != toggle)))
-                .ToArray();
-            if (missing.Length == 0)
-            {
-                return;
-            }
-
-            EditorGUILayout.HelpBox(
-                S("inspector.toggle.missing", string.Join(", ", missing.Select(MenuPlan.GetLabel))),
-                MessageType.Info);
-            if (!GUILayout.Button(S("inspector.toggle.add_missing")))
-            {
-                return;
-            }
-
-            serializedObject.ApplyModifiedProperties();
-            Undo.RecordObjects(components, S("inspector.undo.toggles"));
-            foreach (var component in components)
-            {
-                if (component.toggles == null)
-                {
-                    component.toggles = new System.Collections.Generic.List<ToggleSettings>();
-                }
-
-                foreach (var toggle in missing)
-                {
-                    if (component.toggles.All(settings => settings == null || settings.toggle != toggle))
-                    {
-                        // 足しただけで挙動が変わらないよう、持たないときと同じ値で加える
-                        component.toggles.Add(ToggleSettings.CreateMissing(toggle));
-                    }
-                }
-
-                MarkModified(component);
-            }
-
-            serializedObject.Update();
         }
 
         /// <summary>
@@ -724,8 +622,8 @@ namespace NativeFTManager.Presentation
         }
 
         /// <summary>
-        /// ヒエラルキーのメニューのトグル。値はMenu Itemの側で編集するので、ここでは読んだ結果を表示し、
-        /// 無いトグルを足すボタンだけを置く（仕様書6.4）
+        /// ヒエラルキーのメニューのトグル。有無と値はMenu Itemの側で編集するので、トグルの表は置かない。
+        /// 機能を生成しない設定のトグルにMenu Itemが残っていれば、ビルド時に外れることだけを知らせる（仕様書6.4）
         /// </summary>
         private void DrawHierarchyToggles()
         {
@@ -735,85 +633,14 @@ namespace NativeFTManager.Presentation
                 return;
             }
 
-            var component = (NativeFTManagerComponent)target;
-            var menu = _report.Menu;
-            using (new EditorGUILayout.HorizontalScope())
-            {
-                EditorGUILayout.LabelField(GUIContent.none, GUILayout.MinWidth(100f));
-                EditorGUILayout.LabelField(G("inspector.toggle.in_menu"), GUILayout.Width(80f));
-                EditorGUILayout.LabelField(G("inspector.toggle.default_value"), GUILayout.Width(80f));
-                EditorGUILayout.LabelField(G("inspector.toggle.saved"), GUILayout.Width(80f));
-            }
-
-            var features = ComponentSettings.GetFeatures(component);
+            var features = ComponentSettings.GetFeatures((NativeFTManagerComponent)target);
             foreach (NativeFTToggle toggle in System.Enum.GetValues(typeof(NativeFTToggle)))
             {
-                var settings = menu.GetToggle(toggle, component.GetToggle);
-                bool available = features.IsEnabled(toggle);
-                using (new EditorGUILayout.HorizontalScope())
-                {
-                    EditorGUILayout.LabelField(MenuPlan.GetLabel(toggle), GUILayout.MinWidth(100f));
-                    if (!menu.Contains(toggle))
-                    {
-                        using (new EditorGUI.DisabledScope(!available))
-                        {
-                            if (GUILayout.Button(S("inspector.menu.add"), GUILayout.Width(80f)))
-                            {
-                                MenuHierarchyBuilder.AddToggle(
-                                    component, toggle, settings.defaultValue, true, S("inspector.undo.menu_item"));
-                                // プリセットとの一致を見直させる
-                                GUI.changed = true;
-                            }
-
-                            // Menu Itemの無いトグルの固定の値は、コンポーネントのtogglesに置く
-                            var fixedValue = FindToggleProperty(toggle);
-                            if (fixedValue != null)
-                            {
-                                DrawToggleCell(fixedValue.FindPropertyRelative(nameof(ToggleSettings.defaultValue)));
-                            }
-                            else
-                            {
-                                using (new EditorGUI.DisabledScope(true))
-                                {
-                                    EditorGUILayout.Toggle(settings.defaultValue, GUILayout.Width(80f));
-                                }
-                            }
-                        }
-
-                        EditorGUILayout.LabelField(GUIContent.none, GUILayout.Width(80f));
-                        continue;
-                    }
-
-                    using (new EditorGUI.DisabledScope(true))
-                    {
-                        EditorGUILayout.Toggle(true, GUILayout.Width(80f));
-                        EditorGUILayout.Toggle(settings.defaultValue, GUILayout.Width(80f));
-                        EditorGUILayout.Toggle(settings.saved, GUILayout.Width(80f));
-                    }
-                }
-
-                if (menu.Contains(toggle) && !available)
+                if (_report.Menu.Contains(toggle) && !features.IsEnabled(toggle))
                 {
                     EditorGUILayout.HelpBox(S("inspector.menu.feature_disabled", MenuPlan.GetLabel(toggle)), MessageType.Info);
                 }
             }
-        }
-
-        /// <summary>
-        /// togglesの中で、指定したトグルの要素。古い版で保存したコンポーネントには無いことがある
-        /// </summary>
-        private SerializedProperty FindToggleProperty(NativeFTToggle toggle)
-        {
-            for (int i = 0; i < _toggles.arraySize; i++)
-            {
-                var element = _toggles.GetArrayElementAtIndex(i);
-                if (element.FindPropertyRelative(nameof(ToggleSettings.toggle)).intValue == (int)toggle)
-                {
-                    return element;
-                }
-            }
-
-            return null;
         }
 
         /// <summary>
@@ -865,23 +692,6 @@ namespace NativeFTManager.Presentation
                 G("inspector.sensitivity.max_multiplier"));
             EditorGUILayout.HelpBox(S("inspector.sensitivity.description"), MessageType.Info);
             EditorGUI.indentLevel--;
-        }
-
-        /// <summary>
-        /// 複数選択で値が揃っていなければ混在表示にし、操作されたときだけ書き戻す。
-        /// 無条件に代入すると、操作していないコンポーネントまで同じ値で上書きされるため
-        /// </summary>
-        private static void DrawToggleCell(SerializedProperty property)
-        {
-            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
-            EditorGUI.BeginChangeCheck();
-            var value = EditorGUILayout.Toggle(property.boolValue, GUILayout.Width(80f));
-            if (EditorGUI.EndChangeCheck())
-            {
-                property.boolValue = value;
-            }
-
-            EditorGUI.showMixedValue = false;
         }
 
         private static MessageType ToMessageType(DiagnosticSeverity severity)

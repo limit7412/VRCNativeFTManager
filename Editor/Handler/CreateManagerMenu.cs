@@ -27,7 +27,7 @@ namespace NativeFTManager.Handler
 
         /// <summary>
         /// Managerを作る。Generatorは必須の依存なので、汎用版とARKit版を分けず1つにした。
-        /// Generator連携は常にAutoで作り、アバターにGeneratorが無ければ何もしない。
+        /// 「Generatorコンポーネントを使う」は常にオンで作り、アバターにGeneratorが無ければ何もしない。
         /// プリセットは、アバターにGeneratorがあればARKit、無ければUEにする
         /// </summary>
         [MenuItem(MenuRoot + ObjectName, false, Priority)]
@@ -53,7 +53,7 @@ namespace NativeFTManager.Handler
                 NativeFTPresets.Apply(component, NativeFTPreset.ARKit);
             }
 
-            component.generatorIntegration = GeneratorIntegration.Auto;
+            component.useGeneratorComponent = true;
 
             // プリセットのトグルの構成をそのままMenu Itemにし、以後はMenu Itemの側を正にする。
             // アバターにすでにManagerがあり、こちらが重複として消される側なら作らない。

@@ -37,7 +37,7 @@ namespace NativeFTManager.Infra
                 FaceEmoSuppressionNeverEngaged = suppression != null && suppression.enabled
                     && SuppressionTrigger.Build(suppression.trigger, toggles).IsNeverEngaged,
                 Preset = component.preset,
-                Integration = component.generatorIntegration,
+                UseGeneratorComponent = component.useGeneratorComponent,
                 SetUseAllTrackingKeys = component.setUseAllTrackingKeys,
                 DescriptorUseAllTrackingKeys = FaceTrackingDescriptorAccess.GetUseAllTrackingKeys(descriptor),
                 EyeLookAngles = FaceTrackingDescriptorAccess.GetEyeLookAngles(descriptor),

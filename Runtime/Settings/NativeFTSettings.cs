@@ -120,15 +120,4 @@ namespace NativeFTManager
         DampenVisemes = 3,
     }
 
-    /// <summary>
-    /// ARKit BlendShape Generatorとの連携（仕様書10.1）
-    /// </summary>
-    public enum GeneratorIntegration
-    {
-        /// <summary>何もしない</summary>
-        Off = 0,
-
-        /// <summary>アバターにGeneratorがあれば、ビルド用の複製の上でSet書き込みを有効にする</summary>
-        Auto = 1,
-    }
 }

@@ -30,8 +30,8 @@ The booth zip contains the unitypackages of both this package and the Generator 
 Whether to use the Generator is up to each avatar.
 If the avatar has no Generator component, the integration does nothing and the Blendshapes Sets on the Descriptor are used as they are.
 
-When "Generator Integration" in the inspector is Auto and the avatar has the Generator, the Generator's Set output is enabled during the build only.
-A Manager created from the context menu is set to Auto from the start.
+When "Use Generator Component" in the inspector is on and the avatar has a Generator component, the Generator's Set output is enabled during the build only.
+It is on by default, including for a Manager created from the context menu.
 The Generator's Set is created only during the build, so it is not included in the inspector's estimate.
 
 ## Packages integrated only when installed

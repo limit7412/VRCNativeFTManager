@@ -11,7 +11,7 @@ namespace NativeFTManager.Tests
             return new AvatarFacts
             {
                 Preset = NativeFTPreset.UE,
-                Integration = GeneratorIntegration.Off,
+                UseGeneratorComponent = false,
                 Generator = GeneratorPresence.None,
                 SetUseAllTrackingKeys = true,
                 DescriptorUseAllTrackingKeys = false,
@@ -79,7 +79,7 @@ namespace NativeFTManager.Tests
 
             Assert.That(Codes(facts), Is.EqualTo(new[] { DiagnosticCodes.GeneratorSetWriteOff }));
 
-            facts.Integration = GeneratorIntegration.Auto;
+            facts.UseGeneratorComponent = true;
             Assert.That(Codes(facts), Is.Empty);
         }
 

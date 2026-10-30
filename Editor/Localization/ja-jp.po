@@ -158,32 +158,14 @@ msgstr "プリセット"
 msgid "inspector.preset.tooltip"
 msgstr "設定のまとまり。UEはJerry's相当、ARKitは瞳孔を除いたもの、Minimalは目と口のトグルだけです。中身を変えるとCustomになります"
 
-msgid "inspector.generator_integration"
-msgstr "Generator連携"
+msgid "inspector.use_generator_component"
+msgstr "Generatorコンポーネントを使う"
 
-msgid "inspector.generator_integration.tooltip"
-msgstr "Autoにすると、アバターにKx VRC ARKit BlendShape Generatorがあるとき、ビルド中だけそのSet書き込みを有効にします。シーンのGeneratorの設定は変わりません"
+msgid "inspector.use_generator_component.tooltip"
+msgstr "アバターにあるKx VRC ARKit BlendShape Generatorのコンポーネントの、Set書き込みをビルド中だけ有効にします。シーンのGeneratorの設定は変わりません"
 
 msgid "inspector.section.toggles"
 msgstr "トグル"
-
-msgid "inspector.toggle.show_in_menu"
-msgstr "メニュー"
-
-msgid "inspector.toggle.show_in_menu.tooltip"
-msgstr "EXメニューに出し、同期パラメーターを作ります。出さないトグルは常に既定値として扱います"
-
-msgid "inspector.toggle.default_value"
-msgstr "既定値"
-
-msgid "inspector.toggle.default_value.tooltip"
-msgstr "パラメーターの既定値"
-
-msgid "inspector.toggle.saved"
-msgstr "保存"
-
-msgid "inspector.toggle.saved.tooltip"
-msgstr "ワールドをまたいで値を保存します"
 
 msgid "inspector.section.descriptor"
 msgstr "Descriptorの設定（ビルド時）"
@@ -230,7 +212,7 @@ msgid "diag.E-03"
 msgstr "[KxNFTM-E-03] Blendshapes Setがありません"
 
 msgid "diag.E-03:description"
-msgstr "DescriptorにBlendshapes Setが1つも無いため、フェイストラッキングは動きません。Kx VRC ARKit BlendShape Generatorを使うときはGenerator連携をAutoに、使わないときはDescriptorのオートフィルか手入力でSetを作ってください。"
+msgstr "DescriptorにBlendshapes Setが1つも無いため、フェイストラッキングは動きません。Kx VRC ARKit BlendShape Generatorを使うときは「Generatorコンポーネントを使う」をオンに、使わないときはDescriptorのオートフィルか手入力でSetを作ってください。"
 
 msgid "diag.E-04"
 msgstr "[KxNFTM-E-04] Jerry's Face Tracking Templatesが残っています"
@@ -260,7 +242,7 @@ msgid "diag.W-02"
 msgstr "[KxNFTM-W-02] GeneratorのシェイプがFTに使われません"
 
 msgid "diag.W-02:description"
-msgstr "Generator連携がOffで、GeneratorのSet書き込みもオフです。生成したシェイプがBlendshapes Setに入りません。Generator連携をAutoにしてください。"
+msgstr "「Generatorコンポーネントを使う」がオフで、GeneratorのSet書き込みもオフです。生成したシェイプがBlendshapes Setに入りません。「Generatorコンポーネントを使う」をオンにしてください。"
 
 msgid "diag.W-04"
 msgstr "[KxNFTM-W-04] GeneratorのSetの割り当てが少なすぎます"
@@ -316,15 +298,6 @@ msgstr "プリセットの変更"
 
 msgid "inspector.undo.rules"
 msgstr "表情補正の規則の変更"
-
-msgid "inspector.undo.toggles"
-msgstr "トグルの追加"
-
-msgid "inspector.toggle.missing"
-msgstr "このコンポーネントには次のトグルの設定がありません: {0}。設定の無いトグルはメニューに出さず、以前の版と同じ挙動になります。"
-
-msgid "inspector.toggle.add_missing"
-msgstr "トグルを表に加える"
 
 msgid "inspector.section.corrections"
 msgstr "表情補正"
@@ -786,19 +759,16 @@ msgid "menu.label.sensitivity_lip"
 msgstr "口"
 
 msgid "inspector.menu.generated"
-msgstr "EXメニューはビルド時に作ります（0.1.0-test8までの形）。下のボタンで、メニューをMA Menu Itemの階層としてヒエラルキーに置けます。置いた後は、並べ替え、表示名とアイコンの変更、別のサブメニューへの移動をヒエラルキーで行えます。"
+msgstr "EXメニューはビルド時に作ります（0.1.0-test8までの形）。トグルの構成はコンポーネントに保存された値のままで、ここでは変えられません。下のボタンで、メニューをMA Menu Itemの階層としてヒエラルキーに置けます。置いた後は、並べ替え、表示名とアイコンの変更、別のサブメニューへの移動をヒエラルキーで行えます。"
 
 msgid "inspector.menu.expand"
 msgstr "メニューをヒエラルキーに展開"
 
 msgid "inspector.menu.hierarchy"
-msgstr "EXメニューはヒエラルキーのMA Menu Itemで編集します。メニューにあるトグルと、その既定値・保存は、Menu Itemの既定値（Default）と保存（Saved）の設定から読みます。Menu Itemを消したトグルはメニューに出さず、表の既定値の列にある固定の値で動きます。"
+msgstr "EXメニューはヒエラルキーのMA Menu Itemで編集します。メニューにあるトグルと、その既定値・保存は、Menu Itemの既定値（Default）と保存（Saved）の設定から読みます。Menu Itemを消したトグルはメニューに出さず、コンポーネントに保存された既定値で動きます。"
 
 msgid "inspector.menu.mixed_modes"
 msgstr "メニューの作り方が違うコンポーネントを選んでいます。トグルは1つずつ選んで編集してください。"
-
-msgid "inspector.menu.add"
-msgstr "追加"
 
 msgid "inspector.menu.feature_disabled"
 msgstr "「{0}」の機能を生成しない設定なので、Menu Itemはビルド時にメニューから外れます。"
@@ -808,12 +778,6 @@ msgstr "Radialを追加"
 
 msgid "inspector.menu.remove_radial"
 msgstr "Radialを削除"
-
-msgid "inspector.toggle.in_menu"
-msgstr "メニューにある"
-
-msgid "inspector.toggle.in_menu.tooltip"
-msgstr "公開パラメーターを指すMA Menu Itemがアバターにあるか"
 
 msgid "inspector.undo.expand_menu"
 msgstr "メニューをヒエラルキーに展開"
@@ -825,7 +789,7 @@ msgid "diag.W-18"
 msgstr "[KxNFTM-W-18] メニューのトグルが見つかりません"
 
 msgid "diag.W-18:description"
-msgstr "メニューをヒエラルキーで持つ設定ですが、本製品のパラメーター（KxNFTM/）を指すMA Menu Itemがアバターにありません。すべてのトグルがメニューに出ず、固定の値で動きます。インスペクタのトグルの表から追加してください。"
+msgstr "メニューをヒエラルキーで持つ設定ですが、本製品のパラメーター（KxNFTM/）を指すMA Menu Itemがアバターにありません。すべてのトグルがメニューに出ず、固定の値で動きます。プリセットを選び直すと、プリセットのトグルのMenu Itemを作り直します。"
 
 msgid "diag.W-19"
 msgstr "[KxNFTM-W-19] 値が1にならないトグルのMenu Itemがあります"
