@@ -759,7 +759,7 @@ msgid "menu.label.sensitivity_lip"
 msgstr "Lip"
 
 msgid "inspector.menu.generated"
-msgstr "The Expressions Menu is generated at build time (the form used up to 0.1.0-test8). The toggles keep the preset values and cannot be changed here. The button below places the menu in the hierarchy as MA Menu Items, so that it can be reordered, renamed, given icons, and moved to another submenu there."
+msgstr "The Expressions Menu is generated at build time (the form used up to 0.1.0-test8). The toggles keep the values stored in the component and cannot be changed here. The button below places the menu in the hierarchy as MA Menu Items, so that it can be reordered, renamed, given icons, and moved to another submenu there."
 
 msgid "inspector.menu.expand"
 msgstr "Expand the menu into the hierarchy"
