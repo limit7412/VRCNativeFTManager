@@ -18,6 +18,20 @@ namespace NativeFTManager
     }
 
     /// <summary>
+    /// EXメニューの作り方（仕様書8.3）
+    ///
+    /// 値はシリアライズされるので、並びを変えずに末尾へ足す
+    /// </summary>
+    public enum NativeFTMenuMode
+    {
+        /// <summary>ビルド時にメニューアセットとMA Menu Installerを作る（0.1.0-test8まで）。トグルの表示はコンポーネントの設定で決める</summary>
+        Generated = 0,
+
+        /// <summary>ヒエラルキーに置いたMA Menu Itemを使う。トグルの表示・既定値・保存はMenu Itemから読む</summary>
+        Hierarchy = 1,
+    }
+
+    /// <summary>
     /// メニューから操作するトグルの種類
     ///
     /// 値はシリアライズされるので、並びを変えずに末尾へ足す

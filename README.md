@@ -29,11 +29,11 @@ zipからの手動インストールとbooth版（unitypackage）の手順、お
 
 ## 使い方
 
-1. ヒエラルキーでアバターを右クリックし、「Kx VRC NativeFT Manager」から次のどちらかを選ぶ。アバター直下に、コンポーネントを付けたオブジェクトができる。既存のオブジェクト（アバタールートを含む）へ「Add Component」でコンポーネントを付けても同じように動く
+1. ヒエラルキーでアバターを右クリックし、「Kx VRC NativeFT Manager」から次のどちらかを選ぶ。アバター直下に、コンポーネントを付けたオブジェクトができ、その子にEXメニューの「フェイストラッキング」（MA Menu InstallerとMA Menu Itemの階層）ができる。既存のオブジェクト（アバタールートを含む）へ「Add Component」でコンポーネントを付けてもよいが、その場合のメニューはビルド時に作られる（下の「EXメニュー」）
    - 汎用版（`Kx NativeFT Manager`）: DescriptorのBlendshapes Setを、オートフィルか手入力で用意してあるアバター向け
    - ARKit版（`Kx NativeFT Manager (ARKit)`）: Kx VRC ARKit BlendShape Generatorを使うアバター向け。GeneratorのSet書き込みを、ビルド中だけ有効にする
 2. インスペクタでプリセットを選び、必要なら下の「設定項目」に沿って個別に変える
-3. アップロードする。EXメニューの「Face Tracking」から、Face Tracking・Eye Tracking・Lip Tracking・Pupil・Visemesを切り替える。表情補正の切り替え（Emulation・Limits・Eye Sync）は、その下の「Settings」にある
+3. アップロードする。EXメニューの「フェイストラッキング」から、フェイストラッキング全体・目・口・瞳孔・ビゼームを切り替える。表情補正の切り替え（エミュレーション・制限・両目の連動）は、その下の「設定」にある。表示名は右クリックで作ったときのエディタの言語で付き、ヒエラルキーで自由に変えられる
 
 Jerry's Face Tracking Templatesは同じアバターに置けません。残っているとインスペクタとビルドでエラー（KxNFTM-E-04）が出るので、Jerry'sのプレハブを外してからアップロードしてください。
 Jerry'sとの違いは[Jerry'sからの移行](Documentation~/jerrys.md)に、ビルドでアバターに加わるものは[ビルド時に行うこと](Documentation~/build.md)にあります。
@@ -51,7 +51,7 @@ Jerry'sとの違いは[Jerry'sからの移行](Documentation~/jerrys.md)に、�
 
 | 項目 | 既定 | 意味 |
 | --- | --- | --- |
-| プリセット | 汎用版 UE、ARKit版 ARKit | トグルの構成と表情補正を作るかの組。選び直すとトグルと表情補正の設定を書き換える。トグルや表情補正をプリセットから変えると Custom になる |
+| プリセット | 汎用版 UE、ARKit版 ARKit | トグルの構成と表情補正を作るかの組。選び直すとトグルと表情補正の設定を書き換える。ヒエラルキーのMenu Itemのときは、プリセットに無いトグルのMenu Itemを消し、足りないMenu Itemを足し、既定値をプリセットの値にする（今あるMenu Itemの名前・アイコン・場所はそのまま。Undoで戻せる）。トグルや表情補正をプリセットから変えると Custom になる |
 | Generator連携 | 汎用版 Off、ARKit版 Auto | Auto にすると、アバターにKx VRC ARKit BlendShape Generatorがあるとき、ビルド中だけそのSet書き込みを有効にする。シーンのGeneratorの設定は変わらない。Off なら何もしない |
 
 プリセットの中身は次のとおりです。
@@ -63,9 +63,46 @@ Jerry'sとの違いは[Jerry'sからの移行](Documentation~/jerrys.md)に、�
 | Minimal | Face Tracking・Eye Tracking・Lip Trackingの3つ | 作らない | 同期bitとメニューを最小にしたい |
 | Custom | 個別に決めた構成 | 個別に決めた構成 | 上のどれかを変えると自動でこれになる |
 
+### EXメニュー
+
+EXメニューの作り方は2通りあり、右クリックで作ったコンポーネントは「ヒエラルキーのMenu Item」になります。
+
+| 作り方 | なるとき | トグルの構成を決める場所 |
+| --- | --- | --- |
+| ヒエラルキーのMenu Item | 右クリックで作ったとき、または「メニューをヒエラルキーに展開」を押したとき | コンポーネントの子にあるMA Menu Item |
+| ビルド時に作る | Add Componentで付けたとき、0.1.0-test8までに作ったコンポーネント | 下の「トグル」の表 |
+
+ヒエラルキーのMenu Itemでは、次の形の階層ができます。Jerry'sと同じ感覚で、並べ替え、表示名とアイコンの変更、別のサブメニューやアバターの別の場所への移動ができます。
+
+```
+フェイストラッキング          MA Menu Installer ＋ Menu Item（サブメニュー）
+├ フェイストラッキング        トグル  KxNFTM/FaceTracking
+├ 目のトラッキング            トグル  KxNFTM/EyeTracking
+├ 口のトラッキング            トグル  KxNFTM/LipTracking
+├ 瞳孔                        トグル  KxNFTM/Pupil（UEプリセットのみ）
+├ ビゼーム                    トグル  KxNFTM/Visemes
+├ 感度                        サブメニュー（感度のRadialを足したときだけ）
+│ ├ 目                        Radial  KxNFTM/Sensitivity/Eye
+│ └ 口                        Radial  KxNFTM/Sensitivity/Lip
+└ 設定                        サブメニュー
+  ├ エミュレーション          トグル  KxNFTM/Emulation
+  ├ 制限                      トグル  KxNFTM/Limits
+  └ 両目の連動                トグル  KxNFTM/EyeSync
+```
+
+ビルド時には、アバターにあるMA Menu Itemのうち、パラメーター名（MA Parametersのリネームを当てた後の名前）が `KxNFTM/` の公開名と一致するものを読みます。
+
+- Menu Itemがあるトグルはメニューに出し、同期Boolのパラメーター（1つにつき1bit）を作る。既定値はMenu Itemの既定値（Default）、保存はMenu Itemの保存（Saved）の設定に従う。同期は設定にかかわらず常に有効にする（リモートのクライアントも自分のアニメーターでSetの重みを決めるため）
+- Menu Itemを消したトグルはメニューに出ず、パラメーターも作らない。インスペクタの表の「既定値」に出る固定の値で動く（右クリックで作った直後はプリセットの値。展開ボタンで移行したときは、移行前の表の既定値を引き継ぐ）
+- トグルのMenu Itemの値は1にする（値の自動設定でもよい）。1以外の値のMenu Itemと、同じパラメーターの項目が複数あるのに値の自動設定を使っているMenu Itemは読まず、警告（KxNFTM-W-19）を出す
+- 公開名を指すMenu Itemが1つも無いと、警告（KxNFTM-W-18）を出す
+- パラメーター名が公開名と違うMenu Itemは、利用者のものとして扱い読まない
+
+ビルド時に作る形のコンポーネントには、インスペクタの「トグル」に「メニューをヒエラルキーに展開」ボタンが出ます。押すと、そのときのトグルの表と感度の設定のとおりにMenu Itemを作り、以後はMenu Itemの側で編集する形に変わります（Undoで戻せます）。
+
 ### トグル
 
-EXメニューに出すトグルを表で決めます。
+EXメニューに出すトグルを決めます。ヒエラルキーのMenu Itemのときは、表はMenu Itemから読んだ結果の表示で、値はMenu Itemの側で変えます。Menu Itemが無いトグルの行には「追加」ボタンと、そのトグルの固定の値（既定値の列）が出ます。
 
 | トグル | メニューでの切り替え対象 |
 | --- | --- |
@@ -78,7 +115,7 @@ EXメニューに出すトグルを表で決めます。
 | Limits | 表情補正の制限。「Settings」の中に出る |
 | Eye Sync | 左右のまぶたを揃える補正。「Settings」の中に出る |
 
-表の列の意味は次のとおりです。
+ビルド時に作る形のときの、表の列の意味は次のとおりです（ヒエラルキーのMenu Itemのときは、「メニュー」は「メニューにある」になり、既定値と保存はMenu Itemの設定を表示します）。
 
 | 列 | 意味 |
 | --- | --- |
@@ -86,7 +123,7 @@ EXメニューに出すトグルを表で決めます。
 | 既定値 | アバターを着たときのトグルの値。メニューに出さないトグルでは、これが固定の値になる |
 | 保存 | ワールドをまたいで値を保存する。メニューに出さないトグルでは操作できない |
 
-Emulation・Limits・Eye Syncの行は、次の「表情補正」で対応する補正を作らない設定にしているあいだ、灰色になって操作できません。
+Emulation・Limits・Eye Syncの行は、次の「表情補正」で対応する補正を作らない設定にしているあいだ、灰色になって操作できません。ヒエラルキーのMenu Itemのときは、Menu Itemが残っていてもビルド時にメニューから外します（KxNFTM-I-05）。
 古い版で保存したコンポーネントでは表に無いトグルがあり、その旨の案内と「トグルを表に加える」ボタンが出ます。表に無いトグルはメニューに出ず、以前の版と同じ挙動になります。
 
 ### 表情補正
@@ -105,6 +142,7 @@ Jerry's 7.0.5のFXにある補正を、DescriptorのParameter Behaviors（Custom
 ### 感度
 
 EXメニューの「Face Tracking」に「Sensitivity」を足し、Radialで目と口の効き方を変えられるようにします。プリセットには含まれないので、変えてもCustomにはなりません。
+ヒエラルキーのMenu Itemのときは、下の目・口の感度の代わりに「Radialを追加」「Radialを削除」のボタンが出て、RadialのMenu Itemの有無で系統が決まります。値の保存はRadialのMenu Itemの保存（Saved）に従います。
 
 | 項目 | 既定 | 意味 |
 | --- | --- | --- |

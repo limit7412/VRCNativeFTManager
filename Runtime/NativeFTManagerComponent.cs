@@ -28,7 +28,13 @@ namespace NativeFTManager
         [Tooltip("Preset of the settings")]
         public NativeFTPreset preset = NativeFTPreset.UE;
 
-        [Tooltip("Toggles in the Face Tracking menu")]
+        // メニューの作り方（仕様書8.3）。以前に保存したコンポーネントの挙動を変えないよう、初期化子はGeneratedにする。
+        // 右クリックからの生成と「メニューをヒエラルキーに展開」ボタンがHierarchyにする
+
+        [Tooltip("How the Expressions menu is made. Hierarchy reads the MA Menu Items placed in the hierarchy")]
+        public NativeFTMenuMode menuMode = NativeFTMenuMode.Generated;
+
+        [Tooltip("Toggles in the Face Tracking menu (used when the menu is generated at build time)")]
         public List<ToggleSettings> toggles = ToggleSettings.CreateDefaults();
 
         [Tooltip("Speed at which the Blendshapes Set weight follows a toggle (0 switches instantly)")]

@@ -5,10 +5,11 @@ using System.Linq;
 namespace NativeFTManager.Domain
 {
     /// <summary>
-    /// EXメニューの生成計画（仕様書8.3）
+    /// ビルド時に作るEXメニューの計画（仕様書8.3。menuModeがGeneratedのとき）
     ///
     /// 表示名はVRChatのメニューに出るので、エディタの言語とは関係なく英語で固定する。
-    /// Jerry'sのメニューも英語なので、移行した利用者が迷わないようにそろえている（M4で見直し、変えないことにした）
+    /// Jerry'sのメニューも英語なので、移行した利用者が迷わないようにそろえている（M4で見直し、変えないことにした）。
+    /// ヒエラルキーにMenu Itemを置く形（Hierarchy）では、表示名を作った時点のエディタの言語で書く（MenuHierarchyBuilder）
     /// </summary>
     internal sealed class MenuPlan
     {

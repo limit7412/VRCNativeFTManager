@@ -13,8 +13,9 @@ namespace NativeFTManager.Infra
     /// <summary>
     /// 生成したFX、同期パラメーター、メニューを、アバター直下の専用オブジェクトへMAのコンポーネントとして置く
     ///
-    /// メニューとパラメーターもビルド時に作る。メニューに出すトグルの設定でパラメーターの数が変わるので、
-    /// プレハブに静的に置くと、設定を変えるたびにプレハブの中身を合わせ直すことになるためである
+    /// パラメーターはビルド時に作る。メニューに出すトグルでパラメーターの数が変わるためである。
+    /// メニューは、ビルド時に作る形（menuModeがGenerated）のときだけここで作る。
+    /// ヒエラルキーにMenu Itemを置く形では、MAがMenu Itemからメニューを組む
     /// </summary>
     internal static class GeneratedObjectsInstaller
     {

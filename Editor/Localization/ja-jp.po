@@ -479,7 +479,7 @@ msgid "diag.I-05"
 msgstr "[KxNFTM-I-05] 切り替えるSetが無いトグルをメニューから外しました"
 
 msgid "diag.I-05:description"
-msgstr "トグル「{0}」が切り替えるBlendshapes Setが無いため、EXメニューの項目と同期パラメーターを外しました。ARKitのシェイプには瞳孔が無いので、Pupilはこうなります。Setにキーを割り当てれば、トグルは残ります。"
+msgstr "トグル「{0}」が切り替えるBlendshapes Setが無いため、EXメニューの項目と同期パラメーターを外しました。ARKitのシェイプには瞳孔が無いので、Pupilはこうなります。Setにキーを割り当てれば、トグルは残ります。表情補正の機能を生成しない設定で、そのトグルのMenu Itemがヒエラルキーに残っているときも外します。"
 
 msgid "inspector.face_emo.expression_control"
 msgstr "FaceEmoが書き込みを続けるため、素体の表情レイヤーは通常時と同じく押さえ込まれ、トラッキング中もメニューから表情を選べます。\nFaceEmoのデフォルト表情はトラッキングと同じブレンドシェイプを書くので、あらかじめFaceEmoの「除外するブレンドシェイプ」へトラッキング用のシェイプを登録しておいてください。"
@@ -753,3 +753,91 @@ msgstr "ワールドをまたいでRadialの値を保存します。"
 
 msgid "inspector.sensitivity.description"
 msgstr "Radialの中央（既定値）が等倍で、8段階で切り替わります。左側は0.2〜0.8倍、右側は等倍から上限の倍率までです。トグルでSetを止めたときは、感度にかかわらず止まります。"
+
+# Menu in the hierarchy (MA Menu Items)
+msgid "menu.label.root"
+msgstr "フェイストラッキング"
+
+msgid "menu.label.face_tracking"
+msgstr "フェイストラッキング"
+
+msgid "menu.label.eye_tracking"
+msgstr "目のトラッキング"
+
+msgid "menu.label.lip_tracking"
+msgstr "口のトラッキング"
+
+msgid "menu.label.pupil"
+msgstr "瞳孔"
+
+msgid "menu.label.visemes"
+msgstr "ビゼーム"
+
+msgid "menu.label.emulation"
+msgstr "エミュレーション"
+
+msgid "menu.label.limits"
+msgstr "制限"
+
+msgid "menu.label.eye_sync"
+msgstr "両目の連動"
+
+msgid "menu.label.settings"
+msgstr "設定"
+
+msgid "menu.label.sensitivity"
+msgstr "感度"
+
+msgid "menu.label.sensitivity_eye"
+msgstr "目"
+
+msgid "menu.label.sensitivity_lip"
+msgstr "口"
+
+msgid "inspector.menu.generated"
+msgstr "EXメニューはビルド時に作ります（0.1.0-test8までの形）。下のボタンで、メニューをMA Menu Itemの階層としてヒエラルキーに置けます。置いた後は、並べ替え、表示名とアイコンの変更、別のサブメニューへの移動をヒエラルキーで行えます。"
+
+msgid "inspector.menu.expand"
+msgstr "メニューをヒエラルキーに展開"
+
+msgid "inspector.menu.hierarchy"
+msgstr "EXメニューはヒエラルキーのMA Menu Itemで編集します。メニューにあるトグルと、その既定値・保存は、Menu Itemの既定値（Default）と保存（Saved）の設定から読みます。Menu Itemを消したトグルはメニューに出さず、表の既定値の列にある固定の値で動きます。"
+
+msgid "inspector.menu.mixed_modes"
+msgstr "メニューの作り方が違うコンポーネントを選んでいます。トグルは1つずつ選んで編集してください。"
+
+msgid "inspector.menu.add"
+msgstr "追加"
+
+msgid "inspector.menu.feature_disabled"
+msgstr "「{0}」の機能を生成しない設定なので、Menu Itemはビルド時にメニューから外れます。"
+
+msgid "inspector.menu.add_radial"
+msgstr "Radialを追加"
+
+msgid "inspector.menu.remove_radial"
+msgstr "Radialを削除"
+
+msgid "inspector.toggle.in_menu"
+msgstr "メニューにある"
+
+msgid "inspector.toggle.in_menu.tooltip"
+msgstr "公開パラメーターを指すMA Menu Itemがアバターにあるか"
+
+msgid "inspector.undo.expand_menu"
+msgstr "メニューをヒエラルキーに展開"
+
+msgid "inspector.undo.menu_item"
+msgstr "Menu Itemの変更"
+
+msgid "diag.W-18"
+msgstr "[KxNFTM-W-18] メニューのトグルが見つかりません"
+
+msgid "diag.W-18:description"
+msgstr "メニューをヒエラルキーで持つ設定ですが、本製品のパラメーター（KxNFTM/）を指すMA Menu Itemがアバターにありません。すべてのトグルがメニューに出ず、固定の値で動きます。インスペクタのトグルの表から追加してください。"
+
+msgid "diag.W-19"
+msgstr "[KxNFTM-W-19] 値が1にならないトグルのMenu Itemがあります"
+
+msgid "diag.W-19:description"
+msgstr "パラメーター「{0}」を指すトグルのMenu Itemは、値が1ではないか、同じパラメーターを指す複数の項目で値の自動設定を使っているため、読みませんでした。本製品のトグルはBoolなので、値を1にしてください。値の自動設定は、そのパラメーターの項目が1つだけのときに使えます。"

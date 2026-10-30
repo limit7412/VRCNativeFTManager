@@ -76,6 +76,9 @@ namespace NativeFTManager.Domain
 
         /// <summary>本製品以外の同期パラメーターのbit数の見込み（DescriptorのExpression ParametersとMA Parameters）</summary>
         public int OtherSyncedBits;
+
+        /// <summary>ヒエラルキーから読んだメニュー。ビルド時にメニューを作るコンポーネントではnull</summary>
+        public MenuHierarchy Menu;
     }
 
     /// <summary>
@@ -162,6 +165,21 @@ namespace NativeFTManager.Domain
                 diagnostics.Add(new Diagnostic(
                     DiagnosticCodes.ParameterConflict,
                     string.Join(", ", facts.ConflictingParameters)));
+            }
+
+            if (facts.Menu != null)
+            {
+                if (facts.Menu.IsEmpty)
+                {
+                    diagnostics.Add(new Diagnostic(DiagnosticCodes.MenuItemsMissing));
+                }
+
+                if (facts.Menu.InvalidValues.Count > 0)
+                {
+                    diagnostics.Add(new Diagnostic(
+                        DiagnosticCodes.MenuItemValueInvalid,
+                        string.Join(", ", facts.Menu.InvalidValues)));
+                }
             }
 
             int totalBits = facts.PublishedSyncedBits + facts.OtherSyncedBits;

@@ -1,5 +1,8 @@
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
+using NativeFTManager.Infra;
+using NativeFTManager.UseCase;
 
 namespace NativeFTManager.Handler
 {
@@ -8,7 +11,10 @@ namespace NativeFTManager.Handler
     ///
     /// プレハブは配らない。中身はコンポーネント1つだけなので、プレハブにすると
     /// 版を上げるたびに既定値をプレハブへ書き直す手間が増えるうえ、利用者の設定がオーバーライドとして残る。
-    /// ここで作れば、既定値はコンポーネントのResetとプリセットの1か所で決まる
+    /// ここで作れば、既定値はコンポーネントのResetとプリセットの1か所で決まる。
+    ///
+    /// EXメニューは、子にMA Menu InstallerとMA Menu Itemの階層として作る（仕様書6.1、8.3）。
+    /// 利用者がJerry'sと同じ感覚で並べ替えや表示名の変更をできるようにするため
     /// </summary>
     internal static class CreateManagerMenu
     {
@@ -51,6 +57,19 @@ namespace NativeFTManager.Handler
             var component = gameObject.AddComponent<NativeFTManagerComponent>();
             NativeFTPresets.Apply(component, preset);
             component.generatorIntegration = generatorIntegration;
+
+            // プリセットのトグルの構成をそのままMenu Itemにし、以後はMenu Itemの側を正にする。
+            // アバターにすでにManagerがあり、こちらが重複として消される側なら作らない。
+            // コンポーネントだけが消え、Menu Installerが残ってメニューが二重になるため
+            var searchRoot = MenuHierarchyScanner.GetSearchRoot(component);
+            var duplicates = ComponentSelection.SelectDuplicateComponents(
+                searchRoot.transform, ComponentSelection.CollectComponents(searchRoot));
+            if (!duplicates.Contains(component))
+            {
+                var toggles = ComponentSettings.ResolveToggles(component);
+                component.menuMode = NativeFTMenuMode.Hierarchy;
+                MenuHierarchyBuilder.Expand(component, toggles, "Create " + name);
+            }
 
             Selection.activeGameObject = gameObject;
             return gameObject;

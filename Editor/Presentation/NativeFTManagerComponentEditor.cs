@@ -41,6 +41,7 @@ namespace NativeFTManager.Presentation
         private SerializedProperty _enableEyeSync;
         private SerializedProperty _faceEmoSuppression;
         private SerializedProperty _sensitivity;
+        private SerializedProperty _menuMode;
 
         /// <summary>追加パラメーターの一覧。追加の操作を差し替えるため、標準の配列表示の代わりに使う</summary>
         private ReorderableList _extraParameterList;
@@ -68,6 +69,7 @@ namespace NativeFTManager.Presentation
             _enableEyeSync = serializedObject.FindProperty(nameof(NativeFTManagerComponent.enableEyeSync));
             _faceEmoSuppression = serializedObject.FindProperty(nameof(NativeFTManagerComponent.faceEmoSuppression));
             _sensitivity = serializedObject.FindProperty(nameof(NativeFTManagerComponent.sensitivity));
+            _menuMode = serializedObject.FindProperty(nameof(NativeFTManagerComponent.menuMode));
         }
 
         private void OnDisable()
@@ -166,8 +168,14 @@ namespace NativeFTManager.Presentation
                     Undo.RecordObject(component, S("inspector.undo.preset"));
                     NativeFTPresets.Apply(component, component.preset);
                     MarkModified(component);
+
+                    // ヒエラルキーのメニューでは、プリセットのトグルの構成をMenu Itemの増減で反映する（仕様書6.3）
+                    if (ComponentSettings.UsesHierarchyMenu(component))
+                    {
+                        MenuHierarchyBuilder.ApplyPreset(component, component.preset, S("inspector.undo.preset"));
+                    }
                 }
-                else if (!NativeFTPresets.Matches(component, component.preset))
+                else if (!MatchesPreset(component))
                 {
                     Undo.RecordObject(component, S("inspector.undo.preset"));
                     component.preset = NativeFTPreset.Custom;
@@ -176,6 +184,21 @@ namespace NativeFTManager.Presentation
             }
 
             serializedObject.Update();
+        }
+
+        /// <summary>
+        /// プリセットとの一致。ヒエラルキーのメニューでは、トグルの構成をMenu Itemから読む
+        /// </summary>
+        private static bool MatchesPreset(NativeFTManagerComponent component)
+        {
+            if (!ComponentSettings.UsesHierarchyMenu(component))
+            {
+                return NativeFTPresets.Matches(component, component.preset);
+            }
+
+            var menu = MenuHierarchyScanner.Scan(component);
+            return NativeFTPresets.Matches(
+                component, component.preset, ComponentSettings.GetToggleSource(component, menu), true);
         }
 
         /// <summary>
@@ -239,6 +262,12 @@ namespace NativeFTManager.Presentation
         private void DrawSensitivity()
         {
             EditorGUILayout.LabelField(S("inspector.section.sensitivity"), EditorStyles.boldLabel);
+
+            if (IsHierarchyMenu())
+            {
+                DrawHierarchySensitivity();
+                return;
+            }
 
             var eye = _sensitivity.FindPropertyRelative(nameof(SensitivitySettings.eye));
             var lip = _sensitivity.FindPropertyRelative(nameof(SensitivitySettings.lip));
@@ -524,9 +553,36 @@ namespace NativeFTManager.Presentation
             }
         }
 
+        /// <summary>
+        /// 選んでいるコンポーネントが、どれもメニューをヒエラルキーで持つか
+        /// </summary>
+        private bool IsHierarchyMenu()
+        {
+            return !_menuMode.hasMultipleDifferentValues && _menuMode.enumValueIndex == (int)NativeFTMenuMode.Hierarchy;
+        }
+
         private void DrawToggles()
         {
             EditorGUILayout.LabelField(S("inspector.section.toggles"), EditorStyles.boldLabel);
+
+            if (_menuMode.hasMultipleDifferentValues)
+            {
+                EditorGUILayout.HelpBox(S("inspector.menu.mixed_modes"), MessageType.Info);
+                return;
+            }
+
+            if (IsHierarchyMenu())
+            {
+                DrawHierarchyToggles();
+                return;
+            }
+
+            EditorGUILayout.HelpBox(S("inspector.menu.generated"), MessageType.Info);
+            if (GUILayout.Button(S("inspector.menu.expand")))
+            {
+                ExpandMenus();
+                return;
+            }
 
             using (new EditorGUILayout.HorizontalScope())
             {
@@ -626,6 +682,191 @@ namespace NativeFTManager.Presentation
             }
 
             serializedObject.Update();
+        }
+
+        /// <summary>
+        /// ビルド時にメニューを作るコンポーネントの設定を、そのままMenu Itemの階層にする（仕様書6.1）。
+        /// 0.1.0-test8までに作ったコンポーネントの移行に使う
+        /// </summary>
+        private void ExpandMenus()
+        {
+            serializedObject.ApplyModifiedProperties();
+            var undoName = S("inspector.undo.expand_menu");
+            foreach (var component in targets.OfType<NativeFTManagerComponent>())
+            {
+                if (ComponentSettings.UsesHierarchyMenu(component))
+                {
+                    continue;
+                }
+
+                var toggles = ComponentSettings.ResolveToggles(component);
+                Undo.RecordObject(component, undoName);
+                component.menuMode = NativeFTMenuMode.Hierarchy;
+
+                // Menu Itemにしないトグルの固定の値はtogglesに残るので、古い版で保存して表に無いトグルを、
+                // 持たないときと同じ値で加えておく。加えないと、展開後の表で固定の値を編集できない
+                if (component.toggles == null)
+                {
+                    component.toggles = new System.Collections.Generic.List<ToggleSettings>();
+                }
+
+                foreach (NativeFTToggle toggle in System.Enum.GetValues(typeof(NativeFTToggle)))
+                {
+                    if (component.toggles.All(settings => settings == null || settings.toggle != toggle))
+                    {
+                        component.toggles.Add(ToggleSettings.CreateMissing(toggle));
+                    }
+                }
+
+                MarkModified(component);
+                MenuHierarchyBuilder.Expand(component, toggles, undoName);
+            }
+
+            serializedObject.Update();
+        }
+
+        /// <summary>
+        /// ヒエラルキーのメニューのトグル。値はMenu Itemの側で編集するので、ここでは読んだ結果を表示し、
+        /// 無いトグルを足すボタンだけを置く（仕様書6.4）
+        /// </summary>
+        private void DrawHierarchyToggles()
+        {
+            EditorGUILayout.HelpBox(S("inspector.menu.hierarchy"), MessageType.Info);
+            if (serializedObject.isEditingMultipleObjects || _report == null || _report.Menu == null)
+            {
+                return;
+            }
+
+            var component = (NativeFTManagerComponent)target;
+            var menu = _report.Menu;
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                EditorGUILayout.LabelField(GUIContent.none, GUILayout.MinWidth(100f));
+                EditorGUILayout.LabelField(G("inspector.toggle.in_menu"), GUILayout.Width(80f));
+                EditorGUILayout.LabelField(G("inspector.toggle.default_value"), GUILayout.Width(80f));
+                EditorGUILayout.LabelField(G("inspector.toggle.saved"), GUILayout.Width(80f));
+            }
+
+            var features = ComponentSettings.GetFeatures(component);
+            foreach (NativeFTToggle toggle in System.Enum.GetValues(typeof(NativeFTToggle)))
+            {
+                var settings = menu.GetToggle(toggle, component.GetToggle);
+                bool available = features.IsEnabled(toggle);
+                using (new EditorGUILayout.HorizontalScope())
+                {
+                    EditorGUILayout.LabelField(MenuPlan.GetLabel(toggle), GUILayout.MinWidth(100f));
+                    if (!menu.Contains(toggle))
+                    {
+                        using (new EditorGUI.DisabledScope(!available))
+                        {
+                            if (GUILayout.Button(S("inspector.menu.add"), GUILayout.Width(80f)))
+                            {
+                                MenuHierarchyBuilder.AddToggle(
+                                    component, toggle, settings.defaultValue, true, S("inspector.undo.menu_item"));
+                                // プリセットとの一致を見直させる
+                                GUI.changed = true;
+                            }
+
+                            // Menu Itemの無いトグルの固定の値は、コンポーネントのtogglesに置く
+                            var fixedValue = FindToggleProperty(toggle);
+                            if (fixedValue != null)
+                            {
+                                DrawToggleCell(fixedValue.FindPropertyRelative(nameof(ToggleSettings.defaultValue)));
+                            }
+                            else
+                            {
+                                using (new EditorGUI.DisabledScope(true))
+                                {
+                                    EditorGUILayout.Toggle(settings.defaultValue, GUILayout.Width(80f));
+                                }
+                            }
+                        }
+
+                        EditorGUILayout.LabelField(GUIContent.none, GUILayout.Width(80f));
+                        continue;
+                    }
+
+                    using (new EditorGUI.DisabledScope(true))
+                    {
+                        EditorGUILayout.Toggle(true, GUILayout.Width(80f));
+                        EditorGUILayout.Toggle(settings.defaultValue, GUILayout.Width(80f));
+                        EditorGUILayout.Toggle(settings.saved, GUILayout.Width(80f));
+                    }
+                }
+
+                if (menu.Contains(toggle) && !available)
+                {
+                    EditorGUILayout.HelpBox(S("inspector.menu.feature_disabled", MenuPlan.GetLabel(toggle)), MessageType.Info);
+                }
+            }
+        }
+
+        /// <summary>
+        /// togglesの中で、指定したトグルの要素。古い版で保存したコンポーネントには無いことがある
+        /// </summary>
+        private SerializedProperty FindToggleProperty(NativeFTToggle toggle)
+        {
+            for (int i = 0; i < _toggles.arraySize; i++)
+            {
+                var element = _toggles.GetArrayElementAtIndex(i);
+                if (element.FindPropertyRelative(nameof(ToggleSettings.toggle)).intValue == (int)toggle)
+                {
+                    return element;
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// ヒエラルキーのメニューの感度。系統はRadialのMenu Itemの有無で決まるので、足す・外すボタンを置く。
+        /// 保存はMenu Itemの設定に従う
+        /// </summary>
+        private void DrawHierarchySensitivity()
+        {
+            if (serializedObject.isEditingMultipleObjects || _report == null || _report.Menu == null)
+            {
+                EditorGUILayout.HelpBox(S("inspector.menu.hierarchy"), MessageType.Info);
+                return;
+            }
+
+            var component = (NativeFTManagerComponent)target;
+            var menu = _report.Menu;
+            foreach (SensitivityChannel channel in System.Enum.GetValues(typeof(SensitivityChannel)))
+            {
+                using (new EditorGUILayout.HorizontalScope())
+                {
+                    var labelKey = channel == SensitivityChannel.Eye ? "inspector.sensitivity.eye" : "inspector.sensitivity.lip";
+                    EditorGUILayout.LabelField(G(labelKey), GUILayout.MinWidth(100f));
+                    bool present = menu.Contains(channel);
+                    if (GUILayout.Button(S(present ? "inspector.menu.remove_radial" : "inspector.menu.add_radial"), GUILayout.Width(160f)))
+                    {
+                        var undoName = S("inspector.undo.menu_item");
+                        if (present)
+                        {
+                            MenuHierarchyBuilder.RemoveRadial(component, channel, undoName);
+                        }
+                        else
+                        {
+                            MenuHierarchyBuilder.AddRadial(component, channel, true, undoName);
+                        }
+
+                        GUI.changed = true;
+                    }
+                }
+            }
+
+            if (menu.Radials.Count == 0)
+            {
+                return;
+            }
+
+            EditorGUI.indentLevel++;
+            EditorGUILayout.PropertyField(
+                _sensitivity.FindPropertyRelative(nameof(SensitivitySettings.maxMultiplier)),
+                G("inspector.sensitivity.max_multiplier"));
+            EditorGUILayout.HelpBox(S("inspector.sensitivity.description"), MessageType.Info);
+            EditorGUI.indentLevel--;
         }
 
         /// <summary>
