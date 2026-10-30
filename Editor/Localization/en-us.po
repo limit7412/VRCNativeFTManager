@@ -158,32 +158,14 @@ msgstr "Preset"
 msgid "inspector.preset.tooltip"
 msgstr "Group of settings. UE matches Jerry's Templates, ARKit leaves out the pupils, and Minimal has only the eye and mouth toggles. Changing any of them switches to Custom"
 
-msgid "inspector.generator_integration"
-msgstr "Generator Integration"
+msgid "inspector.use_generator_component"
+msgstr "Use Generator Component"
 
-msgid "inspector.generator_integration.tooltip"
-msgstr "When Auto, the Blendshapes Set output of Kx VRC ARKit BlendShape Generator on the avatar is enabled during the build only. The Generator settings in the scene are not changed"
+msgid "inspector.use_generator_component.tooltip"
+msgstr "Enables the Blendshapes Set output of the Kx VRC ARKit BlendShape Generator component on the avatar during the build only. The Generator settings in the scene are not changed"
 
 msgid "inspector.section.toggles"
 msgstr "Toggles"
-
-msgid "inspector.toggle.show_in_menu"
-msgstr "Menu"
-
-msgid "inspector.toggle.show_in_menu.tooltip"
-msgstr "Adds the toggle to the Expressions Menu with a synced parameter. A hidden toggle always keeps its default value"
-
-msgid "inspector.toggle.default_value"
-msgstr "Default"
-
-msgid "inspector.toggle.default_value.tooltip"
-msgstr "Default value of the parameter"
-
-msgid "inspector.toggle.saved"
-msgstr "Saved"
-
-msgid "inspector.toggle.saved.tooltip"
-msgstr "Keeps the value across worlds"
 
 msgid "inspector.section.descriptor"
 msgstr "Avatar Descriptor (at build time)"
@@ -230,7 +212,7 @@ msgid "diag.E-03"
 msgstr "[KxNFTM-E-03] No Blendshapes Set"
 
 msgid "diag.E-03:description"
-msgstr "The Avatar Descriptor has no Blendshapes Set, so face tracking does nothing. With Kx VRC ARKit BlendShape Generator, set Generator Integration to Auto; otherwise create a Set with the Descriptor's auto fill or by hand."
+msgstr "The Avatar Descriptor has no Blendshapes Set, so face tracking does nothing. With Kx VRC ARKit BlendShape Generator, turn on Use Generator Component; otherwise create a Set with the Descriptor's auto fill or by hand."
 
 msgid "diag.E-04"
 msgstr "[KxNFTM-E-04] Jerry's Face Tracking Templates is still on the avatar"
@@ -260,7 +242,7 @@ msgid "diag.W-02"
 msgstr "[KxNFTM-W-02] Generator shapes are not used for face tracking"
 
 msgid "diag.W-02:description"
-msgstr "Generator Integration is Off and the Generator's Blendshapes Set output is off as well, so the generated shapes are not added to any Set. Set Generator Integration to Auto."
+msgstr "Use Generator Component is off and the Generator's Blendshapes Set output is off as well, so the generated shapes are not added to any Set. Turn on Use Generator Component."
 
 msgid "diag.W-04"
 msgstr "[KxNFTM-W-04] Generator Set has too few keys"
@@ -316,15 +298,6 @@ msgstr "Change preset"
 
 msgid "inspector.undo.rules"
 msgstr "Change correction rules"
-
-msgid "inspector.undo.toggles"
-msgstr "Add toggles"
-
-msgid "inspector.toggle.missing"
-msgstr "This component has no settings for these toggles: {0}. A toggle without settings stays out of the menu and behaves as in earlier versions."
-
-msgid "inspector.toggle.add_missing"
-msgstr "Add the toggles to the table"
 
 msgid "inspector.section.corrections"
 msgstr "Expression Corrections"
@@ -786,19 +759,16 @@ msgid "menu.label.sensitivity_lip"
 msgstr "Lip"
 
 msgid "inspector.menu.generated"
-msgstr "The Expressions Menu is generated at build time (the form used up to 0.1.0-test8). The button below places the menu in the hierarchy as MA Menu Items, so that it can be reordered, renamed, given icons, and moved to another submenu there."
+msgstr "The Expressions Menu is generated at build time (the form used up to 0.1.0-test8). The toggles keep the preset values and cannot be changed here. The button below places the menu in the hierarchy as MA Menu Items, so that it can be reordered, renamed, given icons, and moved to another submenu there."
 
 msgid "inspector.menu.expand"
 msgstr "Expand the menu into the hierarchy"
 
 msgid "inspector.menu.hierarchy"
-msgstr "The Expressions Menu is edited with the MA Menu Items in the hierarchy. Which toggles are in the menu, and their default and saved settings, are read from the Default and Saved settings of the Menu Items. A toggle whose Menu Item is deleted is left out of the menu and works with the fixed value in the Default column of the table."
+msgstr "The Expressions Menu is edited with the MA Menu Items in the hierarchy. Which toggles are in the menu, and their default and saved settings, are read from the Default and Saved settings of the Menu Items. A toggle whose Menu Item is deleted is left out of the menu and keeps the default value stored in the component."
 
 msgid "inspector.menu.mixed_modes"
 msgstr "The selected components make their menus in different ways. Select them one at a time to edit the toggles."
-
-msgid "inspector.menu.add"
-msgstr "Add"
 
 msgid "inspector.menu.feature_disabled"
 msgstr "\"{0}\" is not generated, so its Menu Item is removed from the menu at build time."
@@ -808,12 +778,6 @@ msgstr "Add Radial"
 
 msgid "inspector.menu.remove_radial"
 msgstr "Remove Radial"
-
-msgid "inspector.toggle.in_menu"
-msgstr "In menu"
-
-msgid "inspector.toggle.in_menu.tooltip"
-msgstr "Whether the avatar has an MA Menu Item that points to the public parameter"
 
 msgid "inspector.undo.expand_menu"
 msgstr "Expand the menu into the hierarchy"
@@ -825,7 +789,7 @@ msgid "diag.W-18"
 msgstr "[KxNFTM-W-18] No menu toggles were found"
 
 msgid "diag.W-18:description"
-msgstr "The menu is set to be kept in the hierarchy, but the avatar has no MA Menu Item that points to a parameter of this tool (KxNFTM/). No toggle appears in the menu, and every toggle works with a fixed value. Add toggles from the toggle table in the inspector."
+msgstr "The menu is set to be kept in the hierarchy, but the avatar has no MA Menu Item that points to a parameter of this tool (KxNFTM/). No toggle appears in the menu, and every toggle works with a fixed value. Choosing a preset again recreates the Menu Items of the toggles in the preset."
 
 msgid "diag.W-19"
 msgstr "[KxNFTM-W-19] A toggle Menu Item does not have the value 1"

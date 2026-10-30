@@ -69,7 +69,7 @@ namespace NativeFTManager.UseCase
             report.GeneratorSetWriteEnabled = facts.GeneratorSetWriteEnabled;
 
             bool generatorWillWrite = facts.Generator == GeneratorPresence.Present
-                                      && (component.generatorIntegration == GeneratorIntegration.Auto
+                                      && (component.useGeneratorComponent
                                           || facts.GeneratorSetWriteEnabled);
             if (sets.Count == 0 && !generatorWillWrite)
             {

@@ -48,12 +48,12 @@ The settings are listed in the order they appear in the inspector. The language 
 The top of the inspector shows the number of Blendshapes Sets on the Descriptor and the number of assigned keys, the state of Use All Tracking Keys, and whether Kx VRC ARKit BlendShape Generator is present and its Set output is enabled.
 Below that, errors, warnings and notices about the settings or the avatar appear with numbers starting with `KxNFTM-`. Each message states the cause and what to do, and the same messages appear in the NDMF console at build time.
 
-### Preset and Generator Integration
+### Preset and Generator Component
 
 | Item | Default | Meaning |
 | --- | --- | --- |
 | Preset | From the context menu, ARKit if the avatar has the Generator and UE otherwise. UE with Add Component | A combination of the toggle layout and which corrections to generate. Choosing a preset rewrites the toggles and the correction settings. With Menu Items in the hierarchy, it deletes the Menu Items of toggles not in the preset, adds the missing ones, and sets the defaults to the preset values (existing Menu Items keep their names, icons and places; Undo restores them). Changing a toggle or a correction away from the preset switches it to Custom |
-| Generator Integration | Auto | With Auto, when the avatar has Kx VRC ARKit BlendShape Generator, its Set output is enabled during the build only. The Generator's settings in the scene are not changed. Off does nothing |
+| Use Generator Component | On | Enables the Set output of the Kx VRC ARKit BlendShape Generator component on the avatar during the build only. The Generator's settings in the scene are not changed. Does nothing when the avatar has no Generator component. "Generator Integration" saved with 0.1.0-test10 or earlier is read as on for Auto and off for Off |
 
 The presets contain the following.
 
@@ -71,7 +71,7 @@ There are two ways the Expressions Menu is made. A component created from the ri
 | Way | When | Where the toggle layout is decided |
 | --- | --- | --- |
 | Menu Items in the hierarchy | Created from the right-click menu, or after pressing "Expand the menu into the hierarchy" | The MA Menu Items under the component |
-| Generated at build time | Added with Add Component, or created with 0.1.0-test8 or earlier | The "Toggles" table below |
+| Generated at build time | Added with Add Component, or created with 0.1.0-test8 or earlier | The values stored in the component (the preset values right after Add Component). They cannot be changed in the inspector; to change them, convert to Menu Items with the expand button |
 
 With Menu Items in the hierarchy, the following hierarchy is created. As with Jerry's, you can reorder the items, change their labels and icons, and move them to another submenu or elsewhere on the avatar.
 
@@ -94,16 +94,16 @@ Face Tracking            MA Menu Installer + Menu Item (submenu)
 At build time, the MA Menu Items on the avatar whose parameter name (after the renames of MA Parameters) matches a public `KxNFTM/` name are read.
 
 - A toggle with a Menu Item appears in the menu and gets a synced Bool parameter (1 bit each). Its default follows the Default setting of the Menu Item, and saving follows its Saved setting. Syncing is always on regardless of the setting, because remote clients decide the Set weights with their own animators
-- A toggle whose Menu Item is deleted stays out of the menu and has no parameter. It works with the fixed value shown in the Default column of the inspector table (right after creating from the right-click menu, the preset value; after migrating with the expand button, the default from the table before migration)
+- A toggle whose Menu Item is deleted stays out of the menu and has no parameter. It keeps the default value stored in the component (the preset value right after creating from the right-click menu or choosing a preset again; after migrating with the expand button, the default from before migration)
 - The value of a toggle Menu Item must be 1 (or use the automatic value). Menu Items with another value, and Menu Items that use the automatic value while the same parameter has several items, are not read, with a warning (KxNFTM-W-19)
 - When no Menu Item points to a public name, a warning (KxNFTM-W-18) appears
 - Menu Items whose parameter name differs from the public names are treated as your own and are not read
 
-A component whose menu is generated at build time shows an "Expand the menu into the hierarchy" button under "Toggles" in the inspector. Pressing it creates Menu Items that match the current toggle table and sensitivity settings, and from then on the menu is edited with the Menu Items (Undo restores it).
+A component whose menu is generated at build time shows an "Expand the menu into the hierarchy" button under "Toggles" in the inspector. Pressing it creates Menu Items that match the current toggle and sensitivity settings, and from then on the menu is edited with the Menu Items (Undo restores it).
 
 ### Toggles
 
-Decides which toggles appear in the Expressions Menu. With Menu Items in the hierarchy, the table shows what was read from the Menu Items, and the values are changed on the Menu Items. Rows of toggles without a Menu Item show an "Add" button and the fixed value of the toggle (in the Default column).
+The toggles in the Expressions Menu are decided by the Menu Items in the hierarchy. The inspector has no table of toggles. To bring back a toggle whose Menu Item was deleted, choose the preset again, or duplicate a Menu Item and set its parameter name to the public name.
 
 | Toggle | What it switches in the menu |
 | --- | --- |
@@ -116,16 +116,7 @@ Decides which toggles appear in the Expressions Menu. With Menu Items in the hie
 | Limits | The limits correction. Appears under "Settings" |
 | Eye Sync | The correction that keeps both eyelids together. Appears under "Settings" |
 
-With the menu generated at build time, the columns mean the following (with Menu Items in the hierarchy, "Menu" becomes "In menu", and the default and saved columns show the Menu Item settings).
-
-| Column | Meaning |
-| --- | --- |
-| Menu | Show the toggle in the Expressions Menu and create a synced Bool parameter for it (such as `KxNFTM/FaceTracking`, 1 bit each). A toggle not in the menu has no parameter and always stays at its default |
-| Default | The value of the toggle when the avatar is worn. For a toggle not in the menu, this is its fixed value |
-| Saved | Keep the value across worlds. Not available for a toggle that is not in the menu |
-
-The Emulation, Limits and Eye Sync rows are grayed out while the matching correction is not generated (see "Expression Corrections" below). With Menu Items in the hierarchy, a Menu Item left for such a toggle is removed from the menu at build time (KxNFTM-I-05).
-A component saved with an older version may lack some toggles. The inspector then shows a notice and an "Add the toggles to the table" button. A toggle missing from the table stays out of the menu and behaves as in earlier versions.
+While the matching correction is not generated (see "Expression Corrections" below), a Menu Item left for Emulation, Limits or Eye Sync is removed from the menu at build time (KxNFTM-I-05). The inspector also shows a notice under "Toggles".
 
 ### Expression Corrections
 

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 using VRC.SDKBase;
 
 namespace NativeFTManager
@@ -54,8 +55,11 @@ namespace NativeFTManager
         [Range(0f, 1f)]
         public float visemeDampenAmount = 0.5f;
 
-        [Tooltip("Enable the Blendshapes Set output of Kx VRC ARKit BlendShape Generator at build time when the avatar has one")]
-        public GeneratorIntegration generatorIntegration = GeneratorIntegration.Auto;
+        // 0.1.0-test10までは列挙体GeneratorIntegration（Off=0、Auto=1）で保存していた。
+        // シリアライズ上はどちらも0と1なので、旧名から読めばOffはfalse、Autoはtrueになる
+        [Tooltip("Enable the Blendshapes Set output of the Kx VRC ARKit BlendShape Generator component on the avatar at build time")]
+        [FormerlySerializedAs("generatorIntegration")]
+        public bool useGeneratorComponent = true;
 
         // 表情補正（仕様書5.4、M2）。M1で保存したコンポーネントの挙動を変えないよう、初期化子は無効にしておく。
         // 追加したてのコンポーネントとプレハブでは、プリセットの値をResetで入れる

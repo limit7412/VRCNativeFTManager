@@ -45,7 +45,7 @@ namespace NativeFTManager.UseCase
             var state = context.GetState<BuildState>();
             if (facts.Generator == GeneratorPresence.Present)
             {
-                if (primary.generatorIntegration == GeneratorIntegration.Auto)
+                if (primary.useGeneratorComponent)
                 {
                     // ビルド用の複製の上だけで有効にする。シーンの設定は変えない（仕様書10.1）
                     GeneratorAccess.EnableSetWrite(avatarRoot);

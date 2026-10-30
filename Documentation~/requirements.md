@@ -30,8 +30,8 @@ booth版のzipには、本製品とGeneratorのunitypackageが入っています
 Generatorを使うかどうかはアバターごとに決められます。
 アバターにGeneratorのコンポーネントが無ければ連携は何もせず、DescriptorのBlendshapes Setをそのまま使います。
 
-インスペクタの「Generator連携」が Auto のとき、アバターにGeneratorがあれば、ビルド中だけGeneratorのSet書き込みを有効にします。
-右クリックで作ったManagerは、最初からAutoになっています。
+インスペクタの「Generatorコンポーネントを使う」がオンのとき、アバターにGeneratorのコンポーネントがあれば、ビルド中だけGeneratorのSet書き込みを有効にします。
+既定はオンで、右クリックで作ったManagerも最初からオンになっています。
 GeneratorのSetはビルド中にしか作られないので、インスペクタの見積もりには入りません。
 
 ## 入っているときだけ連携するパッケージ
