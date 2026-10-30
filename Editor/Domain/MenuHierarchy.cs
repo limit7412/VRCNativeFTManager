@@ -97,11 +97,19 @@ namespace NativeFTManager.Domain
         }
 
         /// <summary>
-        /// トグルの設定。Menu Itemが無いトグルは、設定がリストに無いときと同じ扱い（メニューに出さず、Eye Sync以外は有効）にする
+        /// トグルの設定。Menu Itemが無いトグルはメニューに出さず、固定の値をhiddenから取る。
+        /// hiddenを渡さなければ、設定がリストに無いときと同じ扱い（Eye Sync以外は有効）にする。
+        /// Menu Itemには出さないトグルの値の置き場が無いので、コンポーネントのtogglesの既定値をここで使う
         /// </summary>
-        public ToggleSettings GetToggle(NativeFTToggle toggle)
+        public ToggleSettings GetToggle(NativeFTToggle toggle, Func<NativeFTToggle, ToggleSettings> hidden = null)
         {
-            return _toggles.TryGetValue(toggle, out var settings) ? settings.Clone() : ToggleSettings.CreateMissing(toggle);
+            if (_toggles.TryGetValue(toggle, out var settings))
+            {
+                return settings.Clone();
+            }
+
+            var fixedSettings = hidden?.Invoke(toggle) ?? ToggleSettings.CreateMissing(toggle);
+            return new ToggleSettings(toggle, false, fixedSettings.defaultValue) { saved = fixedSettings.saved };
         }
 
         /// <summary>

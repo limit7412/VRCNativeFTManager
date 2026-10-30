@@ -42,17 +42,27 @@ namespace NativeFTManager.UseCase
         }
 
         /// <summary>
-        /// トグルを解決する。menuを渡すと、トグルの表示・既定値・保存はコンポーネントのtogglesではなくMenu Itemから決める
+        /// トグルを解決する。menuを渡すと、トグルの表示・既定値・保存はMenu Itemから決める。
+        /// Menu Itemの無いトグルの固定の値だけは、コンポーネントのtogglesの既定値を使う
         /// </summary>
         public static ToggleSet ResolveToggles(NativeFTManagerComponent component, MenuHierarchy menu = null)
         {
-            System.Func<NativeFTToggle, ToggleSettings> getToggle = component.GetToggle;
-            if (menu != null)
+            return ToggleSet.Resolve(GetToggleSource(component, menu), GetFeatures(component), GetSensitivity(component, menu));
+        }
+
+        /// <summary>
+        /// トグルの設定の読み先。menuがnullならコンポーネントのtoggles
+        /// </summary>
+        public static System.Func<NativeFTToggle, ToggleSettings> GetToggleSource(
+            NativeFTManagerComponent component,
+            MenuHierarchy menu)
+        {
+            if (menu == null)
             {
-                getToggle = menu.GetToggle;
+                return component.GetToggle;
             }
 
-            return ToggleSet.Resolve(getToggle, GetFeatures(component), GetSensitivity(component, menu));
+            return toggle => menu.GetToggle(toggle, component.GetToggle);
         }
 
         /// <summary>

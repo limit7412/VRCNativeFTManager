@@ -238,9 +238,13 @@ namespace NativeFTManager.Infra
                 return;
             }
 
+            // 子オブジェクトから項目を組むサブメニューだけを空とみなす。
+            // メニューアセットや別のオブジェクトの子を参照するものは、子が無くても中身がある
             var item = container.GetComponent<ModularAvatarMenuItem>();
             if (item == null || item.Control == null
                 || item.Control.type != VRCExpressionsMenu.Control.ControlType.SubMenu
+                || item.MenuSource != SubmenuSource.Children
+                || item.menuSource_otherObjectChildren != null
                 || container.GetComponents<Component>().Length > 2)
             {
                 return;

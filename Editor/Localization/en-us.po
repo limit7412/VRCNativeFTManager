@@ -801,7 +801,7 @@ msgid "inspector.menu.expand"
 msgstr "Expand the menu into the hierarchy"
 
 msgid "inspector.menu.hierarchy"
-msgstr "The Expressions Menu is edited with the MA Menu Items in the hierarchy. Which toggles are in the menu, and their default and saved settings, are read from the Default and Saved settings of the Menu Items. A toggle whose Menu Item is deleted is left out of the menu and always on (Eye Sync is always off)."
+msgstr "The Expressions Menu is edited with the MA Menu Items in the hierarchy. Which toggles are in the menu, and their default and saved settings, are read from the Default and Saved settings of the Menu Items. A toggle whose Menu Item is deleted is left out of the menu and works with the fixed value in the Default column of the table."
 
 msgid "inspector.menu.mixed_modes"
 msgstr "The selected components make their menus in different ways. Select them one at a time to edit the toggles."

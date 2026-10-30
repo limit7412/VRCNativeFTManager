@@ -37,6 +37,19 @@ namespace NativeFTManager.Tests
         }
 
         [Test]
+        public void GetToggle_MissingToggle_TakesTheFixedValueFromHidden()
+        {
+            var menu = MenuHierarchy.Read(new[] { Toggle(NativeFTManagerParameterNames.FaceTracking) });
+
+            var visemes = menu.GetToggle(
+                NativeFTToggle.Visemes, toggle => new ToggleSettings(toggle, true, false) { saved = false });
+
+            Assert.That(visemes.showInMenu, Is.False);
+            Assert.That(visemes.defaultValue, Is.False);
+            Assert.That(visemes.saved, Is.False);
+        }
+
+        [Test]
         public void Read_OtherParameters_AreIgnored()
         {
             var menu = MenuHierarchy.Read(new[]

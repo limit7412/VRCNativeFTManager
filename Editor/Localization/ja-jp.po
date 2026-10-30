@@ -801,7 +801,7 @@ msgid "inspector.menu.expand"
 msgstr "メニューをヒエラルキーに展開"
 
 msgid "inspector.menu.hierarchy"
-msgstr "EXメニューはヒエラルキーのMA Menu Itemで編集します。メニューにあるトグルと、その既定値・保存は、Menu Itemの既定値（Default）と保存（Saved）の設定から読みます。Menu Itemを消したトグルは、メニューに出さず常に有効（Eye Syncは無効）として扱います。"
+msgstr "EXメニューはヒエラルキーのMA Menu Itemで編集します。メニューにあるトグルと、その既定値・保存は、Menu Itemの既定値（Default）と保存（Saved）の設定から読みます。Menu Itemを消したトグルはメニューに出さず、表の既定値の列にある固定の値で動きます。"
 
 msgid "inspector.menu.mixed_modes"
 msgstr "メニューの作り方が違うコンポーネントを選んでいます。トグルは1つずつ選んで編集してください。"

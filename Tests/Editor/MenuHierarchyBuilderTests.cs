@@ -57,7 +57,9 @@ namespace NativeFTManager.Tests
 
             var menu = Read(component);
 
-            Assert.That(NativeFTPresets.Matches(component, preset, menu.GetToggle, false), Is.True);
+            Assert.That(
+                NativeFTPresets.Matches(component, preset, ComponentSettings.GetToggleSource(component, menu), true),
+                Is.True);
             Assert.That(
                 ComponentSettings.ResolveToggles(component, menu).Dynamic.Select(t => t.Toggle),
                 Is.EqualTo(NativeFTPresets.CreateToggles(preset).Where(t => t.showInMenu).Select(t => t.toggle)));
@@ -122,9 +124,45 @@ namespace NativeFTManager.Tests
             MenuHierarchyBuilder.ApplyPreset(component, NativeFTPreset.Minimal, UndoName);
 
             var menu = Read(component);
-            Assert.That(NativeFTPresets.Matches(component, NativeFTPreset.Minimal, menu.GetToggle, false), Is.True);
+            Assert.That(
+                NativeFTPresets.Matches(
+                    component, NativeFTPreset.Minimal, ComponentSettings.GetToggleSource(component, menu), true),
+                Is.True);
             var root = MenuHierarchyBuilder.FindRoot(component).transform;
             Assert.That(root.childCount, Is.EqualTo(3));
+        }
+
+        [Test]
+        public void Expand_KeepsTheFixedValueOfHiddenToggles()
+        {
+            var gameObject = new GameObject("MenuHierarchyBuilderTests");
+            _created.Add(gameObject);
+            var component = gameObject.AddComponent<NativeFTManagerComponent>();
+            NativeFTPresets.Apply(component, NativeFTPreset.UE);
+            var visemes = component.toggles.First(t => t.toggle == NativeFTToggle.Visemes);
+            visemes.showInMenu = false;
+            visemes.defaultValue = false;
+
+            var toggles = ComponentSettings.ResolveToggles(component);
+            component.menuMode = NativeFTMenuMode.Hierarchy;
+            MenuHierarchyBuilder.Expand(component, toggles, UndoName);
+
+            var resolved = ComponentSettings.ResolveToggles(component, Read(component));
+            Assert.That(resolved[NativeFTToggle.Visemes].IsDynamic, Is.False);
+            Assert.That(resolved[NativeFTToggle.Visemes].DefaultValue, Is.False);
+        }
+
+        [Test]
+        public void RemoveRadial_KeepsAnAssetSubMenu()
+        {
+            var component = CreateExpanded(NativeFTPreset.UE);
+            var radial = MenuHierarchyBuilder.AddRadial(component, SensitivityChannel.Eye, true, UndoName);
+            var subMenu = radial.transform.parent.GetComponent<ModularAvatarMenuItem>();
+            subMenu.MenuSource = SubmenuSource.MenuAsset;
+
+            MenuHierarchyBuilder.RemoveRadial(component, SensitivityChannel.Eye, UndoName);
+
+            Assert.That(subMenu == null, Is.False);
         }
 
         [Test]

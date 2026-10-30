@@ -197,7 +197,8 @@ namespace NativeFTManager.Presentation
             }
 
             var menu = MenuHierarchyScanner.Scan(component);
-            return NativeFTPresets.Matches(component, component.preset, menu.GetToggle, false);
+            return NativeFTPresets.Matches(
+                component, component.preset, ComponentSettings.GetToggleSource(component, menu), true);
         }
 
         /// <summary>
@@ -733,7 +734,7 @@ namespace NativeFTManager.Presentation
             var features = ComponentSettings.GetFeatures(component);
             foreach (NativeFTToggle toggle in System.Enum.GetValues(typeof(NativeFTToggle)))
             {
-                var settings = menu.GetToggle(toggle);
+                var settings = menu.GetToggle(toggle, component.GetToggle);
                 bool available = features.IsEnabled(toggle);
                 using (new EditorGUILayout.HorizontalScope())
                 {
@@ -745,13 +746,27 @@ namespace NativeFTManager.Presentation
                             if (GUILayout.Button(S("inspector.menu.add"), GUILayout.Width(80f)))
                             {
                                 MenuHierarchyBuilder.AddToggle(
-                                    component, toggle, toggle != NativeFTToggle.EyeSync, true, S("inspector.undo.menu_item"));
+                                    component, toggle, settings.defaultValue, true, S("inspector.undo.menu_item"));
                                 // プリセットとの一致を見直させる
                                 GUI.changed = true;
                             }
+
+                            // Menu Itemの無いトグルの固定の値は、コンポーネントのtogglesに置く
+                            var fixedValue = FindToggleProperty(toggle);
+                            if (fixedValue != null)
+                            {
+                                DrawToggleCell(fixedValue.FindPropertyRelative(nameof(ToggleSettings.defaultValue)));
+                            }
+                            else
+                            {
+                                using (new EditorGUI.DisabledScope(true))
+                                {
+                                    EditorGUILayout.Toggle(settings.defaultValue, GUILayout.Width(80f));
+                                }
+                            }
                         }
 
-                        EditorGUILayout.LabelField(GUIContent.none, GUILayout.Width(164f));
+                        EditorGUILayout.LabelField(GUIContent.none, GUILayout.Width(80f));
                         continue;
                     }
 
@@ -768,6 +783,23 @@ namespace NativeFTManager.Presentation
                     EditorGUILayout.HelpBox(S("inspector.menu.feature_disabled", MenuPlan.GetLabel(toggle)), MessageType.Info);
                 }
             }
+        }
+
+        /// <summary>
+        /// togglesの中で、指定したトグルの要素。古い版で保存したコンポーネントには無いことがある
+        /// </summary>
+        private SerializedProperty FindToggleProperty(NativeFTToggle toggle)
+        {
+            for (int i = 0; i < _toggles.arraySize; i++)
+            {
+                var element = _toggles.GetArrayElementAtIndex(i);
+                if (element.FindPropertyRelative(nameof(ToggleSettings.toggle)).intValue == (int)toggle)
+                {
+                    return element;
+                }
+            }
+
+            return null;
         }
 
         /// <summary>

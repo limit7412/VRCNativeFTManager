@@ -3,6 +3,7 @@ using UnityEngine;
 using VRC.SDK3.Avatars.Components;
 using VRC.SDK3.Avatars.ScriptableObjects;
 using nadena.dev.modular_avatar.core;
+using nadena.dev.ndmf;
 using NativeFTManager.Domain;
 
 namespace NativeFTManager.Infra
@@ -12,7 +13,10 @@ namespace NativeFTManager.Infra
     ///
     /// Manager の子に限らず、アバター全体から探す。利用者がMenu Itemを別のサブメニューへ移しても読めるようにするため。
     /// MAはメニューを組むときにオブジェクトのアクティブ状態を見ないので、非アクティブなものも数える。
-    /// EditorOnlyのオブジェクトは、ビルドではこの時点までにNDMFが取り除いている
+    /// EditorOnlyのオブジェクトは、ビルドではこの時点までにNDMFが取り除いている。
+    ///
+    /// パラメーター名は、MA Parametersのリネームを当てた後の名前で公開名と比べる。
+    /// MAもMenu Itemの名前を同じ仕組み（NDMFのParameterInfo）で読み替えるため
     /// </summary>
     internal static class MenuHierarchyScanner
     {
@@ -65,7 +69,7 @@ namespace NativeFTManager.Infra
                 case VRCExpressionsMenu.Control.ControlType.Toggle:
                     return new MenuEntry(
                         MenuEntryKind.Toggle,
-                        control.parameter?.name,
+                        ResolveName(item, control.parameter?.name),
                         control.value,
                         item.automaticValue,
                         item.isDefault,
@@ -74,11 +78,24 @@ namespace NativeFTManager.Infra
                     var subParameters = control.subParameters;
                     return new MenuEntry(
                         MenuEntryKind.Radial,
-                        subParameters != null && subParameters.Length > 0 ? subParameters[0]?.name : null,
+                        ResolveName(item, subParameters != null && subParameters.Length > 0 ? subParameters[0]?.name : null),
                         isSaved: item.isSaved);
                 default:
                     return null;
             }
+        }
+
+        private static string ResolveName(ModularAvatarMenuItem item, string name)
+        {
+            if (string.IsNullOrEmpty(name))
+            {
+                return name;
+            }
+
+            var remaps = ParameterInfo.ForUI.GetParameterRemappingsAt(item.gameObject);
+            return remaps.TryGetValue((ParameterNamespace.Animator, name), out var mapping)
+                ? mapping.ParameterName
+                : name;
         }
     }
 }
