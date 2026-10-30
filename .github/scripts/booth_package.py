@@ -42,6 +42,15 @@ PINNED_GUIDS = {
     "Runtime/NativeFTManagerComponent.cs": "718d1df7eece4189bdbef2060b943c16",
 }
 
+# 意図して配布をやめたアセットのGUID。消えていても`--base-ref`の検査で止めない。
+# ここへ載せると、そのアセットを指していた利用者の参照は切れる。載せるのは、切れることを決めたうえで消したものだけにする
+RETIRED_GUIDS = {
+    # 0.1.0-test6でプレハブ配布をやめ、ヒエラルキーの右クリックからの生成に置き換えた（ユーザー指示）
+    "bfdebc08b1b747fcbb5fe53a5461ce99": "Runtime/Prefabs",
+    "26a8f257412c4792b735e0257e2e5479": "Runtime/Prefabs/Kx NativeFT Manager.prefab",
+    "8cf7714bee1d46fab825ddedda4e0460": "Runtime/Prefabs/Kx NativeFT Manager (ARKit).prefab",
+}
+
 PACKAGE_NAME = "com.qazx7412.kx-vrc-native-ft-manager"
 BOOTH_BASENAME = "VRCNativeFTManager"
 
@@ -425,7 +434,7 @@ def _diff_guids_against(repo_root, base_ref, shipped_guids):
 
         # `.meta`が残っているかによらず、配っていたGUIDが今も配布物に入っているかを見る。
         # `.meta`だけ残してアセットを消した場合、パスは存在するのに配布物からは消えている
-        if old_guid not in shipped_guids:
+        if old_guid not in shipped_guids and old_guid not in RETIRED_GUIDS:
             problems.append(
                 f"配っていたGUIDが配布物から消えている: {name} ({old_guid})。"
                 "リネームなら`.meta`も一緒に動かすこと。"
