@@ -22,30 +22,21 @@ namespace NativeFTManager.Handler
 
         public const string ObjectName = "Kx NativeFT Manager";
 
-        public const string ARKitObjectName = "Kx NativeFT Manager (ARKit)";
-
         // 10から49の範囲はヒエラルキーの右クリックにも出る
         private const int Priority = 10;
 
-        /// <summary>汎用版。トグルはUEプリセットで、Generatorとは連携しない</summary>
+        /// <summary>
+        /// Managerを作る。Generatorは必須の依存なので、汎用版とARKit版を分けず1つにした。
+        /// Generator連携は常にAutoで作り、アバターにGeneratorが無ければ何もしない。
+        /// プリセットは、アバターにGeneratorがあればARKit、無ければUEにする
+        /// </summary>
         [MenuItem(MenuRoot + ObjectName, false, Priority)]
         private static void Create(MenuCommand command)
         {
-            CreateObject(command, ObjectName, NativeFTPreset.UE, GeneratorIntegration.Off);
+            CreateObject(command, ObjectName);
         }
 
-        /// <summary>ARKit版。Kx VRC ARKit BlendShape GeneratorのSet書き込みをビルド時に有効にする</summary>
-        [MenuItem(MenuRoot + ARKitObjectName, false, Priority + 1)]
-        private static void CreateARKit(MenuCommand command)
-        {
-            CreateObject(command, ARKitObjectName, NativeFTPreset.ARKit, GeneratorIntegration.Auto);
-        }
-
-        internal static GameObject CreateObject(
-            MenuCommand command,
-            string name,
-            NativeFTPreset preset,
-            GeneratorIntegration generatorIntegration)
+        internal static GameObject CreateObject(MenuCommand command, string name)
         {
             var gameObject = new GameObject(name);
 
@@ -53,15 +44,20 @@ namespace NativeFTManager.Handler
             GameObjectUtility.SetParentAndAlign(gameObject, command.context as GameObject);
             Undo.RegisterCreatedObjectUndo(gameObject, "Create " + name);
 
-            // AddComponentでResetが走り、UEプリセットの値が入る。ARKit版はその上からプリセットを当て直す
+            // AddComponentでResetが走り、UEプリセットの値が入る。Generatorがあればその上からARKitを当て直す。
+            // Generatorはアバター全体から探す。右クリックした位置がアバターの直下とは限らないため
             var component = gameObject.AddComponent<NativeFTManagerComponent>();
-            NativeFTPresets.Apply(component, preset);
-            component.generatorIntegration = generatorIntegration;
+            var searchRoot = MenuHierarchyScanner.GetSearchRoot(component);
+            if (GeneratorAccess.IsPresent(searchRoot))
+            {
+                NativeFTPresets.Apply(component, NativeFTPreset.ARKit);
+            }
+
+            component.generatorIntegration = GeneratorIntegration.Auto;
 
             // プリセットのトグルの構成をそのままMenu Itemにし、以後はMenu Itemの側を正にする。
             // アバターにすでにManagerがあり、こちらが重複として消される側なら作らない。
             // コンポーネントだけが消え、Menu Installerが残ってメニューが二重になるため
-            var searchRoot = MenuHierarchyScanner.GetSearchRoot(component);
             var duplicates = ComponentSelection.SelectDuplicateComponents(
                 searchRoot.transform, ComponentSelection.CollectComponents(searchRoot));
             if (!duplicates.Contains(component))

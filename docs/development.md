@@ -28,7 +28,6 @@ CIでも実行されるが（[ci.md](ci.md)）、Unityライセンスのsecret�
 | ---- | ---- | ---- |
 | `NativeFTManager.Runtime` | `Runtime/` | 常に |
 | `NativeFTManager.Editor` | `Editor/` | 常に（エディタのみ） |
-| `NativeFTManager.Editor.GeneratorCompat` | `Editor/GeneratorCompat/` | ARKit BlendShape Generatorが入っているとき（define `KX_ARKIT_GENERATOR`） |
 | `NativeFTManager.Editor.AAOCompat` | `Editor/AAOCompat/` | Avatar Optimizer 1.6.0以上1.9.21-beta.1未満が入っているとき（define `KX_AAO_API`）。中身は無く、GUIDを保つためだけに残している |
 | `NativeFTManager.Editor.Tests` | `Tests/Editor/` | `testables` に追加したとき |
 
@@ -40,7 +39,10 @@ Avatar Optimizerの型には触らないため、AAO対策の処理は持たな�
 AAOは1.9.21-beta.1でネイティブFTに対応し、SetとParameter Behaviorsの対象シェイプを自分で保護する。
 本体のasmdefでは `versionDefines` でAAOの版（`KX_AAO_NATIVE_FT`）とSDKの版（`KX_VRC_SDK_AAO_FT`）を判定し、古い組み合わせのときに警告（W-14、W-15）を出すだけにしている。
 
-GeneratorCompatの版の範囲は、Generatorが連携に必要な定数（`FaceTrackingSetNames`）を公開する版（仕様書16章のP1）のリリースで確定する。
-今の下限は、この定数を最初に含んだプレリリースの0.2.1-test3である。
-版の比較ではプレリリースが正式版より小さいため、下限を `0.2.1` にすると0.2.1-testNが範囲から外れ、GeneratorCompatがコンパイルされない。
-0.2.1を正式にリリースしたら、下限を `0.2.1` に上げてよい。
+ARKit BlendShape Generatorは必須の依存で、`NativeFTManager.Editor` がGeneratorの `ARKitBlendShapeGenerator.Runtime` を直接参照する。
+Generatorの型に触るのは `Editor/Infra/GeneratorAccess.cs` だけにしている。
+0.1.0-test9までは任意依存で、Generatorが入っているときだけコンパイルする `NativeFTManager.Editor.GeneratorCompat` に置いていた。0.1.0-test10で本体へ統合し、そのGUIDは `booth_package.py` の `RETIRED_GUIDS` に載せた。
+
+Generatorの版の下限は `package.json` の `vpmDependencies` にある。
+今の下限は、連携に必要な定数（`FaceTrackingSetNames`）を最初に含んだプレリリースの0.2.1-test3である。
+Generatorの0.2.1を正式にリリースしたら、下限を `0.2.1` に上げてよい。上げるときはテストのワークフローの `GENERATOR_VERSION`（[ci.md](ci.md)）も揃える。

@@ -542,12 +542,10 @@ namespace NativeFTManager.Presentation
         {
             switch (report.Generator)
             {
-                case GeneratorPresence.Supported:
+                case GeneratorPresence.Present:
                     return report.GeneratorSetWriteEnabled
                         ? "inspector.status.generator_set_write"
                         : "inspector.status.generator_present";
-                case GeneratorPresence.Unsupported:
-                    return "inspector.status.generator_unsupported";
                 default:
                     return "inspector.status.generator_none";
             }

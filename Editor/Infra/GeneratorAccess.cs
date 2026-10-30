@@ -1,39 +1,35 @@
 using System.Linq;
-using UnityEditor;
 using UnityEngine;
 using ARKitBlendShapeGenerator;
-using NativeFTManager.Infra;
 
-namespace NativeFTManager.GeneratorCompat
+namespace NativeFTManager.Infra
 {
     /// <summary>
-    /// Kx VRC ARKit BlendShape Generatorとの連携の実装（仕様書10.1、F-12）
+    /// Kx VRC ARKit BlendShape Generatorとの連携（仕様書10.1、F-12）
     ///
-    /// エディタの読み込み時に本体の窓口へ登録する。Generatorの既定（Set書き込みはオフ）は変えず、
+    /// Generatorは必須の依存なので、型を直接参照する。Generatorの既定（Set書き込みはオフ）は変えず、
     /// Managerがビルド用の複製の上でだけ有効にする。Jerry'sを使い続ける利用者を壊さないため
     /// </summary>
-    [InitializeOnLoad]
-    internal sealed class GeneratorIntegration : IGeneratorIntegration
+    internal static class GeneratorAccess
     {
-        static GeneratorIntegration()
-        {
-            GeneratorIntegrationRegistry.Current = new GeneratorIntegration();
-        }
+        /// <summary>GeneratorがDescriptorへ書くSetの名前</summary>
+        public static string SetName => FaceTrackingSetNames.Generator;
 
-        public string SetName => FaceTrackingSetNames.Generator;
-
-        public bool IsPresent(GameObject avatarRoot)
+        /// <summary>アバターにGeneratorのコンポーネントがあるか</summary>
+        public static bool IsPresent(GameObject avatarRoot)
         {
             return Find(avatarRoot) != null;
         }
 
-        public bool IsSetWriteEnabled(GameObject avatarRoot)
+        /// <summary>アバターのGeneratorでSet書き込みが有効か</summary>
+        public static bool IsSetWriteEnabled(GameObject avatarRoot)
         {
             var generator = Find(avatarRoot);
             return generator != null && generator.writeFaceTrackingBlendshapesSet;
         }
 
-        public void EnableSetWrite(GameObject avatarRoot)
+        /// <summary>アバターのGeneratorのSet書き込みを有効にする。ビルド用の複製にだけ使う</summary>
+        public static void EnableSetWrite(GameObject avatarRoot)
         {
             var generator = Find(avatarRoot);
             if (generator != null)

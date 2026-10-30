@@ -146,9 +146,6 @@ msgstr "ARKit BlendShape Generator"
 msgid "inspector.status.generator_none"
 msgstr "Not found"
 
-msgid "inspector.status.generator_unsupported"
-msgstr "Version without integration support"
-
 msgid "inspector.status.generator_present"
 msgstr "Found (Blendshapes Set output is off)"
 
@@ -264,12 +261,6 @@ msgstr "[KxNFTM-W-02] Generator shapes are not used for face tracking"
 
 msgid "diag.W-02:description"
 msgstr "Generator Integration is Off and the Generator's Blendshapes Set output is off as well, so the generated shapes are not added to any Set. Set Generator Integration to Auto."
-
-msgid "diag.W-03"
-msgstr "[KxNFTM-W-03] Generator version does not support the integration"
-
-msgid "diag.W-03:description"
-msgstr "The Kx VRC ARKit BlendShape Generator on the avatar is not a version that supports the integration. Update the Generator. Until then, enabling its Blendshapes Set output by hand still lets the split and toggles work."
 
 msgid "diag.W-04"
 msgstr "[KxNFTM-W-04] Generator Set has too few keys"

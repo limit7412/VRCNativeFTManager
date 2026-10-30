@@ -68,7 +68,6 @@ namespace NativeFTManager.Tests
             "inspector.status.use_all_tracking_keys",
             "inspector.status.generator",
             "inspector.status.generator_none",
-            "inspector.status.generator_unsupported",
             "inspector.status.generator_present",
             "inspector.status.generator_set_write",
             "inspector.preset",

@@ -75,21 +75,12 @@ namespace NativeFTManager.Tests
         public void Evaluate_GeneratorWithBothSetWritesOff_WarnsW02()
         {
             var facts = CleanFacts();
-            facts.Generator = GeneratorPresence.Supported;
+            facts.Generator = GeneratorPresence.Present;
 
             Assert.That(Codes(facts), Is.EqualTo(new[] { DiagnosticCodes.GeneratorSetWriteOff }));
 
             facts.Integration = GeneratorIntegration.Auto;
             Assert.That(Codes(facts), Is.Empty);
-        }
-
-        [Test]
-        public void Evaluate_UnsupportedGenerator_WarnsW03()
-        {
-            var facts = CleanFacts();
-            facts.Generator = GeneratorPresence.Unsupported;
-
-            Assert.That(Codes(facts), Is.EqualTo(new[] { DiagnosticCodes.GeneratorUnsupported }));
         }
 
         [Test]

@@ -22,6 +22,7 @@ namespace NativeFTManager.Domain
 
         private const string BoothAssetPrefix = "VRCNativeFTManager_";
         private const string BoothAssetSuffix = ".zip";
+        private const string UnityPackageExtension = ".unitypackage";
         private const string TagVersionPrefix = "v";
 
         /// <summary>
@@ -61,6 +62,24 @@ namespace NativeFTManager.Domain
         {
             return string.Format(
                 CultureInfo.InvariantCulture, "{0}{1}{2}", BoothAssetPrefix, AssetVersion(tag), BoothAssetSuffix);
+        }
+
+        /// <summary>
+        /// booth用zipの中のファイルが、このパッケージのunitypackageかどうか。
+        ///
+        /// booth用zipには、必須の依存であるARKit BlendShape Generatorのunitypackageも同梱する。
+        /// 自己更新が取り込むのはこのパッケージの分だけで、Generatorは利用者が自分で更新する
+        /// </summary>
+        public static bool IsOwnUnityPackage(string entryName)
+        {
+            if (string.IsNullOrEmpty(entryName))
+            {
+                return false;
+            }
+
+            var fileName = entryName.Substring(entryName.LastIndexOf('/') + 1);
+            return fileName.StartsWith(BoothAssetPrefix, StringComparison.Ordinal)
+                && fileName.EndsWith(UnityPackageExtension, StringComparison.OrdinalIgnoreCase);
         }
 
         /// <summary>

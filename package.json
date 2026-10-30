@@ -9,7 +9,8 @@
     "vpmDependencies": {
         "com.vrchat.avatars": ">=3.10.6-beta.2",
         "nadena.dev.ndmf": ">=1.6.0",
-        "nadena.dev.modular-avatar": ">=1.12.0"
+        "nadena.dev.modular-avatar": ">=1.12.0",
+        "com.qazx7412.kx-vrc-arkit-blendshape-generator": ">=0.2.1-test3"
     },
     "author": {
         "name": "kairox",

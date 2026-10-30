@@ -68,7 +68,7 @@ namespace NativeFTManager.UseCase
             report.Generator = facts.Generator;
             report.GeneratorSetWriteEnabled = facts.GeneratorSetWriteEnabled;
 
-            bool generatorWillWrite = facts.Generator == GeneratorPresence.Supported
+            bool generatorWillWrite = facts.Generator == GeneratorPresence.Present
                                       && (component.generatorIntegration == GeneratorIntegration.Auto
                                           || facts.GeneratorSetWriteEnabled);
             if (sets.Count == 0 && !generatorWillWrite)
@@ -78,8 +78,7 @@ namespace NativeFTManager.UseCase
 
             Estimate(report, descriptor, sets, toggles, component, facts);
             report.EstimateExcludesGenerator = generatorWillWrite
-                                               && GeneratorIntegrationRegistry.Current != null
-                                               && sets.All(set => set.Name != GeneratorIntegrationRegistry.Current.SetName);
+                                               && sets.All(set => set.Name != GeneratorAccess.SetName);
 
             return report;
         }

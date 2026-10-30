@@ -55,7 +55,7 @@ namespace NativeFTManager
         public float visemeDampenAmount = 0.5f;
 
         [Tooltip("Enable the Blendshapes Set output of Kx VRC ARKit BlendShape Generator at build time when the avatar has one")]
-        public GeneratorIntegration generatorIntegration = GeneratorIntegration.Off;
+        public GeneratorIntegration generatorIntegration = GeneratorIntegration.Auto;
 
         // 表情補正（仕様書5.4、M2）。M1で保存したコンポーネントの挙動を変えないよう、初期化子は無効にしておく。
         // 追加したてのコンポーネントとプレハブでは、プリセットの値をResetで入れる

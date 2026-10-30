@@ -7,7 +7,10 @@
 #
 # 出力は2つで、どちらもリリースの`files: "*.zip"`がそのまま拾う。
 #   com.qazx7412.kx-vrc-native-ft-manager-<version>.zip  VCC/ALCOM向け
-#   VRCNativeFTManager_<version>.zip                    booth向け(unitypackage 1つ)
+#   VRCNativeFTManager_<version>.zip                    booth向け(このパッケージとGeneratorのunitypackage)
+#
+# booth向けの組み立てでは、必須の依存であるKx VRC ARKit BlendShape Generatorのリリースから
+# booth用zipを取得するため、ネットワークとGitHub APIへの到達が要る(GH_TOKENがあれば使う)
 set -euo pipefail
 
 VERSION="${1:?バージョンを指定すること}"
@@ -48,7 +51,16 @@ zip -q -r "$VPM_ZIP" \
 echo "Created: $(basename "$VPM_ZIP")"
 ls -la "$VPM_ZIP"
 
-# booth用。中身はunitypackage 1つで、zipの直下に`package.json`を置かない。
-# 置くとVPMリスティングの生成がこれをパッケージとして拾ってしまう
-python3 "$SCRIPT_DIR/booth_package.py" build --version "$VERSION" --output-dir "$OUTPUT_DIR"
+# booth用。中身はこのパッケージのunitypackageと、同梱するGeneratorのunitypackageで、
+# zipの直下に`package.json`を置かない。置くとVPMリスティングの生成がこれをパッケージとして拾ってしまう。
+#
+# Generatorは、package.jsonの下限を満たす最新のリリースから取る(選び方はfetch_generator.py)。
+# 取り出したunitypackageは出力先に置かない。`files: "*.zip"`は拾わないが、
+# 作業ディレクトリに残すと次の組み立てに古い版が紛れるため、一時ディレクトリへ置く
+BUNDLE_DIR="$(mktemp -d)"
+trap 'rm -rf "$BUNDLE_DIR"' EXIT
+GENERATOR_UNITYPACKAGE="$(python3 "$SCRIPT_DIR/fetch_generator.py" --version "$VERSION" --output-dir "$BUNDLE_DIR")"
+
+python3 "$SCRIPT_DIR/booth_package.py" build --version "$VERSION" --output-dir "$OUTPUT_DIR" \
+  --bundle "$GENERATOR_UNITYPACKAGE"
 ls -la "$OUTPUT_DIR/VRCNativeFTManager_${VERSION}.zip"

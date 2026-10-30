@@ -64,9 +64,6 @@ namespace NativeFTManager.Domain
         /// <summary>連携がOffで、GeneratorのSet書き込みもオフ</summary>
         public const string GeneratorSetWriteOff = "W-02";
 
-        /// <summary>Generatorはあるが、連携に対応した版ではない</summary>
-        public const string GeneratorUnsupported = "W-03";
-
         /// <summary>GeneratorのSetが空、または割り当てが少ない</summary>
         public const string GeneratorSetSparse = "W-04";
 
@@ -134,7 +131,6 @@ namespace NativeFTManager.Domain
                 { KeyMismatch, DiagnosticSeverity.NonFatal },
                 { GeneratorMissing, DiagnosticSeverity.Warning },
                 { GeneratorSetWriteOff, DiagnosticSeverity.Warning },
-                { GeneratorUnsupported, DiagnosticSeverity.Warning },
                 { GeneratorSetSparse, DiagnosticSeverity.Warning },
                 { UseAllTrackingKeysOff, DiagnosticSeverity.Warning },
                 { EyeLookTooNarrow, DiagnosticSeverity.Warning },

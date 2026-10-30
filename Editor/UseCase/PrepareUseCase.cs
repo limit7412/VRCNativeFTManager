@@ -43,17 +43,16 @@ namespace NativeFTManager.UseCase
             DiagnosticReporter.Report(AvatarDiagnostics.Evaluate(facts), primary);
 
             var state = context.GetState<BuildState>();
-            var integration = GeneratorIntegrationRegistry.Current;
-            if (facts.Generator == GeneratorPresence.Supported && integration != null)
+            if (facts.Generator == GeneratorPresence.Present)
             {
                 if (primary.generatorIntegration == GeneratorIntegration.Auto)
                 {
                     // ビルド用の複製の上だけで有効にする。シーンの設定は変えない（仕様書10.1）
-                    integration.EnableSetWrite(avatarRoot);
+                    GeneratorAccess.EnableSetWrite(avatarRoot);
                 }
 
-                state.GeneratorSetExpected = integration.IsSetWriteEnabled(avatarRoot);
-                state.GeneratorSetName = integration.SetName;
+                state.GeneratorSetExpected = GeneratorAccess.IsSetWriteEnabled(avatarRoot);
+                state.GeneratorSetName = GeneratorAccess.SetName;
             }
 
             // ゲートSetのレイヤーも、グループと同じくここで作る。どのゲートが要るかはSetの中身で決まるので、

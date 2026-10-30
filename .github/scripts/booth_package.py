@@ -49,6 +49,12 @@ RETIRED_GUIDS = {
     "bfdebc08b1b747fcbb5fe53a5461ce99": "Runtime/Prefabs",
     "26a8f257412c4792b735e0257e2e5479": "Runtime/Prefabs/Kx NativeFT Manager.prefab",
     "8cf7714bee1d46fab825ddedda4e0460": "Runtime/Prefabs/Kx NativeFT Manager (ARKit).prefab",
+    # 0.1.0-test10でARKit BlendShape Generatorを必須の依存にし、Generatorが入っているときだけ
+    # コンパイルしていた連携用アセンブリを本体へ統合した（ユーザー指示）。スクリプトにコンポーネントは無く、参照は持たれない
+    "5423ac2b25e14d6c8c3d6a2d9d720b38": "Editor/GeneratorCompat",
+    "76920a9633e247959e44715eb46c9e2a": "Editor/GeneratorCompat/AssemblyInfo.cs",
+    "a9afe51d82eb412d9bf43fe57475093a": "Editor/GeneratorCompat/GeneratorIntegration.cs",
+    "cddb25fde3d14f5abddeca9ad6ca0854": "Editor/GeneratorCompat/NativeFTManager.Editor.GeneratorCompat.asmdef",
 }
 
 PACKAGE_NAME = "com.qazx7412.kx-vrc-native-ft-manager"
@@ -182,8 +188,23 @@ def _add_file(tar, name, payload):
     tar.addfile(_tarinfo(name, len(payload), 0o644, tarfile.REGTYPE), io.BytesIO(payload))
 
 
-def build_booth_zip(repo_root, version, output_dir):
-    """unitypackageを1つだけ収めたzipを書き出し、そのパスを返す。
+def check_bundle_name(name):
+    """同梱する依存のunitypackageの名前を確かめる。
+
+    自己更新はzipの中から`VRCNativeFTManager_`で始まるunitypackageを選んで取り込む。
+    依存の側がこの名前で始まると、Generatorを自分自身として取り込んでしまう
+    """
+    if not name.endswith(".unitypackage"):
+        raise PackagingError(f"同梱する依存がunitypackageではない: {name}")
+    if name.startswith(BOOTH_BASENAME + "_"):
+        raise PackagingError(f"同梱する依存の名前がこのパッケージと紛らわしい: {name}")
+
+
+def build_booth_zip(repo_root, version, output_dir, bundles=()):
+    """このパッケージのunitypackageと、同梱する依存のunitypackageを収めたzipを書き出し、そのパスを返す。
+
+    依存（`bundles`）はARKit BlendShape Generatorのunitypackageで、名前を変えずにzipの直下へ並べる。
+    booth版はVPMの依存解決を通らないため、必須の依存を一緒に配る。
 
     zipの直下へ`package.json`を置かないことが条件になる。
     VPMリスティングの生成はリリースのzipを全て舐めて直下の`package.json`を読むため、
@@ -191,14 +212,20 @@ def build_booth_zip(repo_root, version, output_dir):
     """
     payload, entry_count = build_unitypackage(repo_root)
 
-    unitypackage_name = f"{BOOTH_BASENAME}_{version}.unitypackage"
+    members = [(f"{BOOTH_BASENAME}_{version}.unitypackage", payload)]
+    for bundle in bundles:
+        bundle = pathlib.Path(bundle)
+        check_bundle_name(bundle.name)
+        members.append((bundle.name, bundle.read_bytes()))
+
     zip_path = output_dir / f"{BOOTH_BASENAME}_{version}.zip"
 
     with zipfile.ZipFile(zip_path, "w", compression=zipfile.ZIP_DEFLATED) as archive:
-        info = zipfile.ZipInfo(unitypackage_name, date_time=FIXED_ZIP_DATE)
-        info.external_attr = 0o644 << 16
-        info.compress_type = zipfile.ZIP_DEFLATED
-        archive.writestr(info, payload)
+        for name, content in members:
+            info = zipfile.ZipInfo(name, date_time=FIXED_ZIP_DATE)
+            info.external_attr = 0o644 << 16
+            info.compress_type = zipfile.ZIP_DEFLATED
+            archive.writestr(info, content)
 
     return zip_path, entry_count
 
@@ -218,7 +245,7 @@ def command_build(args):
             f"指定されたバージョン({args.version})とpackage.json({manifest_version})が食い違っている"
         )
 
-    zip_path, entry_count = build_booth_zip(repo_root, args.version, output_dir)
+    zip_path, entry_count = build_booth_zip(repo_root, args.version, output_dir, args.bundle)
     digest = hashlib.sha256(zip_path.read_bytes()).hexdigest()
 
     print(f"Created: {zip_path.name} ({zip_path.stat().st_size} bytes, {entry_count} entries)")
@@ -512,6 +539,10 @@ def main(argv):
     build = subparsers.add_parser("build", help="booth用のzipを作る")
     build.add_argument("--version", required=True)
     build.add_argument("--output-dir", default=".")
+    build.add_argument(
+        "--bundle", action="append", default=[],
+        help="zipの直下へ並べる依存のunitypackage（ARKit BlendShape Generator）。繰り返し指定できる",
+    )
     build.set_defaults(func=command_build)
 
     verify = subparsers.add_parser("verify", help="同梱対象と生成物を検証する")
