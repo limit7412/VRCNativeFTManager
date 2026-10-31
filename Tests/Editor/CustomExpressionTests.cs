@@ -91,8 +91,8 @@ namespace NativeFTManager.Tests
         {
             // 命令になるトークン（数値・入力・演算子・関数名）は1つで1命令、括弧とカンマは0命令なので、
             // 命令数はトークン数を超えない。上限がどちらも256なので、トークン数の上限が先に掛かる。
-            // 入力128個と加算127個で255トークン・255命令は通る
-            var expression = string.Join(" + ", Enumerable.Repeat("JawOpen", 128));
+            // 入力128個と加算127個で255トークン・255命令は通る（長さの上限に掛からないよう短い入力名を空白なしで並べる）
+            var expression = string.Join("+", Enumerable.Repeat("Voice", 128));
 
             var info = CustomExpression.Analyze(expression);
 
@@ -103,8 +103,8 @@ namespace NativeFTManager.Tests
         [Test]
         public void Analyze_RejectsTooManyTokens()
         {
-            // 入力129個と加算128個で257トークン
-            var expression = string.Join(" + ", Enumerable.Repeat("JawOpen", 129));
+            // 入力129個と加算128個で257トークン（773文字で長さの上限には掛からない）
+            var expression = string.Join("+", Enumerable.Repeat("Voice", 129));
 
             Assert.That(CustomExpression.Analyze(expression).Error, Does.Contain("tokens"));
         }
