@@ -34,7 +34,7 @@ Manual installation from the zip, the booth version (unitypackage), and how upda
    - If the avatar has Kx VRC ARKit BlendShape Generator, the preset is ARKit. The Generator's Set output is enabled during the build only
    - Otherwise the preset is UE. Prepare the Blendshapes Sets on the Descriptor with Auto Fill or by hand
 2. Choose a preset in the inspector, and change individual settings as described in "Settings" below if needed
-3. Upload. Use "Face Tracking" in the Expressions Menu to switch Face Tracking, Eye Tracking, Lip Tracking, Pupil and Visemes. The corrections (Emulation, Limits, Eye Sync) are in "Settings" below it. The labels are written in the editor language at the time the object is created, and can be changed freely in the hierarchy
+3. Upload. Use "Face Tracking" in the Expressions Menu to switch Face Tracking, Eye Tracking, Lip Tracking, Pupil and Visemes. The corrections (Emulation, Limits, Eye Sync) are in "Settings" below it. The labels are written in the editor language at the time the object is created, and can be changed freely
 
 Jerry's Face Tracking Templates cannot be on the same avatar. If it is still there, the inspector and the build report an error (KxNFTM-E-04), so remove its prefab before uploading.
 The differences from Jerry's are in [Migrating from Jerry's](Documentation~/jerrys.en.md), and what the build adds to the avatar is in [What happens at build time](Documentation~/build.en.md).
@@ -90,6 +90,8 @@ Face Tracking            MA Menu Installer + Menu Item (submenu)
   ├ Limits               Toggle  KxNFTM/Limits
   └ Eye Sync             Toggle  KxNFTM/EyeSync
 ```
+
+The object names are always the English names above, whatever the editor language. When created in a Japanese editor, the Japanese labels are written to the label field of each Menu Item and shown in the Expressions Menu. When created in an English editor, the label field stays empty and the object name is used as the label. To rename an item whose label field is filled, edit the label of the Menu Item rather than the object name. Hierarchies created with Japanese object names in 0.1.0-test11 or earlier keep working as they are.
 
 At build time, the MA Menu Items on the avatar whose parameter name (after the renames of MA Parameters) matches a public `KxNFTM/` name are read.
 

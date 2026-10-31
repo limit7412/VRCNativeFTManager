@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
+using nadena.dev.ndmf.localization;
 using UnityEngine;
 using VRC.SDK3.Avatars.ScriptableObjects;
 using nadena.dev.modular_avatar.core;
@@ -163,6 +164,85 @@ namespace NativeFTManager.Tests
             MenuHierarchyBuilder.RemoveRadial(component, SensitivityChannel.Eye, UndoName);
 
             Assert.That(subMenu == null, Is.False);
+        }
+
+        [TestCase("ja-jp")]
+        [TestCase("en-us")]
+        public void Expand_NamesObjectsInEnglishWhateverTheLanguage(string language)
+        {
+            var previous = LanguagePrefs.Language;
+            try
+            {
+                LanguagePrefs.Language = language;
+                var component = CreateExpanded(NativeFTPreset.ARKit);
+                MenuHierarchyBuilder.AddRadial(component, SensitivityChannel.Eye, true, UndoName);
+                var root = MenuHierarchyBuilder.FindRoot(component);
+                var items = root.GetComponentsInChildren<ModularAvatarMenuItem>(true);
+
+                var expected = new[]
+                    {
+                        MenuPlan.SubMenuName,
+                        MenuPlan.SettingsMenuName,
+                        MenuPlan.SensitivityMenuName,
+                        SensitivityConfig.GetLabel(SensitivityChannel.Eye),
+                    }
+                    .Concat(System.Enum.GetValues(typeof(NativeFTToggle)).Cast<NativeFTToggle>().Select(MenuPlan.GetLabel))
+                    .ToArray();
+                Assert.That(items, Is.Not.Empty);
+                foreach (var item in items)
+                {
+                    Assert.That(expected, Does.Contain(item.gameObject.name));
+                }
+
+                Assert.That(root.name, Is.EqualTo(MenuPlan.SubMenuName));
+            }
+            finally
+            {
+                LanguagePrefs.Language = previous;
+            }
+        }
+
+        [Test]
+        public void Expand_WritesLocalizedLabelOnlyWhenItDiffersFromTheObjectName()
+        {
+            var previous = LanguagePrefs.Language;
+            try
+            {
+                LanguagePrefs.Language = "ja-jp";
+                var japanese = MenuHierarchyBuilder.FindRoot(CreateExpanded(NativeFTPreset.ARKit))
+                    .GetComponent<ModularAvatarMenuItem>();
+                Assert.That(japanese.label, Is.EqualTo(Localization.S("menu.label.root")));
+                Assert.That(japanese.label, Is.Not.EqualTo(japanese.gameObject.name));
+
+                LanguagePrefs.Language = "en-us";
+                var english = MenuHierarchyBuilder.FindRoot(CreateExpanded(NativeFTPreset.ARKit))
+                    .GetComponent<ModularAvatarMenuItem>();
+                Assert.That(english.label, Is.Empty);
+            }
+            finally
+            {
+                LanguagePrefs.Language = previous;
+            }
+        }
+
+        [Test]
+        public void ApplyPreset_KeepsItemsWithJapaneseObjectNames()
+        {
+            // 0.1.0-test11までは、日本語のエディタで作るとオブジェクト名が日本語だった
+            var component = CreateExpanded(NativeFTPreset.ARKit);
+            var root = MenuHierarchyBuilder.FindRoot(component);
+            root.name = "フェイストラッキング";
+            foreach (Transform child in root.transform)
+            {
+                child.name = "目のトラッキング";
+            }
+
+            NativeFTPresets.Apply(component, NativeFTPreset.UE);
+            MenuHierarchyBuilder.ApplyPreset(component, NativeFTPreset.UE, UndoName);
+
+            Assert.That(MenuHierarchyBuilder.FindRoot(component), Is.SameAs(root));
+            Assert.That(root.name, Is.EqualTo("フェイストラッキング"));
+            Assert.That(Read(component).Contains(NativeFTToggle.Pupil), Is.True);
         }
 
         [Test]

@@ -22,7 +22,11 @@ namespace NativeFTManager.Infra
     ///   ├ Sensitivity   （SubMenu。Radialがあるときだけ）
     ///   └ Settings      （SubMenu。Emulation / Limits / Eye Sync）
     /// </code>
-    /// 表示名はオブジェクト名に書く。作った時点のエディタの言語で書き、後から言語を変えても書き直さない。
+    /// オブジェクト名はエディタの言語によらず英語にする（ビルド時に作る形のメニュー名と同じ）。
+    /// 表示名は作った時点のエディタの言語で書き、英語と違うときだけMenu Itemのlabelへ書く。
+    /// 英語のときはlabelを空にし、MAがオブジェクト名をそのまま表示名に使う。後から言語を変えても書き直さない。
+    /// 既存の項目はオブジェクト名ではなく、コンポーネントと参照するパラメーターで探す。
+    /// そのため0.1.0-test11までに日本語のオブジェクト名で作った階層も、そのまま読み書きできる。
     /// 操作はすべてUndoに記録する
     /// </summary>
     internal static class MenuHierarchyBuilder
@@ -91,10 +95,10 @@ namespace NativeFTManager.Infra
             string undoName)
         {
             var parent = MenuPlan.IsSetting(toggle)
-                ? FindOrCreateContainer(component, SettingsParameters(), "menu.label.settings", undoName)
+                ? FindOrCreateContainer(component, SettingsParameters(), MenuPlan.SettingsMenuName, "menu.label.settings", undoName)
                 : FindContainer(component, MainParameters()) ?? FindOrCreateRoot(component, undoName).transform;
 
-            var item = CreateItem(parent, S(GetLabelKey(toggle)), undoName);
+            var item = CreateItem(parent, MenuPlan.GetLabel(toggle), GetLabelKey(toggle), undoName);
             item.Control = CreateControl(VRCExpressionsMenu.Control.ControlType.Toggle);
             item.Control.parameter.name = ResolvedToggle.GetParameterName(toggle);
             item.Control.value = 1f;
@@ -128,8 +132,8 @@ namespace NativeFTManager.Infra
             bool saved,
             string undoName)
         {
-            var parent = FindOrCreateContainer(component, SensitivityParameters(), "menu.label.sensitivity", undoName);
-            var item = CreateItem(parent, S(GetLabelKey(channel)), undoName);
+            var parent = FindOrCreateContainer(component, SensitivityParameters(), MenuPlan.SensitivityMenuName, "menu.label.sensitivity", undoName);
+            var item = CreateItem(parent, SensitivityConfig.GetLabel(channel), GetLabelKey(channel), undoName);
             item.Control = CreateControl(VRCExpressionsMenu.Control.ControlType.RadialPuppet);
             item.Control.subParameters = new[]
             {
@@ -260,7 +264,7 @@ namespace NativeFTManager.Infra
 
         private static GameObject CreateRoot(NativeFTManagerComponent component, string undoName)
         {
-            var item = CreateItem(component.transform, S("menu.label.root"), undoName, false);
+            var item = CreateItem(component.transform, MenuPlan.SubMenuName, "menu.label.root", undoName, false);
             item.Control = CreateControl(VRCExpressionsMenu.Control.ControlType.SubMenu);
             item.MenuSource = SubmenuSource.Children;
             item.gameObject.AddComponent<ModularAvatarMenuInstaller>();
@@ -291,6 +295,7 @@ namespace NativeFTManager.Infra
         private static Transform FindOrCreateContainer(
             NativeFTManagerComponent component,
             IEnumerable<(string, MenuEntryKind)> members,
+            string objectName,
             string labelKey,
             string undoName)
         {
@@ -301,7 +306,7 @@ namespace NativeFTManager.Infra
             }
 
             var root = FindOrCreateRoot(component, undoName);
-            var item = CreateItem(root.transform, S(labelKey), undoName);
+            var item = CreateItem(root.transform, objectName, labelKey, undoName);
             item.Control = CreateControl(VRCExpressionsMenu.Control.ControlType.SubMenu);
             item.MenuSource = SubmenuSource.Children;
 
@@ -318,7 +323,15 @@ namespace NativeFTManager.Infra
             return item.transform;
         }
 
-        private static ModularAvatarMenuItem CreateItem(Transform parent, string name, string undoName, bool register = true)
+        /// <summary>
+        /// Menu Itemのオブジェクトを作る。nameは英語のオブジェクト名、labelKeyは表示名の翻訳キー
+        /// </summary>
+        private static ModularAvatarMenuItem CreateItem(
+            Transform parent,
+            string name,
+            string labelKey,
+            string undoName,
+            bool register = true)
         {
             var gameObject = new GameObject(name);
             gameObject.transform.SetParent(parent, false);
@@ -330,12 +343,22 @@ namespace NativeFTManager.Infra
             item.isSaved = true;
             item.isDefault = false;
             item.automaticValue = false;
+            item.label = GetLabel(name, S(labelKey));
             if (register)
             {
                 Undo.RegisterCreatedObjectUndo(gameObject, undoName);
             }
 
             return item;
+        }
+
+        /// <summary>
+        /// Menu Itemのlabelに書く値。表示名がオブジェクト名と同じなら空にして、オブジェクト名を表示名に使わせる。
+        /// 英語のエディタで作った項目は、これまでどおりオブジェクト名を変えるだけで表示名が変わる
+        /// </summary>
+        internal static string GetLabel(string objectName, string localizedLabel)
+        {
+            return string.IsNullOrEmpty(localizedLabel) || localizedLabel == objectName ? string.Empty : localizedLabel;
         }
 
         private static VRCExpressionsMenu.Control CreateControl(VRCExpressionsMenu.Control.ControlType type)
