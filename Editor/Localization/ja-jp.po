@@ -367,7 +367,7 @@ msgid "diag.W-12"
 msgstr "[KxNFTM-W-12] Custom式の命令数が上限を超えます"
 
 msgid "diag.W-12:description"
-msgstr "Custom式の命令数はアバター全体で512までです（うち既存のParameter Behaviorsが{1}）。優先度の低い表情補正の規則を生成しませんでした: {0}。"
+msgstr "Custom式の命令数はアバター全体で{2}までです（うち既存のParameter Behaviorsが{1}）。優先度の低い表情補正の規則を生成しませんでした: {0}。"
 
 msgid "diag.W-13"
 msgstr "[KxNFTM-W-13] 同期bitが上限を超える見込みです"

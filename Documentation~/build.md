@@ -15,7 +15,7 @@ English: [build.en.md](build.en.md)
   - 制限: 唇をすぼめると口の上下を抑えるなど、同時に動かすと崩れる組み合わせの上限（Limit Max）を書く
   - Eye Sync: 左右のまばたきを平均して両目へ書く
   - 補正の切り替えには、対応を持たない空のSet（`KxNFTM/Gate/...`）の重みを使う。規則が読み書きするキーの側のトグル（目・瞳孔・口）を切ったときも、その規則は止まる
-  - 対象のシェイプがSetに無い規則は作らない（KxNFTM-I-01）。Custom式の命令数がアバター全体の上限512を超えるときは、優先度の低い規則から落とす（KxNFTM-W-12）
+  - 対象のシェイプがSetに無い規則は作らない（KxNFTM-I-01）。Custom式の命令数がアバター全体の上限2048を超えるときは、優先度の低い規則から落とす（KxNFTM-W-12）
 - FaceEmoの抑制を有効にしたときは、FaceEmoと追加で書き込むパラメーターを制御するFXレイヤーを作り、「取り除くFXレイヤー」に挙げたレイヤーをFXから取り除く
 - DescriptorのFace Trackingを有効にする。Use All Tracking KeysとViseme Dampenは、インスペクタの「Descriptorの設定」に従って書く
 

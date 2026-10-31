@@ -131,7 +131,7 @@ The corrections in the FX of Jerry's 7.0.5 are generated as Parameter Behaviors 
 | Eye Sync | On (the menu default is off) | Writes the average of both eyelids to both eyes |
 | Rules | All checked | A foldout listing each correction rule. Unchecked rules are not generated, and unchecking one switches the preset to Custom. Rules whose target shape is not in any Set show "No target shape" and are not generated at build time either |
 
-When the avatar-wide Custom expression instructions would exceed the limit of 512, the rules with the lowest priority are dropped with a warning (KxNFTM-W-12).
+When the avatar-wide Custom expression instructions would exceed the limit of 2048, the rules with the lowest priority are dropped with a warning (KxNFTM-W-12).
 
 ### Sensitivity
 
@@ -199,7 +199,7 @@ Shows how much the build will generate, calculated from the current Descriptor. 
 | --- | --- |
 | Sets after splitting | The number of Sets after grouping, and the number of empty Sets (gates) used to switch the corrections |
 | Parameter Behaviors | The number this package generates, and the number already present |
-| Custom expression instructions | The avatar-wide count against the limit of 512, and this package's share |
+| Custom expression instructions | The avatar-wide count against the limit of 2048, and this package's share |
 | Face Tracking Operations | Operations counted from the Sets and Parameter Behaviors (including existing ones). VRChat does not publish every detail of how they are counted, so this is a rough guide |
 | Synced bits | The avatar-wide synced bits against the limit, and this package's share. A warning (KxNFTM-W-13) appears when the limit is likely to be exceeded |
 | FX layers | The number of FX layers this package generates |

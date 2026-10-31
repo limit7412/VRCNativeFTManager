@@ -15,7 +15,7 @@ The settings that turn each of these on are described in [Settings](../README.en
   - Limits: upper bounds (Limit Max) for combinations that break when moved together, such as holding down the mouth while the lips pucker
   - Eye Sync: writes the average of both eyelids to both eyes
   - The corrections are switched with the weight of empty Sets that have no assignments (`KxNFTM/Gate/...`). A rule also stops when the toggle of the keys it reads or writes (eyes, pupils, mouth) is turned off
-  - Rules whose target shape is not in any Set are not generated (KxNFTM-I-01). When the Custom expression instructions exceed the avatar-wide limit of 512, the rules with the lowest priority are dropped (KxNFTM-W-12)
+  - Rules whose target shape is not in any Set are not generated (KxNFTM-I-01). When the Custom expression instructions exceed the avatar-wide limit of 2048, the rules with the lowest priority are dropped (KxNFTM-W-12)
 - When FaceEmo suppression is enabled, FX layers that control FaceEmo and the extra parameters are added, and the layers listed in "FX Layers To Remove" are removed from FX
 - Face Tracking is enabled on the Descriptor. Use All Tracking Keys and Viseme Dampen are written as set in "Avatar Descriptor (at build time)" in the inspector
 

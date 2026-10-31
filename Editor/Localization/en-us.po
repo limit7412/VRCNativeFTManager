@@ -367,7 +367,7 @@ msgid "diag.W-12"
 msgstr "[KxNFTM-W-12] Too many custom expression instructions"
 
 msgid "diag.W-12:description"
-msgstr "Custom expressions can use up to 512 instructions per avatar ({1} are used by existing Parameter Behaviors). These lower-priority correction rules were not generated: {0}."
+msgstr "Custom expressions can use up to {2} instructions per avatar ({1} are used by existing Parameter Behaviors). These lower-priority correction rules were not generated: {0}."
 
 msgid "diag.W-13"
 msgstr "[KxNFTM-W-13] Synced bits are likely to exceed the limit"

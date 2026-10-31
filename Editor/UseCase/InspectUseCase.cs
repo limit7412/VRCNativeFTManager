@@ -131,7 +131,8 @@ namespace NativeFTManager.UseCase
                 report.Diagnostics.Add(new Diagnostic(
                     DiagnosticCodes.CorrectionInstructionsExceeded,
                     string.Join(", ", report.Corrections.DroppedRules),
-                    existingInstructions));
+                    existingInstructions,
+                    CustomExpression.AvatarInstructionLimit));
             }
         }
 
