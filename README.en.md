@@ -17,9 +17,9 @@ It also suppresses FaceEmo while face tracking is active. It does not integrate 
 - VRChat SDK Avatars 3.10.6 or later
 - NDMF 1.6.0 or later
 - Modular Avatar 1.12.0 or later
-- Kx VRC ARKit BlendShape Generator 0.2.1-test3 or later (a pre-release; VCC/ALCOM installs it together with this package)
+- Kx VRC ARKit BlendShape Generator 0.2.1 or later (VCC/ALCOM installs it together with this package)
 
-How to install the pre-release Generator, and the conditions for using Avatar Optimizer (1.9.21 or later) together, are in [Requirements and companion packages](Documentation~/requirements.en.md).
+How this package relates to the Generator, and the conditions for using Avatar Optimizer (1.9.21 or later) together, are in [Requirements and companion packages](Documentation~/requirements.en.md).
 
 ## Installation
 

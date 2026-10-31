@@ -43,5 +43,5 @@ Generatorの型に触るのは `Editor/Infra/GeneratorAccess.cs` だけにして
 0.1.0-test9までは任意依存で、Generatorが入っているときだけコンパイルする `NativeFTManager.Editor.GeneratorCompat` に置いていた。0.1.0-test10で本体へ統合し、そのGUIDは `booth_package.py` の `RETIRED_GUIDS` に載せた。
 
 Generatorの版の下限は `package.json` の `vpmDependencies` にある。
-今の下限は、連携に必要な定数（`FaceTrackingSetNames`）を最初に含んだプレリリースの0.2.1-test3である。
-Generatorの0.2.1を正式にリリースしたら、下限を `0.2.1` に上げてよい。上げるときはテストのワークフローの `GENERATOR_VERSION`（[ci.md](ci.md)）も揃える。
+今の下限は、Generatorの安定版の0.2.1である。連携に必要な定数（`FaceTrackingSetNames`）は0.2.1-test3から含まれている。
+下限を変えるときは、テストのワークフローの `GENERATOR_VERSION`（[ci.md](ci.md)）も揃える。

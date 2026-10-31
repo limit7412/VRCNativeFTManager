@@ -17,9 +17,9 @@ English: [README.en.md](README.en.md)
 - VRChat SDK Avatars 3.10.6 以降
 - NDMF 1.6.0 以降
 - Modular Avatar 1.12.0 以降
-- Kx VRC ARKit BlendShape Generator 0.2.1-test3 以降（プレリリース。VCC/ALCOMでは本製品と一緒に入る）
+- Kx VRC ARKit BlendShape Generator 0.2.1 以降（VCC/ALCOMでは本製品と一緒に入る）
 
-プレリリースのGeneratorの入れ方と、Avatar Optimizer（1.9.21以降）との併用の条件は[必要環境と併用するパッケージ](Documentation~/requirements.md)にあります。
+Generatorとの関係と、Avatar Optimizer（1.9.21以降）との併用の条件は[必要環境と併用するパッケージ](Documentation~/requirements.md)にあります。
 
 ## インストール
 
