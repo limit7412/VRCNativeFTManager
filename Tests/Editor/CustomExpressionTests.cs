@@ -63,12 +63,114 @@ namespace NativeFTManager.Tests
         }
 
         [Test]
-        public void Analyze_RejectsTooManyInstructionsBeforeFolding()
+        public void Limits_MatchVrcSdk3106()
         {
-            // 入力33個と加算32個で65命令
-            var expression = string.Join(" + ", Enumerable.Repeat("JawOpen", 33));
+            // SDK 3.10.6のFaceTrackingExpressionValidatorの値
+            Assert.That(CustomExpression.MaxLength, Is.EqualTo(1024));
+            Assert.That(CustomExpression.MaxTokens, Is.EqualTo(256));
+            Assert.That(CustomExpression.MaxInstructionsBeforeFolding, Is.EqualTo(256));
+            Assert.That(CustomExpression.AvatarInstructionLimit, Is.EqualTo(2048));
+            Assert.That(CustomExpression.MaxNestingDepth, Is.EqualTo(32));
+            Assert.That(CustomExpression.MaxStackDepth, Is.EqualTo(32));
+        }
 
-            Assert.That(CustomExpression.Analyze(expression).Error, Does.Contain("instructions"));
+        [Test]
+        public void Analyze_AcceptsExpressionsAboveTheBeta2Limits()
+        {
+            // 入力60個と加算59個で119命令。3.10.6-beta.2の上限（64命令）は超えるが、3.10.6では通る
+            var expression = string.Join(" + ", Enumerable.Repeat("JawOpen", 60));
+
+            var info = CustomExpression.Analyze(expression);
+
+            Assert.That(info.IsValid, Is.True, info.Error);
+            Assert.That(info.InstructionsBeforeFolding, Is.EqualTo(119));
+        }
+
+        [Test]
+        public void Analyze_TokenLimitIsReachedBeforeTheInstructionLimit()
+        {
+            // 命令になるトークン（数値・入力・演算子・関数名）は1つで1命令、括弧とカンマは0命令なので、
+            // 命令数はトークン数を超えない。上限がどちらも256なので、トークン数の上限が先に掛かる。
+            // 入力128個と加算127個で255トークン・255命令は通る
+            var expression = string.Join(" + ", Enumerable.Repeat("JawOpen", 128));
+
+            var info = CustomExpression.Analyze(expression);
+
+            Assert.That(info.IsValid, Is.True, info.Error);
+            Assert.That(info.InstructionsBeforeFolding, Is.EqualTo(255));
+        }
+
+        [Test]
+        public void Analyze_RejectsTooManyTokens()
+        {
+            // 入力129個と加算128個で257トークン
+            var expression = string.Join(" + ", Enumerable.Repeat("JawOpen", 129));
+
+            Assert.That(CustomExpression.Analyze(expression).Error, Does.Contain("tokens"));
+        }
+
+        [Test]
+        public void Analyze_RejectsTooLongExpressions()
+        {
+            var expression = "JawOpen" + new string(' ', CustomExpression.MaxLength);
+
+            Assert.That(CustomExpression.Analyze(expression).Error, Does.Contain("characters"));
+        }
+
+        [TestCase(32, true)]
+        [TestCase(33, false)]
+        public void Analyze_LimitsNestingDepth(int depth, bool valid)
+        {
+            var expression = new string('(', depth) + "JawOpen" + new string(')', depth);
+
+            var info = CustomExpression.Analyze(expression);
+
+            Assert.That(info.IsValid, Is.EqualTo(valid), info.Error);
+            if (!valid)
+            {
+                Assert.That(info.Error, Does.Contain("levels deep"));
+            }
+        }
+
+        [TestCase(32, true)]
+        [TestCase(33, false)]
+        public void Analyze_LimitsStackDepth(int depth, bool valid)
+        {
+            // JawOpen + (JawOpen + (JawOpen + ...)) は右辺を積み続けるので、入力の数だけスタックが深くなる。
+            // 括弧の入れ子は depth - 1 段で、入れ子の上限には掛からない
+            var expression = string.Join(" + (", Enumerable.Repeat("JawOpen", depth)) + new string(')', depth - 1);
+
+            var info = CustomExpression.Analyze(expression);
+
+            Assert.That(info.IsValid, Is.EqualTo(valid), info.Error);
+            if (!valid)
+            {
+                Assert.That(info.Error, Does.Contain("stack"));
+            }
+        }
+
+        [Test]
+        public void Analyze_LeftAssociativeChainsKeepTheStackShallow()
+        {
+            // 左結合の加算は積んだ分をすぐ畳むので、長くてもスタックは2段で済む
+            var expression = string.Join(" + ", Enumerable.Repeat("JawOpen", 100));
+
+            Assert.That(CustomExpression.Analyze(expression).IsValid, Is.True);
+        }
+
+        [TestCase("JawOpen * 10000", true)]
+        [TestCase("JawOpen * 10001", false)]
+        [TestCase("JawOpen * 0.000000000000000001", true)]
+        [TestCase("JawOpen * 0.0000000000000000001", false)]
+        public void Analyze_LimitsNumericLiterals(string expression, bool valid)
+        {
+            var info = CustomExpression.Analyze(expression);
+
+            Assert.That(info.IsValid, Is.EqualTo(valid), info.Error);
+            if (!valid)
+            {
+                Assert.That(info.Error, Does.Contain("out of range"));
+            }
         }
 
         [Test]

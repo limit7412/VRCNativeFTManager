@@ -82,7 +82,7 @@ namespace NativeFTManager.Domain
         /// <summary>既存のParameter BehaviorかState Behaviorが分割対象のSet名を参照している</summary>
         public const string SetReferencedByBehavior = "W-10";
 
-        /// <summary>Custom式の命令数が上限（512）を超えるので、優先度の低い規則を落とした</summary>
+        /// <summary>Custom式の命令数が上限（SDK 3.10.6で2048）を超えるので、優先度の低い規則を落とした</summary>
         public const string CorrectionInstructionsExceeded = "W-12";
 
         /// <summary>Expression Parametersの同期bitが上限を超える見込み</summary>

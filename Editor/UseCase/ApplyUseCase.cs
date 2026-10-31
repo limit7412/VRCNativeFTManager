@@ -174,7 +174,8 @@ namespace NativeFTManager.UseCase
                     new Diagnostic(
                         DiagnosticCodes.CorrectionInstructionsExceeded,
                         string.Join(", ", corrections.DroppedRules),
-                        existingInstructions),
+                        existingInstructions,
+                        CustomExpression.AvatarInstructionLimit),
                     primary);
             }
 

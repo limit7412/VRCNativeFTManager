@@ -38,10 +38,10 @@ namespace NativeFTManager.Domain
 
         public int TokenCount { get; }
 
-        /// <summary>定数の簡約前の命令数（1式あたり64まで）</summary>
+        /// <summary>定数の簡約前の命令数（1式あたり256まで）</summary>
         public int InstructionsBeforeFolding { get; }
 
-        /// <summary>定数の簡約後の命令数（アバター全体で512まで）</summary>
+        /// <summary>定数の簡約後の命令数（アバター全体で2048まで）</summary>
         public int Instructions { get; }
 
         /// <summary>Face Tracking Operationsに数えられる数。数値定数は数えない</summary>
@@ -53,15 +53,30 @@ namespace NativeFTManager.Domain
 
     /// <summary>
     /// Custom式の解析と命令数の計算
+    ///
+    /// 上限はVRChat SDK 3.10.6の<c>FaceTrackingExpressionValidator</c>に合わせる
+    /// （3.10.6-beta.2から、長さ・トークン数・命令数・深さがそれぞれ2〜4倍に上がった）
     /// </summary>
     internal static class CustomExpression
     {
         /// <summary>アバター上のすべてのCustom式で共有する、簡約後の命令数の上限</summary>
-        public const int AvatarInstructionLimit = 512;
+        public const int AvatarInstructionLimit = 2048;
 
-        public const int MaxLength = 512;
-        public const int MaxTokens = 128;
-        public const int MaxInstructionsBeforeFolding = 64;
+        public const int MaxLength = 1024;
+        public const int MaxTokens = 256;
+        public const int MaxInstructionsBeforeFolding = 256;
+
+        /// <summary>括弧（関数呼び出しを含む）の入れ子の深さの上限</summary>
+        public const int MaxNestingDepth = 32;
+
+        /// <summary>評価に要るスタックの深さの上限</summary>
+        public const int MaxStackDepth = 32;
+
+        /// <summary>数値定数の桁数（小数点を含む文字数）の上限</summary>
+        public const int MaxNumericLiteralLength = 20;
+
+        /// <summary>数値定数の絶対値の上限</summary>
+        public const double MaxNumericMagnitude = 10000;
 
         /// <summary>
         /// UEキー以外に使える入力（Voiceとビゼーム）。大文字と小文字も一致させる必要があり、
@@ -120,6 +135,11 @@ namespace NativeFTManager.Domain
                 return Fail($"more than {MaxTokens} tokens", tokens.Count);
             }
 
+            if (NestingDepth(tokens) > MaxNestingDepth)
+            {
+                return Fail($"nests more than {MaxNestingDepth} levels deep", tokens.Count);
+            }
+
             Node root;
             try
             {
@@ -144,6 +164,11 @@ namespace NativeFTManager.Domain
                 return Fail($"more than {MaxInstructionsBeforeFolding} instructions", tokens.Count);
             }
 
+            if (root.StackDepth() > MaxStackDepth)
+            {
+                return Fail($"needs an evaluation stack deeper than {MaxStackDepth}", tokens.Count);
+            }
+
             var folded = root.Fold();
             return new CustomExpressionInfo(
                 null,
@@ -152,6 +177,25 @@ namespace NativeFTManager.Domain
                 folded.Count(),
                 folded.CountOperations(),
                 root.Inputs().Distinct().ToArray());
+        }
+
+        private static int NestingDepth(List<Token> tokens)
+        {
+            int depth = 0;
+            int max = 0;
+            foreach (var token in tokens)
+            {
+                if (token.Kind == TokenKind.OpenParen)
+                {
+                    max = Math.Max(max, ++depth);
+                }
+                else if (token.Kind == TokenKind.CloseParen)
+                {
+                    depth--;
+                }
+            }
+
+            return max;
         }
 
         private static CustomExpressionInfo Fail(string error, int tokenCount)
@@ -318,6 +362,11 @@ namespace NativeFTManager.Domain
                             throw new FormatException($"invalid number '{token.Text}'");
                         }
 
+                        if (token.Text.Length > MaxNumericLiteralLength || Math.Abs(value) > MaxNumericMagnitude)
+                        {
+                            throw new FormatException($"number '{token.Text}' is out of range");
+                        }
+
                         return Node.Constant(value);
                     case TokenKind.Identifier:
                         if (_position < _tokens.Count && _tokens[_position].Kind == TokenKind.OpenParen)
@@ -416,6 +465,21 @@ namespace NativeFTManager.Domain
             public int Count()
             {
                 return 1 + _children.Sum(child => child.Count());
+            }
+
+            /// <summary>
+            /// 左から順に評価したときに積まれるスタックの最大の深さ。
+            /// 二項演算子は右辺を左辺の上に、関数は引数を順に積む
+            /// </summary>
+            public int StackDepth()
+            {
+                int max = 1;
+                for (int i = 0; i < _children.Length; i++)
+                {
+                    max = Math.Max(max, i + _children[i].StackDepth());
+                }
+
+                return max;
             }
 
             /// <summary>Face Tracking Operationsの数（数値定数を除く）</summary>
