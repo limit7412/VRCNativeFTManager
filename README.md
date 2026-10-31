@@ -34,7 +34,7 @@ zipからの手動インストールとbooth版（unitypackage）の手順、お
    - アバターにKx VRC ARKit BlendShape Generatorがあれば、プリセットはARKitになる。GeneratorのSet書き込みはビルド中だけ有効になる
    - Generatorが無ければ、プリセットはUEになる。DescriptorのBlendshapes Setは、オートフィルか手入力で用意しておく
 2. インスペクタでプリセットを選び、必要なら下の「設定項目」に沿って個別に変える
-3. アップロードする。EXメニューの「フェイストラッキング」から、フェイストラッキング全体・目・口・瞳孔・ビゼームを切り替える。表情補正の切り替え（エミュレーション・制限・両目の連動）は、その下の「設定」にある。表示名は右クリックで作ったときのエディタの言語で付き、ヒエラルキーで自由に変えられる
+3. アップロードする。EXメニューの「フェイストラッキング」から、フェイストラッキング全体・目・口・瞳孔・ビゼームを切り替える。表情補正の切り替え（エミュレーション・制限・両目の連動）は、その下の「設定」にある。表示名は右クリックで作ったときのエディタの言語で付き、自由に変えられる
 
 Jerry's Face Tracking Templatesは同じアバターに置けません。残っているとインスペクタとビルドでエラー（KxNFTM-E-04）が出るので、Jerry'sのプレハブを外してからアップロードしてください。
 Jerry'sとの違いは[Jerry'sからの移行](Documentation~/jerrys.md)に、ビルドでアバターに加わるものは[ビルド時に行うこと](Documentation~/build.md)にあります。
@@ -76,20 +76,22 @@ EXメニューの作り方は2通りあり、右クリックで作ったコン�
 ヒエラルキーのMenu Itemでは、次の形の階層ができます。Jerry'sと同じ感覚で、並べ替え、表示名とアイコンの変更、別のサブメニューやアバターの別の場所への移動ができます。
 
 ```
-フェイストラッキング          MA Menu Installer ＋ Menu Item（サブメニュー）
-├ フェイストラッキング        トグル  KxNFTM/FaceTracking
-├ 目のトラッキング            トグル  KxNFTM/EyeTracking
-├ 口のトラッキング            トグル  KxNFTM/LipTracking
-├ 瞳孔                        トグル  KxNFTM/Pupil（UEプリセットのみ）
-├ ビゼーム                    トグル  KxNFTM/Visemes
-├ 感度                        サブメニュー（感度のRadialを足したときだけ）
-│ ├ 目                        Radial  KxNFTM/Sensitivity/Eye
-│ └ 口                        Radial  KxNFTM/Sensitivity/Lip
-└ 設定                        サブメニュー
-  ├ エミュレーション          トグル  KxNFTM/Emulation
-  ├ 制限                      トグル  KxNFTM/Limits
-  └ 両目の連動                トグル  KxNFTM/EyeSync
+Face Tracking            MA Menu Installer ＋ Menu Item（サブメニュー）
+├ Face Tracking          トグル  KxNFTM/FaceTracking
+├ Eye Tracking           トグル  KxNFTM/EyeTracking
+├ Lip Tracking           トグル  KxNFTM/LipTracking
+├ Pupil                  トグル  KxNFTM/Pupil（UEプリセットのみ）
+├ Visemes                トグル  KxNFTM/Visemes
+├ Sensitivity            サブメニュー（感度のRadialを足したときだけ）
+│ ├ Eye                  Radial  KxNFTM/Sensitivity/Eye
+│ └ Lip                  Radial  KxNFTM/Sensitivity/Lip
+└ Settings               サブメニュー
+  ├ Emulation            トグル  KxNFTM/Emulation
+  ├ Limits               トグル  KxNFTM/Limits
+  └ Eye Sync             トグル  KxNFTM/EyeSync
 ```
+
+オブジェクト名は、エディタの言語によらず上の英語の名前になります。日本語のエディタで作ると、Menu Itemの表示名（label）に「フェイストラッキング」「目のトラッキング」…「設定」「両目の連動」が入り、EXメニューにはこちらが出ます。英語のエディタで作ると表示名は空のままで、オブジェクト名がそのまま表示名になります。表示名が入っている項目の名前を変えるときは、オブジェクト名ではなくMenu Itemの表示名を書き換えてください。0.1.0-test11までに日本語のオブジェクト名で作った階層も、そのまま使えます。
 
 ビルド時には、アバターにあるMA Menu Itemのうち、パラメーター名（MA Parametersのリネームを当てた後の名前）が `KxNFTM/` の公開名と一致するものを読みます。
 
