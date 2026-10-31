@@ -18,8 +18,9 @@ namespace NativeFTManager.Domain
     /// <summary>
     /// アバターにあるAvatar Optimizerの状態
     ///
-    /// AAOは1.9.21-beta.1でネイティブFTに対応し、SetとParameter Behaviorsの対象シェイプを保護する。
-    /// ただし対応が有効になるのはSDK 3.10.6-beta.3以降に限られる
+    /// AAOは1.9.21でネイティブFTに対応し、SetとParameter Behaviorsの対象シェイプを保護する。
+    /// ただし対応が有効になるのはSDK 3.10.6-beta.4以降に限られる。
+    /// 1.9.21のプレリリースは版ごとに対応するSDKの範囲が違ったため、安定版の1.9.21から対応と見なす
     /// </summary>
     internal enum AaoPresence
     {

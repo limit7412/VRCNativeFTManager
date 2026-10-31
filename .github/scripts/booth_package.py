@@ -55,6 +55,11 @@ RETIRED_GUIDS = {
     "76920a9633e247959e44715eb46c9e2a": "Editor/GeneratorCompat/AssemblyInfo.cs",
     "a9afe51d82eb412d9bf43fe57475093a": "Editor/GeneratorCompat/GeneratorIntegration.cs",
     "cddb25fde3d14f5abddeca9ad6ca0854": "Editor/GeneratorCompat/NativeFTManager.Editor.GeneratorCompat.asmdef",
+    # AAO対策用に取っておいた空のアセンブリ。AAO 1.9.21の安定版がネイティブFTに対応したため、
+    # 0.1.0-test12で取り除いた。中身が無く、参照は持たれない
+    "e8d5dfcd80ff44fa9b0a82e54cfaeca6": "Editor/AAOCompat",
+    "ba265dcdee7e4601a8e739b02f72622e": "Editor/AAOCompat/AssemblyInfo.cs",
+    "a9c9e107d0b64b6baa638d86fc62866c": "Editor/AAOCompat/NativeFTManager.Editor.AAOCompat.asmdef",
 }
 
 PACKAGE_NAME = "com.qazx7412.kx-vrc-native-ft-manager"

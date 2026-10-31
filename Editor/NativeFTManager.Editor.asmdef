@@ -23,12 +23,12 @@
     "versionDefines": [
         {
             "name": "com.anatawa12.avatar-optimizer",
-            "expression": "1.9.21-beta.1",
+            "expression": "1.9.21",
             "define": "KX_AAO_NATIVE_FT"
         },
         {
             "name": "com.vrchat.avatars",
-            "expression": "3.10.6-beta.3",
+            "expression": "3.10.6-beta.4",
             "define": "KX_VRC_SDK_AAO_FT"
         }
     ],

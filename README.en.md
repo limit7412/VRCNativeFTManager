@@ -7,19 +7,19 @@ It also suppresses FaceEmo while face tracking is active. It does not integrate 
 日本語: [README.md](README.md)
 
 > [!WARNING]
-> **This is an experimental release (0.x).** Native Face Tracking is a feature of the VRChat SDK beta and may change until the SDK is released. This package stays experimental until version 1.0, which will follow the SDK release.
+> **This is an experimental release (0.x).** Native Face Tracking became stable in VRChat SDK 3.10.6, but this package stays experimental until version 1.0, which will follow checks on the VRChat client.
 > Parameter names (those starting with `KxNFTM/`) may change before 1.0. If they do, saved toggle values go back to their defaults.
-> What is still being checked on the VRChat beta client is listed in [Limitations of the experimental release](Documentation~/limitations.en.md).
+> What is still being checked on the VRChat client is listed in [Limitations of the experimental release](Documentation~/limitations.en.md).
 
 ## Requirements
 
 - Unity 2022.3
-- VRChat SDK Avatars 3.10.6-beta.2 or later (a pre-release; 3.10.6-beta.3 or later if you use Avatar Optimizer)
+- VRChat SDK Avatars 3.10.6 or later
 - NDMF 1.6.0 or later
 - Modular Avatar 1.12.0 or later
 - Kx VRC ARKit BlendShape Generator 0.2.1-test3 or later (a pre-release; VCC/ALCOM installs it together with this package)
 
-How to install the pre-release SDK and Generator, and the conditions for using Avatar Optimizer together, are in [Requirements and companion packages](Documentation~/requirements.en.md).
+How to install the pre-release Generator, and the conditions for using Avatar Optimizer (1.9.21 or later) together, are in [Requirements and companion packages](Documentation~/requirements.en.md).
 
 ## Installation
 

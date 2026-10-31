@@ -7,19 +7,19 @@ FaceEmoの抑制も本製品が行います。[Kx VRC FE-JsT Bridge](https://git
 English: [README.en.md](README.en.md)
 
 > [!WARNING]
-> **実験的な版（0.x）です。** ネイティブFace TrackingはVRChat SDKのベータ版の機能で、SDKが正式版になるまでは仕様が変わる可能性があります。本製品も、SDKの正式版に合わせて1.0を出すまでは実験的な扱いとします。
+> **実験的な版（0.x）です。** ネイティブFace TrackingはVRChat SDK 3.10.6で正式版になりましたが、本製品はVRChatのクライアントでの確認が済んで1.0を出すまでは実験的な扱いとします。
 > パラメーターの名前（`KxNFTM/` で始まるもの）は1.0までに変わることがあり、変わった場合は保存したトグルの値が既定値へ戻ります。
-> VRChatのベータクライアントで確かめている途中の事項は[実験的な版の制約](Documentation~/limitations.md)にまとめています。
+> VRChatのクライアントで確かめている途中の事項は[実験的な版の制約](Documentation~/limitations.md)にまとめています。
 
 ## 必要環境
 
 - Unity 2022.3
-- VRChat SDK Avatars 3.10.6-beta.2 以降（プレリリース。Avatar Optimizerと併用するなら 3.10.6-beta.3 以降）
+- VRChat SDK Avatars 3.10.6 以降
 - NDMF 1.6.0 以降
 - Modular Avatar 1.12.0 以降
 - Kx VRC ARKit BlendShape Generator 0.2.1-test3 以降（プレリリース。VCC/ALCOMでは本製品と一緒に入る）
 
-プレリリースのSDKとGeneratorの入れ方と、Avatar Optimizerとの併用の条件は[必要環境と併用するパッケージ](Documentation~/requirements.md)にあります。
+プレリリースのGeneratorの入れ方と、Avatar Optimizer（1.9.21以降）との併用の条件は[必要環境と併用するパッケージ](Documentation~/requirements.md)にあります。
 
 ## インストール
 

@@ -28,16 +28,15 @@ CIでも実行されるが（[ci.md](ci.md)）、Unityライセンスのsecret�
 | ---- | ---- | ---- |
 | `NativeFTManager.Runtime` | `Runtime/` | 常に |
 | `NativeFTManager.Editor` | `Editor/` | 常に（エディタのみ） |
-| `NativeFTManager.Editor.AAOCompat` | `Editor/AAOCompat/` | Avatar Optimizer 1.6.0以上1.9.21-beta.1未満が入っているとき（define `KX_AAO_API`）。中身は無く、GUIDを保つためだけに残している |
 | `NativeFTManager.Editor.Tests` | `Tests/Editor/` | `testables` に追加したとき |
 
 任意依存の型に触るコードは、対応する連携用アセンブリにだけ置く。
 本体のアセンブリから参照すると、その依存が無いプロジェクトでコンパイルが通らなくなる。
 連携用アセンブリの判定はasmdefの `versionDefines` と `defineConstraints` で行う。
 Avatar Optimizerの型には触らないため、AAO対策の処理は持たない。
-`Editor/AAOCompat/` は0.1.0-test1で配ったGUIDを保つためだけに残した空のアセンブリで、対応前のAAO（`[1.6.0,1.9.21-beta.1)`）でしかコンパイルされない。
-AAOは1.9.21-beta.1でネイティブFTに対応し、SetとParameter Behaviorsの対象シェイプを自分で保護する。
-本体のasmdefでは `versionDefines` でAAOの版（`KX_AAO_NATIVE_FT`）とSDKの版（`KX_VRC_SDK_AAO_FT`）を判定し、古い組み合わせのときに警告（W-14、W-15）を出すだけにしている。
+AAOは1.9.21でネイティブFTに対応し、SetとParameter Behaviorsの対象シェイプを自分で保護する。
+本体のasmdefでは `versionDefines` でAAOの版（`KX_AAO_NATIVE_FT`、1.9.21以降）とSDKの版（`KX_VRC_SDK_AAO_FT`、AAO 1.9.21が対応を有効にする3.10.6-beta.4以降）を判定し、古い組み合わせのときに警告（W-14、W-15）を出すだけにしている。
+0.1.0-test11までは、AAO対策用に空のアセンブリ `NativeFTManager.Editor.AAOCompat`（`Editor/AAOCompat/`）を残していた。0.1.0-test12で取り除き、そのGUIDは `booth_package.py` の `RETIRED_GUIDS` に載せた。
 
 ARKit BlendShape Generatorは必須の依存で、`NativeFTManager.Editor` がGeneratorの `ARKitBlendShapeGenerator.Runtime` を直接参照する。
 Generatorの型に触るのは `Editor/Infra/GeneratorAccess.cs` だけにしている。

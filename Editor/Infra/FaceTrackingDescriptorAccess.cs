@@ -10,9 +10,9 @@ namespace NativeFTManager.Infra
     /// <summary>
     /// VRCAvatarDescriptorのFace Trackingの項目の読み書き
     ///
-    /// SDK 3.10.6-beta.2で加わった型に触れるのはここだけにし、
+    /// SDK 3.10.6で加わった型に触れるのはここだけにし、
     /// ほかの層はSDKに依存しないFaceTrackingSetDataで扱う。
-    /// ベータの間に型が変わったときの直し先を1か所にするためである
+    /// SDKの更新で型が変わったときの直し先を1か所にするためである
     /// </summary>
     internal static class FaceTrackingDescriptorAccess
     {

@@ -16,7 +16,7 @@ namespace NativeFTManager.Infra
     /// そのため型を直接参照せず、SDKのStateMachineBehaviourの中から名前で探してリフレクションで値を書く。
     /// 見つからなければ書かずに理由を返すので、ビルドはSetの分割までは進み、トグルだけが効かない状態になる。
     ///
-    /// SDK 3.10.6-beta.2のBehaviorは、Set名と重みを直下に持たず、要素の一覧（blendSets）に持つ。
+    /// SDK 3.10.6（3.10.6-beta.2から同じ）のBehaviorは、Set名と重みを直下に持たず、要素の一覧（blendSets）に持つ。
     /// 要素1つが「Set 1つの重みを、固定値かパラメーターの値で書く」指定で、1つのBehaviorで複数のSetを書ける。
     /// 2026-10-30の実機確認（fttest）でこの形を確かめた。直下に持つ形も、念のため残して両方を探す
     /// </summary>
