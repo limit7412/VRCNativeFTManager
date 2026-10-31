@@ -17,7 +17,7 @@ VPM依存（VRChat SDK / NDMF / Modular Avatar / ARKit BlendShape Generator）�
 game-ciのCLIはテストでもプロジェクトでgitを呼んでバージョンを決めるため、組み立てたプロジェクトは空のコミットを1つ持つgitリポジトリにしてから渡す（詳細はワークフロー内のコメントに書いている）。
 CLIの版はワークフローの `UNITY_TEST_RUNNER_CLI_VERSION` で固定している。既定の `latest` は版の解決にGitHub APIを使い、共有ランナーでは無認証の上限に達して失敗することがある。
 
-VRChat SDKはネイティブFace Tracking対応のプレリリースを必須とするため、ワークフローの `VRC_SDK_VERSION` で版を固定して入れる。
+VRChat SDKはネイティブFace Trackingに対応した3.10.6以降を必須とする。下限の版でコンパイルできることを確かめるため、ワークフローの `VRC_SDK_VERSION` で版を固定して入れる。
 `package.json` の `vpmDependencies` の下限を変えたときは、ここも揃えること。
 AAOの版で切り替わる警告の分岐をコンパイルするため、任意依存のAvatar Optimizerも入れている。
 ARKit BlendShape Generatorは必須の依存なので、作者のVPMリポジトリを登録して、ワークフローの `GENERATOR_VERSION` の版を入れる。

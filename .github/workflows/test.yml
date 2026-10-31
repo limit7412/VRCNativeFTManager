@@ -43,11 +43,11 @@ env:
   UNITY_VERSION: 2022.3.62f3
   PACKAGE_NAME: com.qazx7412.kx-vrc-native-ft-manager
   # package.jsonのvpmDependenciesにあるSDKの下限と揃える。
-  # SDKの安定版がネイティブFTに対応したら、その版へ上げる
-  VRC_SDK_VERSION: 3.10.6-beta.2
+  # 下限の版でコンパイルできることを確かめるため、最新ではなく下限の版を入れる
+  VRC_SDK_VERSION: 3.10.6
   # package.jsonのvpmDependenciesにあるKx VRC ARKit BlendShape Generatorの下限と揃える。
-  # 下限の版でコンパイルできることを確かめるため。Generatorの安定版が出たら、package.jsonとともに上げる
-  GENERATOR_VERSION: 0.2.1-test3
+  # 下限の版でコンパイルできることを確かめるため
+  GENERATOR_VERSION: 0.2.1
   VRC_GET_VERSION: v1.9.2
   # unity-test-runnerが取得するgame-ci CLIの版。
   # 既定のlatestは版の解決にGitHub APIを叩き、共有ランナーでは他のジョブと
@@ -389,8 +389,8 @@ jobs:
           vrc-get repo add https://vpm.anatawa12.com/vpm.json || true
           # Kx VRC ARKit BlendShape Generatorは作者のリポジトリにある
           vrc-get repo add https://limit7412.github.io/vcc-vpm/index.json || true
-          # このパッケージはネイティブFT対応のSDK（プレリリース）を必須とする。
-          # 版を指定しないと安定版が入り、package.jsonの下限を満たさないため、版を固定する
+          # このパッケージはネイティブFT対応のSDK（3.10.6以降）を必須とする。
+          # 下限の版でコンパイルできることを確かめるため、版を固定する
           vrc-get install com.vrchat.avatars "$VRC_SDK_VERSION" --yes
           vrc-get install nadena.dev.ndmf --yes
           vrc-get install nadena.dev.modular-avatar --yes
@@ -398,7 +398,7 @@ jobs:
           # AAOが入った構成でもコンパイルを確かめるため、ここで入れる。
           vrc-get install com.anatawa12.avatar-optimizer --yes
           # Generatorは必須の依存で、EditorアセンブリがGeneratorのRuntimeアセンブリを参照する。
-          # 下限がプレリリースなので、SDKと同じく版を固定する
+          # SDKと同じく、下限の版でコンパイルできることを確かめるため版を固定する
           vrc-get install com.qazx7412.kx-vrc-arkit-blendshape-generator "$GENERATOR_VERSION" --yes
           cat Packages/vpm-manifest.json
 

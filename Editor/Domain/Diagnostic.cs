@@ -91,10 +91,10 @@ namespace NativeFTManager.Domain
         /// <summary>対象キーのシェイプがSetに無く、表情補正の規則を生成しなかった</summary>
         public const string CorrectionTargetMissing = "I-01";
 
-        /// <summary>アバターにAvatar Optimizerがあるが、ネイティブFTに対応していない版（1.9.21-beta.1未満）</summary>
+        /// <summary>アバターにAvatar Optimizerがあるが、ネイティブFTに対応した安定版より古い版（1.9.21未満。1.9.21のプレリリースを含む）</summary>
         public const string AaoOutdated = "W-14";
 
-        /// <summary>Avatar OptimizerはネイティブFTに対応した版だが、SDKが古く対応が無効（3.10.6-beta.3未満）</summary>
+        /// <summary>Avatar OptimizerはネイティブFTに対応した版だが、SDKが古く対応が無効（AAO 1.9.21の条件である3.10.6-beta.4未満）</summary>
         public const string AaoSdkTooOld = "W-15";
 
         /// <summary>FaceEmoの抑制の発動条件が、メニューに出さないトグルのせいで決して成り立たない（M3で追加）</summary>

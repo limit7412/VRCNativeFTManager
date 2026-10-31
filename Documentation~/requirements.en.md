@@ -5,21 +5,16 @@
 ## Requirements
 
 - Unity 2022.3
-- VRChat SDK Avatars 3.10.6-beta.2 or later (a pre-release; 3.10.6-beta.3 or later if you use Avatar Optimizer)
+- VRChat SDK Avatars 3.10.6 or later
 - NDMF 1.6.0 or later
 - Modular Avatar 1.12.0 or later
-- Kx VRC ARKit BlendShape Generator 0.2.1-test3 or later (a pre-release)
+- Kx VRC ARKit BlendShape Generator 0.2.1 or later
 
-## Installing the pre-release SDK
+## SDK version
 
-The SDK with native Face Tracking is still distributed as a pre-release. VCC and ALCOM hide pre-releases by default, so turn them on first.
+Native Face Tracking became stable in VRChat SDK 3.10.6. Use the stable SDK 3.10.6 or later. The 3.10.6 betas (3.10.6-beta.N) count as older than 3.10.6, so this package cannot be added with them.
 
-1. In VCC, enable "Show Pre-Release Packages" under Settings > Packages. In ALCOM, enable showing pre-release packages in its settings
-2. In the project's package list, change "VRChat SDK - Avatars" to 3.10.6-beta.2 or later (3.10.6-beta.3 or later if you use Avatar Optimizer)
-3. Add this package. It depends on that SDK, so it cannot be added while the SDK is older
-
-The supported version of Kx VRC ARKit BlendShape Generator, which this package depends on, is also a pre-release.
-With pre-releases shown, VCC/ALCOM installs it together with this package.
+Kx VRC ARKit BlendShape Generator, which this package depends on, is supported from the stable 0.2.1, so you do not need to show pre-release packages. When you add this package, VCC/ALCOM installs the Generator together with it.
 
 ## Kx VRC ARKit BlendShape Generator
 
@@ -38,14 +33,13 @@ The Generator's Set is created only during the build, so it is not included in t
 
 The following packages are not dependencies. Integration is enabled only when they are installed.
 
-- Avatar Optimizer 1.9.21-beta.1 or later (when used together)
+- Avatar Optimizer 1.9.21 or later (when used together)
 
 ### Avatar Optimizer
 
-Avatar Optimizer added native Face Tracking support in 1.9.21-beta.1 and keeps the shapes used by Blendshapes Sets and Parameter Behaviors from being optimized away.
+Avatar Optimizer added native Face Tracking support in 1.9.21 and keeps the shapes used by Blendshapes Sets and Parameter Behaviors from being optimized away.
 This package relies on that support and has no Avatar Optimizer workaround of its own.
-Avatar Optimizer's support is active only with VRChat SDK 3.10.6-beta.3 or later, so update the SDK as well when you use both.
-Older combinations produce warnings at build time (KxNFTM-W-14, KxNFTM-W-15).
+Versions older than 1.9.21 (including the 1.9.21 pre-releases), and SDKs too old for Avatar Optimizer's support (before 3.10.6-beta.4), produce warnings at build time (KxNFTM-W-14, KxNFTM-W-15).
 
 If you have to stay on an older Avatar Optimizer, add the face mesh to "Exclusions" under "Debug Options" of Trace and Optimize. Its shapes are then neither removed nor merged.
 The mesh is no longer optimized at all, so use this only until you can update Avatar Optimizer.

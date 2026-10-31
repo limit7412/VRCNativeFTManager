@@ -27,7 +27,7 @@ namespace NativeFTManager.Domain
     /// </summary>
     internal static class FaceTrackingGroupTable
     {
-        /// <summary>SDK 3.10.6-beta.2 の FaceTrackingKey.Max</summary>
+        /// <summary>SDK 3.10.6 の FaceTrackingKey.Max</summary>
         public const int KeyCount = 102;
 
         /// <summary>SDKのビゼームの数（VRC_AvatarDescriptor.Viseme.Count）</summary>
