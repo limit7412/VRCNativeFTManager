@@ -718,46 +718,6 @@ msgstr "ワールドをまたいでRadialの値を保存します。"
 msgid "inspector.sensitivity.description"
 msgstr "Radialの中央（既定値）が等倍で、8段階で切り替わります。左側は0.2〜0.8倍、右側は等倍から上限の倍率までです。トグルでSetを止めたときは、感度にかかわらず止まります。"
 
-# Menu in the hierarchy (MA Menu Items)
-msgid "menu.label.root"
-msgstr "フェイストラッキング"
-
-msgid "menu.label.face_tracking"
-msgstr "フェイストラッキング"
-
-msgid "menu.label.eye_tracking"
-msgstr "目のトラッキング"
-
-msgid "menu.label.lip_tracking"
-msgstr "口のトラッキング"
-
-msgid "menu.label.pupil"
-msgstr "瞳孔"
-
-msgid "menu.label.visemes"
-msgstr "ビゼーム"
-
-msgid "menu.label.emulation"
-msgstr "エミュレーション"
-
-msgid "menu.label.limits"
-msgstr "制限"
-
-msgid "menu.label.eye_sync"
-msgstr "両目の連動"
-
-msgid "menu.label.settings"
-msgstr "設定"
-
-msgid "menu.label.sensitivity"
-msgstr "感度"
-
-msgid "menu.label.sensitivity_eye"
-msgstr "目"
-
-msgid "menu.label.sensitivity_lip"
-msgstr "口"
-
 msgid "inspector.menu.generated"
 msgstr "EXメニューはビルド時に作ります（0.1.0-test8までの形）。トグルの構成はコンポーネントに保存された値のままで、ここでは変えられません。下のボタンで、メニューをMA Menu Itemの階層としてヒエラルキーに置けます。置いた後は、並べ替え、表示名とアイコンの変更、別のサブメニューへの移動をヒエラルキーで行えます。"
 
@@ -768,7 +728,7 @@ msgid "inspector.menu.hierarchy"
 msgstr "EXメニューはヒエラルキーのMA Menu Itemで編集します。メニューにあるトグルと、その既定値・保存は、Menu Itemの既定値（Default）と保存（Saved）の設定から読みます。Menu Itemを消したトグルはメニューに出さず、コンポーネントに保存された既定値で動きます。"
 
 msgid "inspector.menu.fill_icons"
-msgstr "空のアイコンに既定のアイコンを入れる"
+msgstr "空のアイコンに既定のアイコンを入れ、日本語の既定の表示名を英語に戻す"
 
 msgid "inspector.menu.mixed_modes"
 msgstr "メニューの作り方が違うコンポーネントを選んでいます。トグルは1つずつ選んで編集してください。"

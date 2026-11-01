@@ -296,22 +296,23 @@ namespace NativeFTManager.Tests
             }
         }
 
-        [Test]
-        public void Expand_WritesLocalizedLabelOnlyWhenItDiffersFromTheObjectName()
+        [TestCase("ja-jp")]
+        [TestCase("en-us")]
+        public void Expand_LeavesLabelsEmptyWhateverTheLanguage(string language)
         {
             var previous = LanguagePrefs.Language;
             try
             {
-                LanguagePrefs.Language = "ja-jp";
-                var japanese = MenuHierarchyBuilder.FindRoot(CreateExpanded(NativeFTPreset.ARKit))
-                    .GetComponent<ModularAvatarMenuItem>();
-                Assert.That(japanese.label, Is.EqualTo(Localization.S("menu.label.root")));
-                Assert.That(japanese.label, Is.Not.EqualTo(japanese.gameObject.name));
+                LanguagePrefs.Language = language;
+                var component = CreateExpanded(NativeFTPreset.UE);
+                MenuHierarchyBuilder.AddRadial(component, SensitivityChannel.Eye, true, UndoName);
+                var items = MenuHierarchyBuilder.FindRoot(component).GetComponentsInChildren<ModularAvatarMenuItem>(true);
 
-                LanguagePrefs.Language = "en-us";
-                var english = MenuHierarchyBuilder.FindRoot(CreateExpanded(NativeFTPreset.ARKit))
-                    .GetComponent<ModularAvatarMenuItem>();
-                Assert.That(english.label, Is.Empty);
+                Assert.That(items, Is.Not.Empty);
+                foreach (var item in items)
+                {
+                    Assert.That(item.label, Is.Empty);
+                }
             }
             finally
             {
@@ -320,9 +321,73 @@ namespace NativeFTManager.Tests
         }
 
         [Test]
+        public void RestoreEnglishNames_ClearsJapaneseLabelsWrittenByOlderVersions()
+        {
+            // 0.1.0-test13からtest15までは、日本語のエディタで作るとlabelに日本語を書いていた
+            var component = CreateExpanded(NativeFTPreset.UE);
+            var radial = MenuHierarchyBuilder.AddRadial(component, SensitivityChannel.Eye, true, UndoName);
+            var root = MenuHierarchyBuilder.FindRoot(component).GetComponent<ModularAvatarMenuItem>();
+            var settings = root.transform.Find(MenuPlan.SettingsMenuName).GetComponent<ModularAvatarMenuItem>();
+            var eye = FindToggleItem(component, NativeFTToggle.EyeTracking);
+            var lip = FindToggleItem(component, NativeFTToggle.LipTracking);
+            root.label = "フェイストラッキング";
+            settings.label = "設定";
+            radial.label = "目";
+            eye.label = "目のトラッキング";
+            lip.label = "くち";
+
+            MenuHierarchyBuilder.RestoreEnglishNames(component, UndoName);
+
+            Assert.That(root.label, Is.Empty);
+            Assert.That(settings.label, Is.Empty);
+            Assert.That(radial.label, Is.Empty);
+            Assert.That(eye.label, Is.Empty);
+            Assert.That(lip.label, Is.EqualTo("くち"));
+        }
+
+        [Test]
+        public void RestoreEnglishNames_RenamesJapaneseObjectNamesWrittenByOlderVersions()
+        {
+            // 0.1.0-test12までは、日本語のエディタで作るとオブジェクト名が日本語だった
+            var component = CreateExpanded(NativeFTPreset.UE);
+            var root = MenuHierarchyBuilder.FindRoot(component);
+            var settings = root.transform.Find(MenuPlan.SettingsMenuName);
+            var eye = FindToggleItem(component, NativeFTToggle.EyeTracking);
+            var lip = FindToggleItem(component, NativeFTToggle.LipTracking);
+            var visemes = FindToggleItem(component, NativeFTToggle.Visemes);
+            root.name = "フェイストラッキング";
+            settings.name = "設定";
+            eye.gameObject.name = "目のトラッキング";
+            lip.gameObject.name = "くち";
+            visemes.gameObject.name = "ビゼーム";
+            visemes.label = "リップシンク";
+
+            MenuHierarchyBuilder.RestoreEnglishNames(component, UndoName);
+
+            Assert.That(root.name, Is.EqualTo(MenuPlan.SubMenuName));
+            Assert.That(settings.name, Is.EqualTo(MenuPlan.SettingsMenuName));
+            Assert.That(eye.gameObject.name, Is.EqualTo(MenuPlan.GetLabel(NativeFTToggle.EyeTracking)));
+            Assert.That(lip.gameObject.name, Is.EqualTo("くち"));
+
+            // 利用者がlabelで表示名を付けていれば、オブジェクト名を変えても表示名は変わらないので、そのままにする
+            Assert.That(visemes.gameObject.name, Is.EqualTo("ビゼーム"));
+            Assert.That(visemes.label, Is.EqualTo("リップシンク"));
+        }
+
+        private static ModularAvatarMenuItem FindToggleItem(NativeFTManagerComponent component, NativeFTToggle toggle)
+        {
+            var parameter = ResolvedToggle.GetParameterName(toggle);
+            return MenuHierarchyBuilder.FindRoot(component).GetComponentsInChildren<ModularAvatarMenuItem>(true)
+                .First(item => item.Control != null
+                    && item.Control.type == VRCExpressionsMenu.Control.ControlType.Toggle
+                    && item.Control.parameter != null
+                    && item.Control.parameter.name == parameter);
+        }
+
+        [Test]
         public void ApplyPreset_KeepsItemsWithJapaneseObjectNames()
         {
-            // 0.1.0-test11までは、日本語のエディタで作るとオブジェクト名が日本語だった
+            // 0.1.0-test12までは、日本語のエディタで作るとオブジェクト名が日本語だった
             var component = CreateExpanded(NativeFTPreset.ARKit);
             var root = MenuHierarchyBuilder.FindRoot(component);
             root.name = "フェイストラッキング";
