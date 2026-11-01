@@ -103,14 +103,19 @@ namespace NativeFTManager.Domain
                 HasEyeBones = current.HasEyeBones,
             };
 
-            if (hasEyeLook && !current.HasEyeBones)
+            if (hasEyeLook)
             {
-                if (after.GazeMode == EyeGazeMode.BoneRotation)
+                // ボーンの有無で決めるのはBone Rotationからの切り替えだけ。
+                // 既にFace TrackingかBothなら、ボーンがあってもEye Lookを有効にしないとFTの視線は動かない
+                if (after.GazeMode == EyeGazeMode.BoneRotation && !current.HasEyeBones)
                 {
                     after.GazeMode = EyeGazeMode.FaceTracking;
                 }
 
-                after.Enabled = true;
+                if (after.GazeMode != EyeGazeMode.BoneRotation)
+                {
+                    after.Enabled = true;
+                }
             }
 
             if (hasEyeClosed && after.EyelidType != EyelidType.Bones)

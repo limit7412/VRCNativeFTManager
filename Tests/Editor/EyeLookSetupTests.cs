@@ -108,6 +108,29 @@ namespace NativeFTManager.Tests
         }
 
         [Test]
+        public void Plan_DisabledEyeLookWithFaceTrackingGazeAndBones_IsEnabled()
+        {
+            // Eyelidsがボーンで、Gaze ModeがBothのままEye Lookだけ無効なとき
+            var correction = EyeLookSetup.Plan(
+                Settings(enabled: false, gaze: EyeGazeMode.Both, eyelid: EyelidType.Bones, bones: true),
+                new[] { EyeSet });
+
+            Assert.That(correction, Is.Not.Null);
+            Assert.That(correction.EnablesEyeLook, Is.True);
+            Assert.That(correction.ChangesGazeMode, Is.False);
+        }
+
+        [Test]
+        public void Plan_DisabledEyeLookWithBoneRotationAndBones_IsLeftAlone()
+        {
+            var correction = EyeLookSetup.Plan(
+                Settings(enabled: false, eyelid: EyelidType.Bones, bones: true),
+                new[] { EyeSet });
+
+            Assert.That(correction, Is.Null);
+        }
+
+        [Test]
         public void EnumValues_MatchSdk()
         {
             // Descriptorとは値で写すので、SDKの列挙体と名前・値がそろっているかをフィールドの型から確かめる
