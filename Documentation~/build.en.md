@@ -18,6 +18,7 @@ The settings that turn each of these on are described in [Settings](../README.en
   - Rules whose target shape is not in any Set are not generated (KxNFTM-I-01). When the Custom expression instructions exceed the avatar-wide limit of 2048, the rules with the lowest priority are dropped (KxNFTM-W-12)
 - When FaceEmo suppression is enabled, FX layers that control FaceEmo and the extra parameters are added, and the layers listed in "FX Layers To Remove" are removed from FX
 - Face Tracking is enabled on the Descriptor. Use All Tracking Keys and Viseme Dampen are written as set in "Avatar Descriptor (at build time)" in the inspector
+- When the Sets assign eye keys (EyeLook, EyeClosed) but Eye Look on the Descriptor is set up not to drive them with face tracking, Eye Look is set up for face tracking (KxNFTM-I-07). Eye Gaze Mode becomes Face Tracking when it is Bone Rotation and no eye bones are assigned, Eyelids Type becomes Face Tracking when it is None or Blendshapes, and Eye Look is enabled when it is off. Eye Gaze Mode with eye bones assigned and Eyelids Type set to Bones are kept. The inspector also shows a warning (KxNFTM-W-21) with a button that applies the same values to the Descriptor in the scene
 
 ## How sensitivity works
 

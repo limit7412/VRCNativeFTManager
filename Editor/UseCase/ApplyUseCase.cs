@@ -97,6 +97,8 @@ namespace NativeFTManager.UseCase
                 return;
             }
 
+            CorrectEyeLook(descriptor, sets, primary);
+
             var excluded = new HashSet<string>(primary.excludedSetNames ?? new List<string>());
             // 既存のState Behaviorが名前で指すSetも分割しない。分割すると元の名前が消え、その制御が効かなくなる。
             // 本製品のBehaviorはこの後で付けるので、ここで見つかるのは利用者が置いたものだけである
@@ -129,6 +131,27 @@ namespace NativeFTManager.UseCase
             AttachBehaviors(context, fx, plan, result, corrections, primary);
             FaceTrackingDescriptorAccess.ApplySettings(descriptor, primary);
             RemoveUnusedToggles(context, descriptor, toggles, primary);
+        }
+
+        /// <summary>
+        /// SetにEyeLookやEyeClosedのキーがあるのに、Eye LookがそれをFTで使わない設定なら、ビルド用の複製で直して知らせる（仕様書5.7、I-07）。
+        /// シーンのDescriptorは変えない
+        /// </summary>
+        private static void CorrectEyeLook(
+            VRCAvatarDescriptor descriptor,
+            IEnumerable<FaceTrackingSetData> sets,
+            NativeFTManagerComponent primary)
+        {
+            var correction = EyeLookSetup.Plan(FaceTrackingDescriptorAccess.ReadEyeLookSettings(descriptor), sets);
+            if (correction == null)
+            {
+                return;
+            }
+
+            FaceTrackingDescriptorAccess.WriteEyeLookSettings(descriptor, correction.After);
+            DiagnosticReporter.Report(
+                new Diagnostic(DiagnosticCodes.EyeLookCorrected, EyeLookSetup.Describe(correction)),
+                primary);
         }
 
         /// <summary>

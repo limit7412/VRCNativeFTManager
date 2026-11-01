@@ -125,6 +125,18 @@ namespace NativeFTManager.Domain
         /// </summary>
         public const string SetMappedFromShapes = "I-06";
 
+        /// <summary>
+        /// SetにEyeLookやEyeClosedのキーがあるのに、DescriptorのEye LookがそれをFTで使わない設定だったので、
+        /// ビルド用の複製でEye Gaze ModeやEyelids TypeをFace Trackingにした（仕様書5.7）
+        /// </summary>
+        public const string EyeLookCorrected = "I-07";
+
+        /// <summary>
+        /// インスペクタで、SetにEyeLookやEyeClosedのキーがあるのに、DescriptorのEye LookがそれをFTで使わない設定だと知らせる。
+        /// ビルド時は複製で直す（I-07）。インスペクタのボタンでシーンのDescriptorを直せる（仕様書5.7）
+        /// </summary>
+        public const string EyeLookNotFaceTracking = "W-21";
+
         /// <summary>W-04の判定に使う、割り当てキー数の下限</summary>
         public const int GeneratorSetMinimumKeys = 10;
 
@@ -157,6 +169,8 @@ namespace NativeFTManager.Domain
                 { MenuItemValueInvalid, DiagnosticSeverity.Warning },
                 { GeneratorNotInstalled, DiagnosticSeverity.Warning },
                 { SetMappedFromShapes, DiagnosticSeverity.Information },
+                { EyeLookCorrected, DiagnosticSeverity.Information },
+                { EyeLookNotFaceTracking, DiagnosticSeverity.Warning },
             };
 
         public static IEnumerable<string> All => Severities.Keys;

@@ -78,6 +78,8 @@ namespace NativeFTManager.Tests
             "inspector.menu.hierarchy",
             "inspector.menu.fill_icons",
             "inspector.menu.restore_toggles",
+            "inspector.eye_look.apply",
+            "inspector.undo.eye_look",
             "inspector.menu.mixed_modes",
             "inspector.menu.feature_disabled",
             "inspector.menu.add_radial",

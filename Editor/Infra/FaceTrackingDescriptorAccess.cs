@@ -302,6 +302,47 @@ namespace NativeFTManager.Infra
             };
         }
 
+        /// <summary>
+        /// Eye Lookの設定のうち、ネイティブFTで目を動かすかに関わるもの（仕様書5.7、I-07）
+        /// </summary>
+        public static EyeLookSettings ReadEyeLookSettings(VRCAvatarDescriptor descriptor)
+        {
+            if (descriptor == null)
+            {
+                return null;
+            }
+
+            var settings = descriptor.customEyeLookSettings;
+            return new EyeLookSettings
+            {
+                Enabled = descriptor.enableEyeLook,
+                // SDKの列挙体の型名に依らないよう、値で写す（値の並びはEyeGazeMode・EyelidTypeのコメントのとおり）
+                GazeMode = (EyeGazeMode)Convert.ToInt32(settings.eyeGazeMode),
+                EyelidType = (Domain.EyelidType)Convert.ToInt32(settings.eyelidType),
+                HasEyeBones = settings.leftEye != null || settings.rightEye != null,
+            };
+        }
+
+        /// <summary>
+        /// Eye Lookの有効・無効、Eye Gaze Mode、Eyelids Typeを書く。ビルド用の複製にだけ使う
+        /// </summary>
+        public static void WriteEyeLookSettings(VRCAvatarDescriptor descriptor, EyeLookSettings value)
+        {
+            descriptor.enableEyeLook = value.Enabled;
+            var settings = descriptor.customEyeLookSettings;
+            settings.eyeGazeMode = ToEnum(settings.eyeGazeMode, (int)value.GazeMode);
+            settings.eyelidType = ToEnum(settings.eyelidType, (int)value.EyelidType);
+            descriptor.customEyeLookSettings = settings;
+        }
+
+        /// <summary>
+        /// 型を書き先のフィールドから推論させて、整数を同じ列挙体の値にする
+        /// </summary>
+        private static T ToEnum<T>(T current, int value) where T : struct, Enum
+        {
+            return (T)Enum.ToObject(typeof(T), value);
+        }
+
         private static float GetAngle(VRCAvatarDescriptor.CustomEyeLookSettings.EyeRotations rotations)
         {
             if (rotations == null)

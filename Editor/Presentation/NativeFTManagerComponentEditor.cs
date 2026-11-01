@@ -478,7 +478,29 @@ namespace NativeFTManager.Presentation
                     S(diagnostic.LocalizationKey, diagnostic.Args) + "\n"
                     + S(diagnostic.LocalizationKey + ":description", diagnostic.Args),
                     ToMessageType(diagnostic.Severity));
+
+                if (diagnostic.Code == DiagnosticCodes.EyeLookNotFaceTracking && report.Descriptor != null)
+                {
+                    DrawEyeLookFixButton(report);
+                }
             }
+        }
+
+        /// <summary>
+        /// W-21の対処。ビルド時に複製へ書くのと同じ値を、シーンのDescriptorへUndo付きで書く（仕様書5.7）
+        /// </summary>
+        private static void DrawEyeLookFixButton(InspectUseCase.Report report)
+        {
+            if (!GUILayout.Button(S("inspector.eye_look.apply")))
+            {
+                return;
+            }
+
+            var descriptor = report.Descriptor;
+            Undo.RecordObject(descriptor, S("inspector.undo.eye_look"));
+            FaceTrackingDescriptorAccess.WriteEyeLookSettings(descriptor, report.EyeLookCorrection.After);
+            PrefabUtility.RecordPrefabInstancePropertyModifications(descriptor);
+            EditorUtility.SetDirty(descriptor);
         }
 
         private static string GetGeneratorStatusKey(InspectUseCase.Report report)
