@@ -22,11 +22,11 @@ namespace NativeFTManager.Tests
         }
 
         /// <summary>
-        /// UEプリセットの設定（すべてのトグルと表情補正）
+        /// 既定の設定（すべてのトグルと表情補正）
         /// </summary>
         private static ToggleSet CreateUeToggles(params ToggleSettings[] overrides)
         {
-            return Resolve(NativeFTPresets.CreateToggles(NativeFTPreset.UE), CorrectionFeatures.All, overrides);
+            return Resolve(ToggleSettings.CreateDefaults(), CorrectionFeatures.All, overrides);
         }
 
         private static ToggleSet Resolve(
@@ -89,7 +89,7 @@ namespace NativeFTManager.Tests
         }
 
         [Test]
-        public void Build_UePreset_SplitsPupilAndEyeClosedFromEye()
+        public void Build_Defaults_SplitsPupilAndEyeClosedFromEye()
         {
             var plan = ToggleControllerPlanner.Build(CreateUeToggles());
 
@@ -196,7 +196,7 @@ namespace NativeFTManager.Tests
         public void Resolve_DisabledFeature_HidesItsToggleAndTurnsItOff()
         {
             var toggles = Resolve(
-                NativeFTPresets.CreateToggles(NativeFTPreset.UE),
+                ToggleSettings.CreateDefaults(),
                 new CorrectionFeatures(true, false, false),
                 new ToggleSettings[0]);
 

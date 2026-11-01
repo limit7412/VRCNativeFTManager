@@ -50,7 +50,6 @@ namespace NativeFTManager.Domain
     /// </summary>
     internal sealed class AvatarFacts
     {
-        public NativeFTPreset Preset;
         public bool UseGeneratorComponent;
         public GeneratorPresence Generator;
         public bool GeneratorSetWriteEnabled;
@@ -123,13 +122,6 @@ namespace NativeFTManager.Domain
 
             switch (facts.Generator)
             {
-                case GeneratorPresence.None:
-                    if (facts.Preset == NativeFTPreset.ARKit)
-                    {
-                        diagnostics.Add(new Diagnostic(DiagnosticCodes.GeneratorMissing));
-                    }
-
-                    break;
                 case GeneratorPresence.NotInstalled:
                     diagnostics.Add(new Diagnostic(DiagnosticCodes.GeneratorNotInstalled));
                     break;

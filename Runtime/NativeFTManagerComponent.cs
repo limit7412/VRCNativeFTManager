@@ -26,9 +26,6 @@ namespace NativeFTManager
         /// <summary>Lerp Speedの上限（仕様書5.3）</summary>
         public const float MaxLerpSpeed = 20f;
 
-        [Tooltip("Preset of the settings")]
-        public NativeFTPreset preset = NativeFTPreset.UE;
-
         // メニューの作り方（仕様書8.3）。以前に保存したコンポーネントの挙動を変えないよう、初期化子はGeneratedにする。
         // 右クリックからの生成と「メニューをヒエラルキーに展開」ボタンがHierarchyにする
 
@@ -62,7 +59,7 @@ namespace NativeFTManager
         public bool useGeneratorComponent = true;
 
         // 表情補正（仕様書5.4、M2）。M1で保存したコンポーネントの挙動を変えないよう、初期化子は無効にしておく。
-        // 追加したてのコンポーネントとプレハブでは、プリセットの値をResetで入れる
+        // 追加したてのコンポーネントには、Resetで既定値（すべて有効）を入れる
 
         [Tooltip("Generate the face tracking emulation (Parameter Behaviors ported from Jerry's Templates)")]
         public bool enableEmulation;
@@ -113,9 +110,17 @@ namespace NativeFTManager
         internal static Action<NativeFTManagerComponent> EditorOnValidateHook;
 #endif
 
+        /// <summary>
+        /// 追加したてのコンポーネントの既定値（仕様書6.3）。
+        /// トグルはすべてメニューに出し、エミュレーション・制限・Eye Syncは生成する（Eye Syncのトグルだけ既定でオフ）
+        /// </summary>
         private void Reset()
         {
-            NativeFTPresets.Apply(this, preset);
+            toggles = ToggleSettings.CreateDefaults();
+            enableEmulation = true;
+            enableLimits = true;
+            enableEyeSync = true;
+            excludedRules = new List<string>();
         }
 
         private void OnValidate()

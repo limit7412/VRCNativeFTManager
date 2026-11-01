@@ -155,12 +155,6 @@ msgstr "あり（Set書き込みはオフ）"
 msgid "inspector.status.generator_set_write"
 msgstr "あり（Set書き込みは有効）"
 
-msgid "inspector.preset"
-msgstr "プリセット"
-
-msgid "inspector.preset.tooltip"
-msgstr "設定のまとまり。UEはJerry's相当、ARKitは瞳孔を除いたもの、Minimalは目と口のトグルだけです。中身を変えるとCustomになります"
-
 msgid "inspector.use_generator_component"
 msgstr "Generatorコンポーネントを使う"
 
@@ -235,12 +229,6 @@ msgstr "[KxNFTM-E-06] トラッキングキーの並びがSDKと合いません"
 msgid "diag.E-06:description"
 msgstr "VRChat SDKのFaceTrackingKeyが本製品の対応表と食い違うため、Setを分割しませんでした（{0}）。本製品を更新してください。"
 
-msgid "diag.W-01"
-msgstr "[KxNFTM-W-01] ARKit BlendShape Generatorがありません"
-
-msgid "diag.W-01:description"
-msgstr "プリセットがARKitですが、アバターにKx VRC ARKit BlendShape Generatorがありません。Generatorを置くか、プリセットをUEにしてください。"
-
 msgid "diag.W-02"
 msgstr "[KxNFTM-W-02] GeneratorのシェイプがFTに使われません"
 
@@ -296,9 +284,6 @@ msgid "diag.W-15:description"
 msgstr "Avatar OptimizerのネイティブFT対応は、VRChat SDK 3.10.6-beta.4以降でだけ有効になります。今のSDKでは最適化でFTのシェイプが壊れることがあります。SDKを正式版の3.10.6以降に更新してください。"
 
 # M2: インスペクタ
-msgid "inspector.undo.preset"
-msgstr "プリセットの変更"
-
 msgid "inspector.undo.rules"
 msgstr "表情補正の規則の変更"
 
@@ -376,7 +361,7 @@ msgid "diag.W-13"
 msgstr "[KxNFTM-W-13] 同期bitが上限を超える見込みです"
 
 msgid "diag.W-13:description"
-msgstr "同期パラメーターが合計{0}bitになり、上限の{1}bitを超える見込みです（うち本製品{2}bit）。ほかのパラメーターを減らすか、メニューに出すトグルを減らしてください（プリセットMinimalなら3bit）。"
+msgstr "同期パラメーターが合計{0}bitになり、上限の{1}bitを超える見込みです（うち本製品{2}bit）。ほかのパラメーターを減らすか、メニューに出すトグルを減らしてください。"
 
 msgid "diag.I-01"
 msgstr "[KxNFTM-I-01] シェイプが無いため生成しなかった表情補正があります"
@@ -739,6 +724,9 @@ msgstr "メニューの作り方が違うコンポーネントを選んでいま
 msgid "inspector.menu.feature_disabled"
 msgstr "「{0}」の機能を生成しない設定なので、Menu Itemはビルド時にメニューから外れます。"
 
+msgid "inspector.menu.restore_toggles"
+msgstr "消したトグルのMenu Itemを戻す"
+
 msgid "inspector.menu.add_radial"
 msgstr "Radialを追加"
 
@@ -755,7 +743,7 @@ msgid "diag.W-18"
 msgstr "[KxNFTM-W-18] メニューのトグルが見つかりません"
 
 msgid "diag.W-18:description"
-msgstr "メニューをヒエラルキーで持つ設定ですが、本製品のパラメーター（KxNFTM/）を指すMA Menu Itemがアバターにありません。すべてのトグルがメニューに出ず、固定の値で動きます。プリセットを選び直すと、プリセットのトグルのMenu Itemを作り直します。"
+msgstr "メニューをヒエラルキーで持つ設定ですが、本製品のパラメーター（KxNFTM/）を指すMA Menu Itemがアバターにありません。すべてのトグルがメニューに出ず、コンポーネントに保存された固定の値で動きます。インスペクタの「消したトグルのMenu Itemを戻す」で、トグルのMenu Itemを作り直せます。"
 
 msgid "diag.W-19"
 msgstr "[KxNFTM-W-19] 値が1にならないトグルのMenu Itemがあります"

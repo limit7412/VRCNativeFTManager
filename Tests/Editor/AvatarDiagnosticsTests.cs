@@ -10,7 +10,6 @@ namespace NativeFTManager.Tests
         {
             return new AvatarFacts
             {
-                Preset = NativeFTPreset.UE,
                 UseGeneratorComponent = false,
                 Generator = GeneratorPresence.None,
                 SetUseAllTrackingKeys = true,
@@ -63,20 +62,9 @@ namespace NativeFTManager.Tests
         }
 
         [Test]
-        public void Evaluate_ArkitPresetWithoutGenerator_WarnsW01()
+        public void Evaluate_GeneratorNotInstalled_WarnsW20()
         {
             var facts = CleanFacts();
-            facts.Preset = NativeFTPreset.ARKit;
-
-            Assert.That(Codes(facts), Is.EqualTo(new[] { DiagnosticCodes.GeneratorMissing }));
-        }
-
-        [TestCase(NativeFTPreset.UE)]
-        [TestCase(NativeFTPreset.ARKit)]
-        public void Evaluate_GeneratorNotInstalled_WarnsW20WithoutW01(NativeFTPreset preset)
-        {
-            var facts = CleanFacts();
-            facts.Preset = preset;
             facts.Generator = GeneratorPresence.NotInstalled;
 
             Assert.That(Codes(facts), Is.EqualTo(new[] { DiagnosticCodes.GeneratorNotInstalled }));

@@ -9,14 +9,25 @@ namespace NativeFTManager.Tests
     {
         private static ToggleSet CreateUeToggles(SensitivityConfig sensitivity)
         {
-            var settings = NativeFTPresets.CreateToggles(NativeFTPreset.UE);
+            var settings = ToggleSettings.CreateDefaults();
             return ToggleSet.Resolve(
                 toggle => settings.FirstOrDefault(s => s.toggle == toggle), CorrectionFeatures.All, sensitivity);
         }
 
         private static ToggleSet CreateMinimalToggles(SensitivityConfig sensitivity)
         {
-            var settings = NativeFTPresets.CreateToggles(NativeFTPreset.Minimal);
+            // 目と口のトグルだけをメニューに出し、表情補正を作らない構成
+            var settings = new List<ToggleSettings>
+            {
+                new ToggleSettings(NativeFTToggle.FaceTracking, true, true),
+                new ToggleSettings(NativeFTToggle.EyeTracking, true, true),
+                new ToggleSettings(NativeFTToggle.LipTracking, true, true),
+                new ToggleSettings(NativeFTToggle.Pupil, false, true),
+                new ToggleSettings(NativeFTToggle.Visemes, false, true),
+                new ToggleSettings(NativeFTToggle.Emulation, false, false),
+                new ToggleSettings(NativeFTToggle.Limits, false, false),
+                new ToggleSettings(NativeFTToggle.EyeSync, false, false),
+            };
             return ToggleSet.Resolve(
                 toggle => settings.FirstOrDefault(s => s.toggle == toggle), CorrectionFeatures.None, sensitivity);
         }
@@ -220,7 +231,7 @@ namespace NativeFTManager.Tests
         {
             // 制限のトグルをメニューに出さず有効にすると、制限のゲートの条件はLipと同じFT ∧ Lipになる。
             // 感度のあるLipとは同じレイヤーにしない
-            var settings = NativeFTPresets.CreateToggles(NativeFTPreset.UE);
+            var settings = ToggleSettings.CreateDefaults();
             settings[settings.FindIndex(s => s.toggle == NativeFTToggle.Limits)] =
                 new ToggleSettings(NativeFTToggle.Limits, false, true);
             var toggles = ToggleSet.Resolve(
