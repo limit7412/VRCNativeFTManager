@@ -117,6 +117,73 @@ namespace NativeFTManager.Tests
         }
 
         [Test]
+        public void Expand_GivesEveryItemADefaultIcon()
+        {
+            var component = CreateExpanded(NativeFTPreset.UE);
+            MenuHierarchyBuilder.AddRadial(component, SensitivityChannel.Eye, true, UndoName);
+            MenuHierarchyBuilder.AddRadial(component, SensitivityChannel.Lip, true, UndoName);
+
+            var items = MenuHierarchyBuilder.FindRoot(component).GetComponentsInChildren<ModularAvatarMenuItem>(true);
+            Assert.That(items.Length, Is.EqualTo(13));
+            foreach (var item in items)
+            {
+                Assert.That(item.Control.icon, Is.Not.Null, item.gameObject.name);
+            }
+
+            Assert.That(
+                MenuHierarchyBuilder.FindRoot(component).GetComponent<ModularAvatarMenuItem>().Control.icon,
+                Is.EqualTo(MenuIconAssets.Load(MenuIcon.FaceTrackingMenu)));
+        }
+
+        [Test]
+        public void Expand_FillsOnlyEmptyIcons()
+        {
+            var component = CreateExpanded(NativeFTPreset.UE);
+            var root = MenuHierarchyBuilder.FindRoot(component).transform;
+            var emptied = root.GetChild(1).GetComponent<ModularAvatarMenuItem>();
+            emptied.Control.icon = null;
+            var custom = new Texture2D(4, 4);
+            _created.Add(custom);
+            var customized = root.GetChild(0).GetComponent<ModularAvatarMenuItem>();
+            customized.Control.icon = custom;
+            var settings = root.GetChild(root.childCount - 1).GetComponent<ModularAvatarMenuItem>();
+            settings.Control.icon = null;
+
+            MenuHierarchyBuilder.Expand(component, ComponentSettings.ResolveToggles(component, Read(component)), UndoName);
+
+            Assert.That(emptied.Control.icon, Is.EqualTo(MenuIconAssets.Load(MenuIcon.EyeTracking)));
+            Assert.That(customized.Control.icon, Is.SameAs(custom));
+            Assert.That(settings.Control.icon, Is.EqualTo(MenuIconAssets.Load(MenuIcon.Settings)));
+        }
+
+        [Test]
+        public void Expand_LeavesTheUsersOwnSubMenuIconEmpty()
+        {
+            var component = CreateExpanded(NativeFTPreset.UE);
+            var root = MenuHierarchyBuilder.FindRoot(component).transform;
+
+            // Settingsの項目を、根の外に置いた利用者のサブメニューへ移す
+            var own = new GameObject("Own");
+            own.transform.SetParent(component.transform, false);
+            var ownItem = own.AddComponent<ModularAvatarMenuItem>();
+            ownItem.Control = new VRCExpressionsMenu.Control
+            {
+                type = VRCExpressionsMenu.Control.ControlType.SubMenu,
+                parameter = new VRCExpressionsMenu.Control.Parameter { name = string.Empty },
+            };
+            ownItem.MenuSource = SubmenuSource.Children;
+            var settings = root.GetChild(root.childCount - 1);
+            while (settings.childCount > 0)
+            {
+                settings.GetChild(0).SetParent(own.transform, false);
+            }
+
+            MenuHierarchyBuilder.Expand(component, ComponentSettings.ResolveToggles(component, Read(component)), UndoName);
+
+            Assert.That(ownItem.Control.icon, Is.Null);
+        }
+
+        [Test]
         public void ApplyPreset_RemovesHiddenTogglesAndEmptySettings()
         {
             var component = CreateExpanded(NativeFTPreset.UE);

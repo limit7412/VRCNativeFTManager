@@ -76,6 +76,7 @@ namespace NativeFTManager.Tests
             "inspector.menu.generated",
             "inspector.menu.expand",
             "inspector.menu.hierarchy",
+            "inspector.menu.fill_icons",
             "inspector.menu.mixed_modes",
             "inspector.menu.feature_disabled",
             "inspector.menu.add_radial",

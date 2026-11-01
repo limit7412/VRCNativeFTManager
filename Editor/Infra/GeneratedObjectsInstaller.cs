@@ -145,7 +145,7 @@ namespace NativeFTManager.Infra
                     sensitivityMenu.controls.Add(CreateRadial(radial));
                 }
 
-                subMenu.controls.Add(CreateSubMenu(MenuPlan.SensitivityMenuName, sensitivityMenu));
+                subMenu.controls.Add(CreateSubMenu(MenuPlan.SensitivityMenuName, sensitivityMenu, MenuIcon.Sensitivity));
                 saveAsset?.Invoke(sensitivityMenu);
             }
 
@@ -157,12 +157,12 @@ namespace NativeFTManager.Infra
                     settingsMenu.controls.Add(CreateToggle(toggle));
                 }
 
-                subMenu.controls.Add(CreateSubMenu(MenuPlan.SettingsMenuName, settingsMenu));
+                subMenu.controls.Add(CreateSubMenu(MenuPlan.SettingsMenuName, settingsMenu, MenuIcon.Settings));
                 saveAsset?.Invoke(settingsMenu);
             }
 
             var root = CreateMenu(NativeFTManagerParameterNames.ShortPrefix + " Menu");
-            root.controls.Add(CreateSubMenu(MenuPlan.SubMenuName, subMenu));
+            root.controls.Add(CreateSubMenu(MenuPlan.SubMenuName, subMenu, MenuIcon.FaceTrackingMenu));
 
             saveAsset?.Invoke(subMenu);
             saveAsset?.Invoke(root);
@@ -182,6 +182,7 @@ namespace NativeFTManager.Infra
             return new VRCExpressionsMenu.Control
             {
                 name = toggle.Label,
+                icon = MenuIconAssets.Load(toggle.Icon),
                 type = VRCExpressionsMenu.Control.ControlType.Toggle,
                 parameter = new VRCExpressionsMenu.Control.Parameter { name = toggle.Parameter },
                 value = 1f,
@@ -195,6 +196,7 @@ namespace NativeFTManager.Infra
             return new VRCExpressionsMenu.Control
             {
                 name = radial.Label,
+                icon = MenuIconAssets.Load(radial.Icon),
                 type = VRCExpressionsMenu.Control.ControlType.RadialPuppet,
                 parameter = new VRCExpressionsMenu.Control.Parameter { name = string.Empty },
                 subParameters = new[] { new VRCExpressionsMenu.Control.Parameter { name = radial.Parameter } },
@@ -202,11 +204,12 @@ namespace NativeFTManager.Infra
             };
         }
 
-        private static VRCExpressionsMenu.Control CreateSubMenu(string name, VRCExpressionsMenu subMenu)
+        private static VRCExpressionsMenu.Control CreateSubMenu(string name, VRCExpressionsMenu subMenu, MenuIcon icon)
         {
             return new VRCExpressionsMenu.Control
             {
                 name = name,
+                icon = MenuIconAssets.Load(icon),
                 type = VRCExpressionsMenu.Control.ControlType.SubMenu,
                 parameter = new VRCExpressionsMenu.Control.Parameter { name = string.Empty },
                 subMenu = subMenu,

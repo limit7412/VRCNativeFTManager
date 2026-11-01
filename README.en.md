@@ -93,6 +93,8 @@ Face Tracking            MA Menu Installer + Menu Item (submenu)
 
 The object names are always the English names above, whatever the editor language. When created in a Japanese editor, the Japanese labels are written to the label field of each Menu Item and shown in the Expressions Menu. When created in an English editor, the label field stays empty and the object name is used as the label. To rename an item whose label field is filled, edit the label of the Menu Item rather than the object name. Hierarchies created with Japanese object names in 0.1.0-test11 or earlier keep working as they are.
 
+Each item gets a bundled default icon (an eye, lips, a gear and so on). Replace the Icon of a Menu Item to use your own. Pressing "Fill empty icons with the defaults" under Toggles in the inspector fills in the default icon only for items whose icon is empty, and keeps icons you have set (hierarchies created with 0.1.0-test12 or earlier have empty icons, so use this to add them). Menus generated at build time get the same default icons.
+
 At build time, the MA Menu Items on the avatar whose parameter name (after the renames of MA Parameters) matches a public `KxNFTM/` name are read.
 
 - A toggle with a Menu Item appears in the menu and gets a synced Bool parameter (1 bit each). Its default follows the Default setting of the Menu Item, and saving follows its Saved setting. Syncing is always on regardless of the setting, because remote clients decide the Set weights with their own animators

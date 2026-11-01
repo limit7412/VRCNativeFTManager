@@ -45,3 +45,7 @@ Generatorの型に触るのは `Editor/Infra/GeneratorAccess.cs` だけにして
 Generatorの版の下限は `package.json` の `vpmDependencies` にある。
 今の下限は、Generatorの安定版の0.2.1である。連携に必要な定数（`FaceTrackingSetNames`）は0.2.1-test3から含まれている。
 下限を変えるときは、テストのワークフローの `GENERATOR_VERSION`（[ci.md](ci.md)）も揃える。
+
+## EXメニューのアイコン
+
+EXメニューの既定アイコンは `Runtime/Icons/` の PNG（256x256、透過背景、白の線画）で、元の SVG は `docs/icons~/src/` にある。図柄を変えるときは SVG を直し、リポジトリのルートで `node docs/icons~/render.js` を実行して PNG を書き出す（Playwright の Chromium を使う）。PNG の `.meta` は書き換えない。GUID は `Editor/Infra/MenuIconAssets.cs` が持ち、利用者の Menu Item がこの GUID で画像を参照している。アイコンを足すときは、`.meta` を作って GUID を `MenuIconAssets` と `MenuIcon` に加える。

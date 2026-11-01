@@ -27,13 +27,15 @@ namespace NativeFTManager.Infra
     /// 英語のときはlabelを空にし、MAがオブジェクト名をそのまま表示名に使う。後から言語を変えても書き直さない。
     /// 既存の項目はオブジェクト名ではなく、コンポーネントと参照するパラメーターで探す。
     /// そのため0.1.0-test11までに日本語のオブジェクト名で作った階層も、そのまま読み書きできる。
+    /// 作る項目には同梱の既定アイコンを付ける。展開では、アイコンが空の既存項目にだけ既定アイコンを入れ、
+    /// 利用者が設定したアイコンは変えない
     /// 操作はすべてUndoに記録する
     /// </summary>
     internal static class MenuHierarchyBuilder
     {
         /// <summary>
         /// メニューを作る。トグルはメニューに出すものだけ、Radialは有効な系統だけを作る。
-        /// 生成しない表情補正のトグルは作らない。すでにある項目は作り直さない
+        /// 生成しない表情補正のトグルは作らない。すでにある項目は作り直さず、アイコンが空なら既定アイコンを入れる
         /// </summary>
         public static GameObject Expand(NativeFTManagerComponent component, ToggleSet toggles, string undoName)
         {
@@ -54,6 +56,7 @@ namespace NativeFTManager.Infra
                 }
             }
 
+            FillMissingIcons(component, undoName);
             return root;
         }
 
@@ -95,11 +98,11 @@ namespace NativeFTManager.Infra
             string undoName)
         {
             var parent = MenuPlan.IsSetting(toggle)
-                ? FindOrCreateContainer(component, SettingsParameters(), MenuPlan.SettingsMenuName, "menu.label.settings", undoName)
+                ? FindOrCreateContainer(component, SettingsParameters(), MenuPlan.SettingsMenuName, "menu.label.settings", MenuIcon.Settings, undoName)
                 : FindContainer(component, MainParameters()) ?? FindOrCreateRoot(component, undoName).transform;
 
             var item = CreateItem(parent, MenuPlan.GetLabel(toggle), GetLabelKey(toggle), undoName);
-            item.Control = CreateControl(VRCExpressionsMenu.Control.ControlType.Toggle);
+            item.Control = CreateControl(VRCExpressionsMenu.Control.ControlType.Toggle, MenuIcons.For(toggle));
             item.Control.parameter.name = ResolvedToggle.GetParameterName(toggle);
             item.Control.value = 1f;
             item.isDefault = isDefault;
@@ -132,9 +135,9 @@ namespace NativeFTManager.Infra
             bool saved,
             string undoName)
         {
-            var parent = FindOrCreateContainer(component, SensitivityParameters(), MenuPlan.SensitivityMenuName, "menu.label.sensitivity", undoName);
+            var parent = FindOrCreateContainer(component, SensitivityParameters(), MenuPlan.SensitivityMenuName, "menu.label.sensitivity", MenuIcon.Sensitivity, undoName);
             var item = CreateItem(parent, SensitivityConfig.GetLabel(channel), GetLabelKey(channel), undoName);
-            item.Control = CreateControl(VRCExpressionsMenu.Control.ControlType.RadialPuppet);
+            item.Control = CreateControl(VRCExpressionsMenu.Control.ControlType.RadialPuppet, MenuIcons.For(channel));
             item.Control.subParameters = new[]
             {
                 new VRCExpressionsMenu.Control.Parameter { name = SensitivityConfig.GetParameterName(channel) },
@@ -265,7 +268,7 @@ namespace NativeFTManager.Infra
         private static GameObject CreateRoot(NativeFTManagerComponent component, string undoName)
         {
             var item = CreateItem(component.transform, MenuPlan.SubMenuName, "menu.label.root", undoName, false);
-            item.Control = CreateControl(VRCExpressionsMenu.Control.ControlType.SubMenu);
+            item.Control = CreateControl(VRCExpressionsMenu.Control.ControlType.SubMenu, MenuIcon.FaceTrackingMenu);
             item.MenuSource = SubmenuSource.Children;
             item.gameObject.AddComponent<ModularAvatarMenuInstaller>();
             Undo.RegisterCreatedObjectUndo(item.gameObject, undoName);
@@ -297,6 +300,7 @@ namespace NativeFTManager.Infra
             IEnumerable<(string, MenuEntryKind)> members,
             string objectName,
             string labelKey,
+            MenuIcon icon,
             string undoName)
         {
             var found = FindContainer(component, members);
@@ -307,7 +311,7 @@ namespace NativeFTManager.Infra
 
             var root = FindOrCreateRoot(component, undoName);
             var item = CreateItem(root.transform, objectName, labelKey, undoName);
-            item.Control = CreateControl(VRCExpressionsMenu.Control.ControlType.SubMenu);
+            item.Control = CreateControl(VRCExpressionsMenu.Control.ControlType.SubMenu, icon);
             item.MenuSource = SubmenuSource.Children;
 
             // SensitivityはSettingsの前に置く（仕様書8.3の並び）
@@ -361,11 +365,12 @@ namespace NativeFTManager.Infra
             return string.IsNullOrEmpty(localizedLabel) || localizedLabel == objectName ? string.Empty : localizedLabel;
         }
 
-        private static VRCExpressionsMenu.Control CreateControl(VRCExpressionsMenu.Control.ControlType type)
+        private static VRCExpressionsMenu.Control CreateControl(VRCExpressionsMenu.Control.ControlType type, MenuIcon icon)
         {
             return new VRCExpressionsMenu.Control
             {
                 name = string.Empty,
+                icon = MenuIconAssets.Load(icon),
                 type = type,
                 parameter = new VRCExpressionsMenu.Control.Parameter { name = string.Empty },
                 value = 1f,
@@ -421,6 +426,78 @@ namespace NativeFTManager.Infra
 
             var channel = MenuHierarchy.FindChannel(entry.Parameter);
             return channel.HasValue ? (int)channel.Value : (int?)null;
+        }
+
+        /// <summary>
+        /// アイコンが空の項目に既定アイコンを入れる。利用者が設定したアイコンは変えない
+        /// </summary>
+        public static void FillMissingIcons(NativeFTManagerComponent component, string undoName)
+        {
+            foreach (var (item, icon) in FindMissingIcons(component).ToList())
+            {
+                var texture = MenuIconAssets.Load(icon);
+                if (texture == null)
+                {
+                    continue;
+                }
+
+                Undo.RecordObject(item, undoName);
+                item.Control.icon = texture;
+                PrefabUtility.RecordPrefabInstancePropertyModifications(item);
+            }
+        }
+
+        /// <summary>
+        /// アイコンが空の項目と、入れる既定アイコン。対象は公開パラメーターを指すトグルとRadial、メニューの根、
+        /// 根の直下にあるSettingsとSensitivityのサブメニュー。
+        /// 利用者が項目を自分のサブメニューへ移した場合、そのサブメニューは本製品のものと限らないので含めない
+        /// </summary>
+        private static IEnumerable<(ModularAvatarMenuItem, MenuIcon)> FindMissingIcons(NativeFTManagerComponent component)
+        {
+            var targets = new List<(ModularAvatarMenuItem, MenuIcon)>();
+            foreach (NativeFTToggle toggle in Enum.GetValues(typeof(NativeFTToggle)))
+            {
+                foreach (var item in FindItems(component, ResolvedToggle.GetParameterName(toggle), MenuEntryKind.Toggle))
+                {
+                    targets.Add((item, MenuIcons.For(toggle)));
+                }
+            }
+
+            foreach (SensitivityChannel channel in Enum.GetValues(typeof(SensitivityChannel)))
+            {
+                foreach (var item in FindItems(component, SensitivityConfig.GetParameterName(channel), MenuEntryKind.Radial))
+                {
+                    targets.Add((item, MenuIcons.For(channel)));
+                }
+            }
+
+            var root = FindRoot(component);
+            if (root != null)
+            {
+                targets.Add((root.GetComponent<ModularAvatarMenuItem>(), MenuIcon.FaceTrackingMenu));
+                AddOwnSubMenu(targets, root, FindContainer(component, SettingsParameters()), MenuIcon.Settings);
+                AddOwnSubMenu(targets, root, FindContainer(component, SensitivityParameters()), MenuIcon.Sensitivity);
+            }
+
+            return targets.Where(target => target.Item1 != null && target.Item1.Control != null && target.Item1.Control.icon == null);
+        }
+
+        private static void AddOwnSubMenu(
+            List<(ModularAvatarMenuItem, MenuIcon)> targets,
+            GameObject root,
+            Transform container,
+            MenuIcon icon)
+        {
+            if (container == null || container.parent != root.transform)
+            {
+                return;
+            }
+
+            var item = container.GetComponent<ModularAvatarMenuItem>();
+            if (item != null && item.Control != null && item.Control.type == VRCExpressionsMenu.Control.ControlType.SubMenu)
+            {
+                targets.Add((item, icon));
+            }
         }
 
         private static bool IsCorrection(NativeFTToggle toggle)
