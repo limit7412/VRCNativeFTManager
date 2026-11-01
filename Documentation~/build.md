@@ -18,6 +18,7 @@ English: [build.en.md](build.en.md)
   - 対象のシェイプがSetに無い規則は作らない（KxNFTM-I-01）。Custom式の命令数がアバター全体の上限2048を超えるときは、優先度の低い規則から落とす（KxNFTM-W-12）
 - FaceEmoの抑制を有効にしたときは、FaceEmoと追加で書き込むパラメーターを制御するFXレイヤーを作り、「取り除くFXレイヤー」に挙げたレイヤーをFXから取り除く
 - DescriptorのFace Trackingを有効にする。Use All Tracking KeysとViseme Dampenは、インスペクタの「Descriptorの設定」に従って書く
+- Setに目（EyeLook・EyeClosed）のキーがあるのに、DescriptorのEye LookがそれをFTで使わない設定なら、Eye LookをFT向けにする（KxNFTM-I-07）。Eye Gaze ModeがBone Rotationで目のボーンが割り当てられていなければFace Trackingに、Eyelids TypeがNoneかBlendshapesならFace Trackingにし、Eye Lookが無効なら有効にする。目のボーンがあるときのEye Gaze Modeと、Eyelids TypeのBonesは変えない。インスペクタにも警告（KxNFTM-W-21）が出て、ボタンでシーンのDescriptorを同じ値にできる
 
 ## 感度の仕組み
 

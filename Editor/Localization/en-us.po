@@ -762,3 +762,21 @@ msgstr "[KxNFTM-I-06] Built a Blendshapes Set from the mesh shapes"
 
 msgid "diag.I-06:description"
 msgstr "The Descriptor has no Set and the avatar has no Kx VRC ARKit BlendShape Generator component, so a Set that assigns ARKit- or UE-named shapes of the Face Tracking Meshes (or the lip sync mesh when that list is empty) to {0} keys was built on the build copy with the mapping table of the Generator in the project. The Descriptor in the scene is not changed."
+
+msgid "diag.I-07"
+msgstr "[KxNFTM-I-07] Eye settings were switched to face tracking"
+
+msgid "diag.I-07:description"
+msgstr "The Blendshapes Sets assign eye keys (EyeLook, EyeClosed), but Eye Look on the Descriptor is set up not to drive them with face tracking, so gaze and blinking would not move. The build copy was changed as follows ({0}). Eye Gaze Mode is kept when eye bones are assigned, and Eyelids Type is kept when it is Bones. The Descriptor in the scene is not changed."
+
+msgid "diag.W-21"
+msgstr "[KxNFTM-W-21] Eye Look does not use eye face tracking"
+
+msgid "diag.W-21:description"
+msgstr "The Blendshapes Sets assign eye keys (EyeLook, EyeClosed), but Eye Look on the Descriptor is set up not to drive them with face tracking, so gaze and blinking would not move. At build time the build copy is changed as follows ({0}). The button below applies the same values to the Descriptor in the scene."
+
+msgid "inspector.eye_look.apply"
+msgstr "Set Eye Look on the Descriptor up for face tracking"
+
+msgid "inspector.undo.eye_look"
+msgstr "Set Eye Look up for face tracking"

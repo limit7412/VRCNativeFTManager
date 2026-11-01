@@ -36,6 +36,12 @@ namespace NativeFTManager.UseCase
 
             /// <summary>ヒエラルキーから読んだメニュー。ビルド時にメニューを作るコンポーネントではnull</summary>
             public MenuHierarchy Menu;
+
+            /// <summary>アバターのDescriptor</summary>
+            public VRCAvatarDescriptor Descriptor;
+
+            /// <summary>Eye LookをFT向けに直す内容（W-21）。直す必要が無ければnull</summary>
+            public EyeLookCorrection EyeLookCorrection;
         }
 
         public static Report Inspect(NativeFTManagerComponent component)
@@ -70,6 +76,16 @@ namespace NativeFTManager.UseCase
                     report.Diagnostics.Add(
                         new Diagnostic(DiagnosticCodes.SetMappedFromShapes, mapped.Set.AssignedKeyCount));
                 }
+            }
+
+            // ビルドと同じ判定で、Eye LookがFTの目を使わない設定なら知らせる（W-21）。
+            // ビルド時は複製で直す（I-07）。インスペクタのボタンでシーンのDescriptorも直せる
+            report.Descriptor = descriptor;
+            report.EyeLookCorrection = EyeLookSetup.Plan(FaceTrackingDescriptorAccess.ReadEyeLookSettings(descriptor), sets);
+            if (report.EyeLookCorrection != null)
+            {
+                report.Diagnostics.Add(
+                    new Diagnostic(DiagnosticCodes.EyeLookNotFaceTracking, EyeLookSetup.Describe(report.EyeLookCorrection)));
             }
 
             report.SetCount = sets.Count;

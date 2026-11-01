@@ -35,6 +35,7 @@ Manual installation from the zip, the booth version (unitypackage), and how upda
    - If the avatar has Kx VRC ARKit BlendShape Generator, the Generator's Set output is enabled during the build only
    - Otherwise, prepare the Blendshapes Sets on the Descriptor with Auto Fill or by hand
    - When the Descriptor has no Set and the avatar has no Generator component, the mapping table of the Generator in the project (0.2.2 or later) builds a Set during the build from the ARKit- or UE-named shapes of the Face Tracking Meshes (or the lip sync mesh when that list is empty) (information KxNFTM-I-06). Avatars that already have ARKit shapes do not need Auto Fill
+   - When Eye Look on the Descriptor is set up not to use eye face tracking (Eye Gaze Mode is Bone Rotation without eye bones, Eyelids Type is Blendshapes, and so on), it is set up for face tracking during the build (information KxNFTM-I-07). The button under the inspector warning (KxNFTM-W-21) fixes the Descriptor in the scene as well
 2. If needed, change individual settings in the inspector and the Menu Items in the hierarchy as described in "Settings" below
 3. Upload. Use "Face Tracking" in the Expressions Menu to switch Face Tracking, Eye Tracking, Lip Tracking, Pupil and Visemes. The corrections (Emulation, Limits, Eye Sync) are in "Settings" below it. The labels are in English whatever the editor language, and can be changed freely
 

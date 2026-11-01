@@ -762,3 +762,21 @@ msgstr "[KxNFTM-I-06] メッシュのシェイプからBlendshapes Setを作り�
 
 msgid "diag.I-06:description"
 msgstr "DescriptorにSetが無く、アバターにKx VRC ARKit BlendShape Generatorのコンポーネントも無いため、プロジェクトのGeneratorの対応表で、Face Tracking Meshes（空ならリップシンクのメッシュ）にあるARKit名・UE名のシェイプを{0}個のキーへ割り当てたSetをビルド用の複製に作りました。シーンのDescriptorは変わりません。"
+
+msgid "diag.I-07"
+msgstr "[KxNFTM-I-07] 目の設定をフェイストラッキング向けにしました"
+
+msgid "diag.I-07:description"
+msgstr "Blendshapes Setに目（EyeLook・EyeClosed）のキーがありますが、DescriptorのEye Lookがそれをフェイストラッキングで使わない設定です。このままでは視線やまばたきが動かないので、ビルド用の複製で次のように変えました（{0}）。目のボーンが割り当てられていればEye Gaze Modeは変えず、Eyelids TypeがBonesなら変えません。シーンのDescriptorは変わりません。"
+
+msgid "diag.W-21"
+msgstr "[KxNFTM-W-21] Eye Lookが目のフェイストラッキングを使わない設定です"
+
+msgid "diag.W-21:description"
+msgstr "Blendshapes Setに目（EyeLook・EyeClosed）のキーがありますが、DescriptorのEye Lookがそれをフェイストラッキングで使わない設定なので、このままでは視線やまばたきが動きません。ビルド時にはビルド用の複製で次のように変えます（{0}）。下のボタンで、シーンのDescriptorも同じ値にできます。"
+
+msgid "inspector.eye_look.apply"
+msgstr "DescriptorのEye Lookをフェイストラッキング向けにする"
+
+msgid "inspector.undo.eye_look"
+msgstr "Eye Lookをフェイストラッキング向けにする"
