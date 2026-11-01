@@ -304,11 +304,21 @@ jobs:
           echo "両方のzipを確認しました"
           ls -la "$OUT"
 
+  # Generatorを入れた構成と、入れない構成の両方で回す。
+  # booth版はVPMの依存解決を通らないので、同梱したGeneratorのunitypackageを取り込み忘れることがある。
+  # そのときもEditorアセンブリがコンパイルでき、W-20を出して動くことを確かめる（仕様書10.1）。
+  # 既存の構成のジョブ名は「EditMode tests」のまま変えない。required status checkの名前を保つため。
+  # Personalのアカウント認証を同時に2つ取らないよう、1つずつ順に回す
   test:
-    name: EditMode tests
+    name: ${{ matrix.generator && 'EditMode tests' || 'EditMode tests (without Generator)' }}
     needs: [license, changes]
     if: needs.license.outputs.available == 'true' && needs.changes.outputs.relevant == 'true'
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        generator: [true, false]
     steps:
       - name: Checkout package
         uses: actions/checkout@v7
@@ -381,6 +391,8 @@ jobs:
 
       - name: Resolve VPM dependencies
         working-directory: TestProject
+        env:
+          WITH_GENERATOR: ${{ matrix.generator }}
         run: |
           # NDMF・Modular AvatarとAAOのVPMリポジトリを登録する（VRChat公式・curatedはvrc-getが既定で持つが、
           # AAOはcuratedには無く anatawa12 のリポジトリからしか引けない）。
@@ -397,18 +409,21 @@ jobs:
           # AAOの版で切り替わる警告（W-14、W-15）は、asmdefのversionDefinesで立つdefineで分岐する。
           # AAOが入った構成でもコンパイルを確かめるため、ここで入れる。
           vrc-get install com.anatawa12.avatar-optimizer --yes
-          # Generatorは必須の依存で、EditorアセンブリがGeneratorのRuntimeアセンブリを参照する。
-          # SDKと同じく、下限の版でコンパイルできることを確かめるため版を固定する
-          vrc-get install com.qazx7412.kx-vrc-arkit-blendshape-generator "$GENERATOR_VERSION" --yes
+          # Generatorは必須の依存だが、Editorアセンブリはリフレクションで引くので無くてもコンパイルできる。
+          # 入れる構成では、SDKと同じく下限の版で連携できることを確かめるため版を固定する
+          if [ "$WITH_GENERATOR" = "true" ]; then
+            vrc-get install com.qazx7412.kx-vrc-arkit-blendshape-generator "$GENERATOR_VERSION" --yes
+          fi
           cat Packages/vpm-manifest.json
 
       - name: Cache Library
         uses: actions/cache@v6
         with:
           path: TestProject/Library
-          key: Library-${{ env.UNITY_VERSION }}-${{ hashFiles('TestProject/Packages/vpm-manifest.json') }}
+          # Generatorの有無で構成を分ける。前方一致の復元で、もう一方の構成のLibraryを拾わないため
+          key: Library-${{ env.UNITY_VERSION }}-generator-${{ matrix.generator }}-${{ hashFiles('TestProject/Packages/vpm-manifest.json') }}
           restore-keys: |
-            Library-${{ env.UNITY_VERSION }}-
+            Library-${{ env.UNITY_VERSION }}-generator-${{ matrix.generator }}-
 
       # game-ci CLIは、テストでもバージョン決定のためにprojectPathを作業ディレクトリとして
       # gitを呼ぶ。TestProjectはこのジョブで組み立てた素のディレクトリなので、そのままだと
@@ -451,12 +466,12 @@ jobs:
           testMode: editmode
           artifactsPath: artifacts
           githubToken: ${{ secrets.GITHUB_TOKEN }}
-          checkName: EditMode Test Results
+          checkName: ${{ matrix.generator && 'EditMode Test Results' || 'EditMode Test Results (without Generator)' }}
 
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: editmode-test-results
+          name: ${{ matrix.generator && 'editmode-test-results' || 'editmode-test-results-without-generator' }}
           path: artifacts
           if-no-files-found: warn

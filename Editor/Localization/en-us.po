@@ -146,6 +146,9 @@ msgstr "ARKit BlendShape Generator"
 msgid "inspector.status.generator_none"
 msgstr "Not found"
 
+msgid "inspector.status.generator_not_installed"
+msgstr "Not installed"
+
 msgid "inspector.status.generator_present"
 msgstr "Found (Blendshapes Set output is off)"
 
@@ -759,3 +762,9 @@ msgstr "[KxNFTM-W-19] A toggle Menu Item does not have the value 1"
 
 msgid "diag.W-19:description"
 msgstr "The toggle Menu Items that point to \"{0}\" were not read, because their value is not 1 or because several items for the same parameter use the automatic value. The toggles of this tool are Bool, so set the value to 1. The automatic value can be used only when the parameter has a single item."
+
+msgid "diag.W-20"
+msgstr "[KxNFTM-W-20] ARKit BlendShape Generator is not installed in the project"
+
+msgid "diag.W-20:description"
+msgstr "Kx VRC ARKit BlendShape Generator was not found in the project, or it is an old version without the features this tool needs. The integration with the Generator is skipped, and only the existing Sets on the Descriptor are split. \"Use Generator Component\" has no effect, so it is grayed out. For the booth version, also import the VRCARKitBlendShapeGenerator unitypackage included in the zip. For the VCC version, resolve the project dependencies again in VCC."

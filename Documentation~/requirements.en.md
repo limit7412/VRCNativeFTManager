@@ -19,8 +19,14 @@ Kx VRC ARKit BlendShape Generator, which this package depends on, is supported f
 ## Kx VRC ARKit BlendShape Generator
 
 The Generator is a required dependency.
-This package uses the Generator's types directly, so it does not compile in a project without the Generator.
 The booth zip contains the unitypackages of both this package and the Generator (see [Installation and updates](install.md), Japanese).
+
+The booth version does not go through the dependency resolution of VCC/ALCOM, so the Generator unitypackage may be left unimported.
+This package looks up the Generator's types by reflection, so it still compiles and works in a project without the Generator.
+In that case, it shows a warning (KxNFTM-W-20), grays out "Use Generator Component" in the inspector, and splits only the Blendshapes Sets on the Descriptor.
+The Generator row of the status shows "Not installed".
+Once the Generator is imported, the integration works with the same settings.
+An old Generator that lacks the field needed for the integration is treated as not installed.
 
 Whether to use the Generator is up to each avatar.
 If the avatar has no Generator component, the integration does nothing and the Blendshapes Sets on the Descriptor are used as they are.

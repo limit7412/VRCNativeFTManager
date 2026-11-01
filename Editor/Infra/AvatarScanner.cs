@@ -38,6 +38,8 @@ namespace NativeFTManager.Infra
                     && SuppressionTrigger.Build(suppression.trigger, toggles).IsNeverEngaged,
                 Preset = component.preset,
                 UseGeneratorComponent = component.useGeneratorComponent,
+                // Generatorの導入漏れ（W-20）はアバターの外に置いたときも知らせる
+                Generator = GeneratorAccess.IsInstalled ? GeneratorPresence.None : GeneratorPresence.NotInstalled,
                 SetUseAllTrackingKeys = component.setUseAllTrackingKeys,
                 DescriptorUseAllTrackingKeys = FaceTrackingDescriptorAccess.GetUseAllTrackingKeys(descriptor),
                 EyeLookAngles = FaceTrackingDescriptorAccess.GetEyeLookAngles(descriptor),

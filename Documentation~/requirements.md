@@ -19,8 +19,14 @@ English: [requirements.en.md](requirements.en.md)
 ## Kx VRC ARKit BlendShape Generator
 
 Generatorは本製品の必須の依存です。
-本製品はGeneratorの型を直接使うので、Generatorが入っていないプロジェクトではコンパイルが通りません。
 booth版のzipには、本製品とGeneratorのunitypackageが入っています（[インストールと更新](install.md)）。
+
+booth版はVCC/ALCOMの依存解決を通らないので、Generatorのunitypackageを取り込み忘れることがあります。
+本製品はGeneratorの型をリフレクションで引くので、Generatorが入っていないプロジェクトでもコンパイルが通り、動きます。
+そのときは警告（KxNFTM-W-20）を出し、インスペクタの「Generatorコンポーネントを使う」をグレーアウトして、DescriptorにあるBlendshapes Setだけを分割します。
+状態表示のGeneratorの欄は「未導入」になります。
+Generatorを取り込むと、設定はそのままで連携が有効になります。
+連携に必要なフィールドを持たない古い版のGeneratorも、入っていないものとして扱います。
 
 Generatorを使うかどうかはアバターごとに決められます。
 アバターにGeneratorのコンポーネントが無ければ連携は何もせず、DescriptorのBlendshapes Setをそのまま使います。

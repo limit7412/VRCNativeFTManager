@@ -13,6 +13,12 @@ namespace NativeFTManager.Domain
 
         /// <summary>ある</summary>
         Present,
+
+        /// <summary>
+        /// Generatorがプロジェクトに導入されていない（または連携に使えない古い版）。
+        /// アバターにコンポーネントがあっても型を解決できないので、有無は分からない
+        /// </summary>
+        NotInstalled,
     }
 
     /// <summary>
@@ -123,6 +129,9 @@ namespace NativeFTManager.Domain
                         diagnostics.Add(new Diagnostic(DiagnosticCodes.GeneratorMissing));
                     }
 
+                    break;
+                case GeneratorPresence.NotInstalled:
+                    diagnostics.Add(new Diagnostic(DiagnosticCodes.GeneratorNotInstalled));
                     break;
                 case GeneratorPresence.Present:
                     if (!facts.UseGeneratorComponent && !facts.GeneratorSetWriteEnabled)
