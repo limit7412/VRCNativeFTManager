@@ -718,46 +718,6 @@ msgstr "Keeps the Radial value across worlds."
 msgid "inspector.sensitivity.description"
 msgstr "The center of the Radial (the default) is 1x, and the strength changes in 8 steps: 0.2x to 0.8x on the left, and 1x up to the max multiplier on the right. Turning a group off with its toggle stops it regardless of the sensitivity."
 
-# Menu in the hierarchy (MA Menu Items)
-msgid "menu.label.root"
-msgstr "Face Tracking"
-
-msgid "menu.label.face_tracking"
-msgstr "Face Tracking"
-
-msgid "menu.label.eye_tracking"
-msgstr "Eye Tracking"
-
-msgid "menu.label.lip_tracking"
-msgstr "Lip Tracking"
-
-msgid "menu.label.pupil"
-msgstr "Pupil"
-
-msgid "menu.label.visemes"
-msgstr "Visemes"
-
-msgid "menu.label.emulation"
-msgstr "Emulation"
-
-msgid "menu.label.limits"
-msgstr "Limits"
-
-msgid "menu.label.eye_sync"
-msgstr "Eye Sync"
-
-msgid "menu.label.settings"
-msgstr "Settings"
-
-msgid "menu.label.sensitivity"
-msgstr "Sensitivity"
-
-msgid "menu.label.sensitivity_eye"
-msgstr "Eye"
-
-msgid "menu.label.sensitivity_lip"
-msgstr "Lip"
-
 msgid "inspector.menu.generated"
 msgstr "The Expressions Menu is generated at build time (the form used up to 0.1.0-test8). The toggles keep the values stored in the component and cannot be changed here. The button below places the menu in the hierarchy as MA Menu Items, so that it can be reordered, renamed, given icons, and moved to another submenu there."
 
@@ -768,7 +728,7 @@ msgid "inspector.menu.hierarchy"
 msgstr "The Expressions Menu is edited with the MA Menu Items in the hierarchy. Which toggles are in the menu, and their default and saved settings, are read from the Default and Saved settings of the Menu Items. A toggle whose Menu Item is deleted is left out of the menu and keeps the default value stored in the component."
 
 msgid "inspector.menu.fill_icons"
-msgstr "Fill empty icons with the defaults"
+msgstr "Fill empty icons and restore the default English names"
 
 msgid "inspector.menu.mixed_modes"
 msgstr "The selected components make their menus in different ways. Select them one at a time to edit the toggles."

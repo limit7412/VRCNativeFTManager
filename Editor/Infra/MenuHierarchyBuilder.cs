@@ -6,7 +6,6 @@ using UnityEngine;
 using VRC.SDK3.Avatars.ScriptableObjects;
 using nadena.dev.modular_avatar.core;
 using NativeFTManager.Domain;
-using static NativeFTManager.Localization;
 
 namespace NativeFTManager.Infra
 {
@@ -23,12 +22,12 @@ namespace NativeFTManager.Infra
     ///   └ Settings      （SubMenu。Emulation / Limits / Eye Sync）
     /// </code>
     /// オブジェクト名はエディタの言語によらず英語にする（ビルド時に作る形のメニュー名と同じ）。
-    /// 表示名は作った時点のエディタの言語で書き、英語と違うときだけMenu Itemのlabelへ書く。
-    /// 英語のときはlabelを空にし、MAがオブジェクト名をそのまま表示名に使う。後から言語を変えても書き直さない。
+    /// Menu Itemのlabelは空のままにし、MAがオブジェクト名をそのまま表示名に使う。そのため表示名も英語になる。
     /// 既存の項目はオブジェクト名ではなく、コンポーネントと参照するパラメーターで探す。
-    /// そのため0.1.0-test11までに日本語のオブジェクト名で作った階層も、そのまま読み書きできる。
+    /// そのため0.1.0-test12までに日本語のオブジェクト名で作った階層も、そのまま読み書きできる。
     /// 作る項目には同梱の既定アイコンを付ける。展開では、アイコンが空の既存項目にだけ既定アイコンを入れ、
-    /// 利用者が設定したアイコンは変えない
+    /// 利用者が設定したアイコンは変えない。
+    /// 古い版が日本語で書いた表示名は、本製品が書いた文字列と一致するものだけを英語に戻す（RestoreEnglishNames）
     /// 操作はすべてUndoに記録する
     /// </summary>
     internal static class MenuHierarchyBuilder
@@ -57,6 +56,7 @@ namespace NativeFTManager.Infra
             }
 
             FillMissingIcons(component, undoName);
+            RestoreEnglishNames(component, undoName);
             return root;
         }
 
@@ -98,10 +98,10 @@ namespace NativeFTManager.Infra
             string undoName)
         {
             var parent = MenuPlan.IsSetting(toggle)
-                ? FindOrCreateContainer(component, SettingsParameters(), MenuPlan.SettingsMenuName, "menu.label.settings", MenuIcon.Settings, undoName)
+                ? FindOrCreateContainer(component, SettingsParameters(), MenuPlan.SettingsMenuName, MenuIcon.Settings, undoName)
                 : FindContainer(component, MainParameters()) ?? FindOrCreateRoot(component, undoName).transform;
 
-            var item = CreateItem(parent, MenuPlan.GetLabel(toggle), GetLabelKey(toggle), undoName);
+            var item = CreateItem(parent, MenuPlan.GetLabel(toggle), undoName);
             item.Control = CreateControl(VRCExpressionsMenu.Control.ControlType.Toggle, MenuIcons.For(toggle));
             item.Control.parameter.name = ResolvedToggle.GetParameterName(toggle);
             item.Control.value = 1f;
@@ -135,8 +135,8 @@ namespace NativeFTManager.Infra
             bool saved,
             string undoName)
         {
-            var parent = FindOrCreateContainer(component, SensitivityParameters(), MenuPlan.SensitivityMenuName, "menu.label.sensitivity", MenuIcon.Sensitivity, undoName);
-            var item = CreateItem(parent, SensitivityConfig.GetLabel(channel), GetLabelKey(channel), undoName);
+            var parent = FindOrCreateContainer(component, SensitivityParameters(), MenuPlan.SensitivityMenuName, MenuIcon.Sensitivity, undoName);
+            var item = CreateItem(parent, SensitivityConfig.GetLabel(channel), undoName);
             item.Control = CreateControl(VRCExpressionsMenu.Control.ControlType.RadialPuppet, MenuIcons.For(channel));
             item.Control.subParameters = new[]
             {
@@ -150,36 +150,6 @@ namespace NativeFTManager.Infra
         public static void RemoveRadial(NativeFTManagerComponent component, SensitivityChannel channel, string undoName)
         {
             RemoveItems(component, SensitivityConfig.GetParameterName(channel), MenuEntryKind.Radial, undoName);
-        }
-
-        public static string GetLabelKey(NativeFTToggle toggle)
-        {
-            switch (toggle)
-            {
-                case NativeFTToggle.FaceTracking:
-                    return "menu.label.face_tracking";
-                case NativeFTToggle.EyeTracking:
-                    return "menu.label.eye_tracking";
-                case NativeFTToggle.LipTracking:
-                    return "menu.label.lip_tracking";
-                case NativeFTToggle.Pupil:
-                    return "menu.label.pupil";
-                case NativeFTToggle.Visemes:
-                    return "menu.label.visemes";
-                case NativeFTToggle.Emulation:
-                    return "menu.label.emulation";
-                case NativeFTToggle.Limits:
-                    return "menu.label.limits";
-                case NativeFTToggle.EyeSync:
-                    return "menu.label.eye_sync";
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(toggle), toggle, null);
-            }
-        }
-
-        public static string GetLabelKey(SensitivityChannel channel)
-        {
-            return channel == SensitivityChannel.Eye ? "menu.label.sensitivity_eye" : "menu.label.sensitivity_lip";
         }
 
         /// <summary>
@@ -267,7 +237,7 @@ namespace NativeFTManager.Infra
 
         private static GameObject CreateRoot(NativeFTManagerComponent component, string undoName)
         {
-            var item = CreateItem(component.transform, MenuPlan.SubMenuName, "menu.label.root", undoName, false);
+            var item = CreateItem(component.transform, MenuPlan.SubMenuName, undoName, false);
             item.Control = CreateControl(VRCExpressionsMenu.Control.ControlType.SubMenu, MenuIcon.FaceTrackingMenu);
             item.MenuSource = SubmenuSource.Children;
             item.gameObject.AddComponent<ModularAvatarMenuInstaller>();
@@ -299,7 +269,6 @@ namespace NativeFTManager.Infra
             NativeFTManagerComponent component,
             IEnumerable<(string, MenuEntryKind)> members,
             string objectName,
-            string labelKey,
             MenuIcon icon,
             string undoName)
         {
@@ -310,12 +279,12 @@ namespace NativeFTManager.Infra
             }
 
             var root = FindOrCreateRoot(component, undoName);
-            var item = CreateItem(root.transform, objectName, labelKey, undoName);
+            var item = CreateItem(root.transform, objectName, undoName);
             item.Control = CreateControl(VRCExpressionsMenu.Control.ControlType.SubMenu, icon);
             item.MenuSource = SubmenuSource.Children;
 
             // SensitivityはSettingsの前に置く（仕様書8.3の並び）
-            if (labelKey == "menu.label.sensitivity")
+            if (objectName == MenuPlan.SensitivityMenuName)
             {
                 var settings = FindContainer(component, SettingsParameters());
                 if (settings != null && settings.parent == root.transform)
@@ -328,12 +297,11 @@ namespace NativeFTManager.Infra
         }
 
         /// <summary>
-        /// Menu Itemのオブジェクトを作る。nameは英語のオブジェクト名、labelKeyは表示名の翻訳キー
+        /// Menu Itemのオブジェクトを作る。nameは英語のオブジェクト名で、そのまま表示名になる
         /// </summary>
         private static ModularAvatarMenuItem CreateItem(
             Transform parent,
             string name,
-            string labelKey,
             string undoName,
             bool register = true)
         {
@@ -347,22 +315,13 @@ namespace NativeFTManager.Infra
             item.isSaved = true;
             item.isDefault = false;
             item.automaticValue = false;
-            item.label = GetLabel(name, S(labelKey));
+            item.label = string.Empty;
             if (register)
             {
                 Undo.RegisterCreatedObjectUndo(gameObject, undoName);
             }
 
             return item;
-        }
-
-        /// <summary>
-        /// Menu Itemのlabelに書く値。表示名がオブジェクト名と同じなら空にして、オブジェクト名を表示名に使わせる。
-        /// 英語のエディタで作った項目は、これまでどおりオブジェクト名を変えるだけで表示名が変わる
-        /// </summary>
-        internal static string GetLabel(string objectName, string localizedLabel)
-        {
-            return string.IsNullOrEmpty(localizedLabel) || localizedLabel == objectName ? string.Empty : localizedLabel;
         }
 
         private static VRCExpressionsMenu.Control CreateControl(VRCExpressionsMenu.Control.ControlType type, MenuIcon icon)
@@ -433,33 +392,84 @@ namespace NativeFTManager.Infra
         /// </summary>
         public static void FillMissingIcons(NativeFTManagerComponent component, string undoName)
         {
-            foreach (var (item, icon) in FindMissingIcons(component).ToList())
+            foreach (var own in FindOwnItems(component))
             {
-                var texture = MenuIconAssets.Load(icon);
+                if (own.Item.Control.icon != null)
+                {
+                    continue;
+                }
+
+                var texture = MenuIconAssets.Load(own.Icon);
                 if (texture == null)
                 {
                     continue;
                 }
 
-                Undo.RecordObject(item, undoName);
-                item.Control.icon = texture;
-                PrefabUtility.RecordPrefabInstancePropertyModifications(item);
+                Undo.RecordObject(own.Item, undoName);
+                own.Item.Control.icon = texture;
+                PrefabUtility.RecordPrefabInstancePropertyModifications(own.Item);
             }
         }
 
         /// <summary>
-        /// アイコンが空の項目と、入れる既定アイコン。対象は公開パラメーターを指すトグルとRadial、メニューの根、
+        /// 0.1.0-test15までの版が日本語のエディタで書いた表示名を英語に戻す（仕様書8.3）。
+        /// labelが本製品の書いた日本語と一致すれば空にし、オブジェクト名（英語）を表示名に使わせる。
+        /// labelが空で、オブジェクト名が0.1.0-test12までの日本語名のままなら、オブジェクト名を英語にする。
+        /// 利用者が付けた別の名前は一致しないので変えない
+        /// </summary>
+        public static void RestoreEnglishNames(NativeFTManagerComponent component, string undoName)
+        {
+            foreach (var own in FindOwnItems(component))
+            {
+                if (own.Item.label == own.LegacyJapaneseName)
+                {
+                    Undo.RecordObject(own.Item, undoName);
+                    own.Item.label = string.Empty;
+                    PrefabUtility.RecordPrefabInstancePropertyModifications(own.Item);
+                }
+
+                var gameObject = own.Item.gameObject;
+                if (string.IsNullOrEmpty(own.Item.label) && gameObject.name == own.LegacyJapaneseName)
+                {
+                    Undo.RecordObject(gameObject, undoName);
+                    gameObject.name = own.EnglishName;
+                    PrefabUtility.RecordPrefabInstancePropertyModifications(gameObject);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 本製品が作ったとみなす項目と、その既定アイコン、英語名、古い版が日本語のエディタで付けた名前
+        /// </summary>
+        private readonly struct OwnItem
+        {
+            public readonly ModularAvatarMenuItem Item;
+            public readonly MenuIcon Icon;
+            public readonly string EnglishName;
+            public readonly string LegacyJapaneseName;
+
+            public OwnItem(ModularAvatarMenuItem item, MenuIcon icon, string englishName, string legacyJapaneseName)
+            {
+                Item = item;
+                Icon = icon;
+                EnglishName = englishName;
+                LegacyJapaneseName = legacyJapaneseName;
+            }
+        }
+
+        /// <summary>
+        /// 本製品が作ったとみなす項目。対象は公開パラメーターを指すトグルとRadial、メニューの根、
         /// 根の直下にあるSettingsとSensitivityのサブメニュー。
         /// 利用者が項目を自分のサブメニューへ移した場合、そのサブメニューは本製品のものと限らないので含めない
         /// </summary>
-        private static IEnumerable<(ModularAvatarMenuItem, MenuIcon)> FindMissingIcons(NativeFTManagerComponent component)
+        private static List<OwnItem> FindOwnItems(NativeFTManagerComponent component)
         {
-            var targets = new List<(ModularAvatarMenuItem, MenuIcon)>();
+            var targets = new List<OwnItem>();
             foreach (NativeFTToggle toggle in Enum.GetValues(typeof(NativeFTToggle)))
             {
                 foreach (var item in FindItems(component, ResolvedToggle.GetParameterName(toggle), MenuEntryKind.Toggle))
                 {
-                    targets.Add((item, MenuIcons.For(toggle)));
+                    targets.Add(new OwnItem(item, MenuIcons.For(toggle), MenuPlan.GetLabel(toggle), LegacyJapaneseName(toggle)));
                 }
             }
 
@@ -467,44 +477,73 @@ namespace NativeFTManager.Infra
             {
                 foreach (var item in FindItems(component, SensitivityConfig.GetParameterName(channel), MenuEntryKind.Radial))
                 {
-                    targets.Add((item, MenuIcons.For(channel)));
+                    targets.Add(new OwnItem(
+                        item,
+                        MenuIcons.For(channel),
+                        SensitivityConfig.GetLabel(channel),
+                        channel == SensitivityChannel.Eye ? "目" : "口"));
                 }
             }
 
             var root = FindRoot(component);
             if (root != null)
             {
-                targets.Add((root.GetComponent<ModularAvatarMenuItem>(), MenuIcon.FaceTrackingMenu));
-                AddOwnSubMenu(targets, root, FindContainer(component, SettingsParameters()), SettingsObjectNames, MenuIcon.Settings);
-                AddOwnSubMenu(targets, root, FindContainer(component, SensitivityParameters()), SensitivityObjectNames, MenuIcon.Sensitivity);
+                targets.Add(new OwnItem(
+                    root.GetComponent<ModularAvatarMenuItem>(), MenuIcon.FaceTrackingMenu, MenuPlan.SubMenuName, "フェイストラッキング"));
+                AddOwnSubMenu(
+                    targets, root, FindContainer(component, SettingsParameters()), MenuIcon.Settings, MenuPlan.SettingsMenuName, "設定");
+                AddOwnSubMenu(
+                    targets, root, FindContainer(component, SensitivityParameters()), MenuIcon.Sensitivity, MenuPlan.SensitivityMenuName, "感度");
             }
 
-            return targets.Where(target => target.Item1 != null && target.Item1.Control != null && target.Item1.Control.icon == null);
+            return targets.Where(target => target.Item != null && target.Item.Control != null).ToList();
         }
 
         /// <summary>
-        /// 本製品が作ったSettingsのサブメニューのオブジェクト名。0.1.0-test11までは日本語のエディタで「設定」と名付けていた
+        /// 0.1.0-test15までの版が日本語のエディタで付けたトグルの名前。
+        /// test12まではオブジェクト名に、test13からtest15まではlabelに書いた。翻訳ファイルが変わっても、書いた文字列は変わらないので固定で持つ
         /// </summary>
-        private static readonly string[] SettingsObjectNames = { MenuPlan.SettingsMenuName, "設定" };
+        private static string LegacyJapaneseName(NativeFTToggle toggle)
+        {
+            switch (toggle)
+            {
+                case NativeFTToggle.FaceTracking:
+                    return "フェイストラッキング";
+                case NativeFTToggle.EyeTracking:
+                    return "目のトラッキング";
+                case NativeFTToggle.LipTracking:
+                    return "口のトラッキング";
+                case NativeFTToggle.Pupil:
+                    return "瞳孔";
+                case NativeFTToggle.Visemes:
+                    return "ビゼーム";
+                case NativeFTToggle.Emulation:
+                    return "エミュレーション";
+                case NativeFTToggle.Limits:
+                    return "制限";
+                case NativeFTToggle.EyeSync:
+                    return "両目の連動";
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(toggle), toggle, null);
+            }
+        }
 
         /// <summary>
-        /// 本製品が作ったSensitivityのサブメニューのオブジェクト名。0.1.0-test11までは日本語のエディタで「感度」と名付けていた
-        /// </summary>
-        private static readonly string[] SensitivityObjectNames = { MenuPlan.SensitivityMenuName, "感度" };
-
-        /// <summary>
-        /// 本製品が作ったサブメニューだけを補完の対象に加える。根の直下にあり、作ったときのオブジェクト名のままのものを本製品のものとみなす。
+        /// 本製品が作ったサブメニューだけを対象に加える。根の直下にあり、作ったときのオブジェクト名
+        /// （英語名か、0.1.0-test12までの日本語名）のままのものを本製品のものとみなす。
         /// 利用者が根の直下に作った別名のサブメニューへ項目を移した場合は、そのサブメニューを含めない。
         /// 本製品のサブメニューを利用者が改名した場合も含めないが、アイコンが付かないだけで済むので、取り違えるよりよい
         /// </summary>
         private static void AddOwnSubMenu(
-            List<(ModularAvatarMenuItem, MenuIcon)> targets,
+            List<OwnItem> targets,
             GameObject root,
             Transform container,
-            string[] objectNames,
-            MenuIcon icon)
+            MenuIcon icon,
+            string englishName,
+            string legacyJapaneseName)
         {
-            if (container == null || container.parent != root.transform || !objectNames.Contains(container.name))
+            if (container == null || container.parent != root.transform
+                || (container.name != englishName && container.name != legacyJapaneseName))
             {
                 return;
             }
@@ -512,7 +551,7 @@ namespace NativeFTManager.Infra
             var item = container.GetComponent<ModularAvatarMenuItem>();
             if (item != null && item.Control != null && item.Control.type == VRCExpressionsMenu.Control.ControlType.SubMenu)
             {
-                targets.Add((item, icon));
+                targets.Add(new OwnItem(item, icon, englishName, legacyJapaneseName));
             }
         }
 

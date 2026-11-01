@@ -629,13 +629,15 @@ namespace NativeFTManager.Presentation
         {
             EditorGUILayout.HelpBox(S("inspector.menu.hierarchy"), MessageType.Info);
 
-            // 0.1.0-test12までに展開した階層はアイコンが空なので、既定アイコンを後から入れられるようにする（仕様書8.3）
+            // 0.1.0-test14までに展開した階層はアイコンが空で、test15までに日本語のエディタで展開した階層は表示名が日本語なので、
+            // 後から既定アイコンを入れ、表示名を英語に戻せるようにする（仕様書8.3）
             if (GUILayout.Button(S("inspector.menu.fill_icons")))
             {
                 var undoName = S("inspector.undo.menu_item");
                 foreach (var component in targets.OfType<NativeFTManagerComponent>())
                 {
                     MenuHierarchyBuilder.FillMissingIcons(component, undoName);
+                    MenuHierarchyBuilder.RestoreEnglishNames(component, undoName);
                 }
             }
 
