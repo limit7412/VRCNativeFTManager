@@ -45,11 +45,15 @@ namespace NativeFTManager.Domain
             var main = toggles.Dynamic.Where(toggle => !IsSetting(toggle.Toggle));
             var settings = toggles.Dynamic.Where(toggle => IsSetting(toggle.Toggle));
             return new MenuPlan(
-                main.Select(toggle => new MenuTogglePlan(GetLabel(toggle.Toggle), toggle.ParameterName)).ToArray(),
-                settings.Select(toggle => new MenuTogglePlan(GetLabel(toggle.Toggle), toggle.ParameterName)).ToArray(),
+                main.Select(toggle => new MenuTogglePlan(
+                    GetLabel(toggle.Toggle), toggle.ParameterName, MenuIcons.For(toggle.Toggle))).ToArray(),
+                settings.Select(toggle => new MenuTogglePlan(
+                    GetLabel(toggle.Toggle), toggle.ParameterName, MenuIcons.For(toggle.Toggle))).ToArray(),
                 toggles.Sensitivity.Channels
                     .Select(channel => new MenuTogglePlan(
-                        SensitivityConfig.GetLabel(channel), SensitivityConfig.GetParameterName(channel)))
+                        SensitivityConfig.GetLabel(channel),
+                        SensitivityConfig.GetParameterName(channel),
+                        MenuIcons.For(channel)))
                     .ToArray());
         }
 
@@ -89,14 +93,18 @@ namespace NativeFTManager.Domain
 
     internal sealed class MenuTogglePlan
     {
-        public MenuTogglePlan(string label, string parameter)
+        public MenuTogglePlan(string label, string parameter, MenuIcon icon = MenuIcon.None)
         {
             Label = label;
             Parameter = parameter;
+            Icon = icon;
         }
 
         public string Label { get; }
 
         public string Parameter { get; }
+
+        /// <summary>既定のアイコン</summary>
+        public MenuIcon Icon { get; }
     }
 }

@@ -628,6 +628,17 @@ namespace NativeFTManager.Presentation
         private void DrawHierarchyToggles()
         {
             EditorGUILayout.HelpBox(S("inspector.menu.hierarchy"), MessageType.Info);
+
+            // 0.1.0-test12までに展開した階層はアイコンが空なので、既定アイコンを後から入れられるようにする（仕様書8.3）
+            if (GUILayout.Button(S("inspector.menu.fill_icons")))
+            {
+                var undoName = S("inspector.undo.menu_item");
+                foreach (var component in targets.OfType<NativeFTManagerComponent>())
+                {
+                    MenuHierarchyBuilder.FillMissingIcons(component, undoName);
+                }
+            }
+
             if (serializedObject.isEditingMultipleObjects || _report == null || _report.Menu == null)
             {
                 return;
