@@ -60,6 +60,9 @@ RETIRED_GUIDS = {
     "e8d5dfcd80ff44fa9b0a82e54cfaeca6": "Editor/AAOCompat",
     "ba265dcdee7e4601a8e739b02f72622e": "Editor/AAOCompat/AssemblyInfo.cs",
     "a9c9e107d0b64b6baa638d86fc62866c": "Editor/AAOCompat/NativeFTManager.Editor.AAOCompat.asmdef",
+    # プリセット（UE / ARKit / Minimal / Custom）の中身を持っていたクラス。0.1.0-test系でプリセットを廃止した（ユーザー指示）。
+    # MonoBehaviourではなく、アセットからの参照は持たれない
+    "af21df29b00a4efdb5bbf3a8466f48fd": "Runtime/Settings/NativeFTPresets.cs",
 }
 
 PACKAGE_NAME = "com.qazx7412.kx-vrc-native-ft-manager"

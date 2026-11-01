@@ -31,10 +31,11 @@ zipからの手動インストールとbooth版（unitypackage）の手順、お
 ## 使い方
 
 1. ヒエラルキーでアバターを右クリックし、「Kx VRC NativeFT Manager」の `Kx NativeFT Manager` を選ぶ。アバター直下に、コンポーネントを付けたオブジェクトができ、その子にEXメニューの「Face Tracking」（MA Menu InstallerとMA Menu Itemの階層）ができる。既存のオブジェクト（アバタールートを含む）へ「Add Component」でコンポーネントを付けてもよいが、その場合のメニューはビルド時に作られる（下の「EXメニュー」）
-   - アバターにKx VRC ARKit BlendShape Generatorがあれば、プリセットはARKitになる。GeneratorのSet書き込みはビルド中だけ有効になる
-   - Generatorが無ければ、プリセットはUEになる。DescriptorのBlendshapes Setは、オートフィルか手入力で用意しておく
+   - トグルはすべてメニューに出し、表情補正（エミュレーション・制限・Eye Sync）はすべて作る設定で始まる（下の「既定の設定」）
+   - アバターにKx VRC ARKit BlendShape Generatorがあれば、GeneratorのSet書き込みはビルド中だけ有効になる
+   - Generatorが無ければ、DescriptorのBlendshapes Setは、オートフィルか手入力で用意しておく
    - DescriptorにSetが1つも無く、アバターにGeneratorのコンポーネントも無いときは、プロジェクトのGenerator（0.2.2以降）の対応表で、Face Tracking Meshes（空ならリップシンクのメッシュ）にあるARKit名・UE名のシェイプからビルド中にSetを作る（情報 KxNFTM-I-06）。元からARKitのシェイプを持つアバターなら、オートフィルを押さなくてよい
-2. インスペクタでプリセットを選び、必要なら下の「設定項目」に沿って個別に変える
+2. 必要なら、下の「設定項目」に沿ってインスペクタとヒエラルキーのMenu Itemで個別に変える
 3. アップロードする。EXメニューの「Face Tracking」から、フェイストラッキング全体（Face Tracking）・目（Eye Tracking）・口（Lip Tracking）・瞳孔（Pupil）・ビゼーム（Visemes）を切り替える。表情補正の切り替え（Emulation・Limits・Eye Sync）は、その下の「Settings」にある。表示名はエディタの言語によらず英語で付き、自由に変えられる
 
 Jerry's Face Tracking Templatesは同じアバターに置けません。残っているとインスペクタとビルドでエラー（KxNFTM-E-04）が出るので、Jerry'sのプレハブを外してからアップロードしてください。
@@ -49,21 +50,22 @@ Jerry'sとの違いは[Jerry'sからの移行](Documentation~/jerrys.md)に、�
 インスペクタの先頭には、DescriptorのBlendshapes Setの数と割り当てられたキーの数、Use All Tracking Keysの状態、Kx VRC ARKit BlendShape Generatorの有無とSet書き込みの状態が出ます。
 その下に、設定やアバターの構成に問題があるときのエラー・警告・案内が `KxNFTM-` で始まる番号付きで出ます。原因と対処はそれぞれのメッセージに書いてあり、同じものがビルド時にもNDMFのコンソールへ出ます。
 
-### プリセットとGeneratorコンポーネント
+### Generatorコンポーネント
 
 | 項目 | 既定 | 意味 |
 | --- | --- | --- |
-| プリセット | 右クリックで作るとき、アバターにGeneratorがあれば ARKit、無ければ UE。Add Componentでは UE | トグルの構成と表情補正を作るかの組。選び直すとトグルと表情補正の設定を書き換える。ヒエラルキーのMenu Itemのときは、プリセットに無いトグルのMenu Itemを消し、足りないMenu Itemを足し、既定値をプリセットの値にする（今あるMenu Itemの名前・アイコン・場所はそのまま。Undoで戻せる）。トグルや表情補正をプリセットから変えると Custom になる |
 | Generatorコンポーネントを使う | オン | アバターにあるKx VRC ARKit BlendShape Generatorのコンポーネントの、Set書き込みをビルド中だけ有効にする。シーンのGeneratorの設定は変わらない。アバターにGeneratorのコンポーネントが無ければ何もしない。プロジェクトにGeneratorが入っていなければグレーアウトし、警告（KxNFTM-W-20）を出す。0.1.0-test10までの「Generator連携」の Auto はオン、Off はオフとして読む |
 
-プリセットの中身は次のとおりです。
+### 既定の設定
 
-| プリセット | メニューに出すトグル | 表情補正 | 想定するアバター |
-| --- | --- | --- | --- |
-| UE | 8つすべて（Eye Syncの既定値はオフ） | エミュレーション・制限・Eye Syncを作る | UE（Unified Expressions）のシェイプを持つ。Jerry'sのUE版に相当 |
-| ARKit | Pupil以外の7つ（Eye Syncの既定値はオフ） | UEと同じ | Kx VRC ARKit BlendShape Generatorを使う。ARKitのシェイプには瞳孔が無い |
-| Minimal | Face Tracking・Eye Tracking・Lip Trackingの3つ | 作らない | 同期bitとメニューを最小にしたい |
-| Custom | 個別に決めた構成 | 個別に決めた構成 | 上のどれかを変えると自動でこれになる |
+右クリックで作ったときとAdd Componentで付けたときは、次の設定で始まります。0.1.0-test系の「プリセット」は廃止しました（古い版で保存したコンポーネントのプリセットの値は読みません。トグルと表情補正の設定はそのまま残ります）。
+
+| 対象 | 既定 |
+| --- | --- |
+| メニューに出すトグル | 8つすべて（Eye Syncの既定値だけオフ） |
+| 表情補正 | エミュレーション・制限・Eye Syncをすべて作る |
+
+ARKitのシェイプには瞳孔が無いので、Pupilのトグルは切り替えるSetが無く、ビルド時にメニューから外れます（KxNFTM-I-05）。ヒエラルキーに残しておきたくなければ、PupilのMenu Itemを消してください。同期bitを減らしたいときは、要らないトグルのMenu Itemを消し、表情補正を作らない設定にします。
 
 ### EXメニュー
 
@@ -72,7 +74,7 @@ EXメニューの作り方は2通りあり、右クリックで作ったコン�
 | 作り方 | なるとき | トグルの構成を決める場所 |
 | --- | --- | --- |
 | ヒエラルキーのMenu Item | 右クリックで作ったとき、または「メニューをヒエラルキーに展開」を押したとき | コンポーネントの子にあるMA Menu Item |
-| ビルド時に作る | Add Componentで付けたとき、0.1.0-test8までに作ったコンポーネント | コンポーネントに保存された値（Add Componentの直後はプリセットの値）。インスペクタでは変えられないので、変えるときは展開ボタンでMenu Itemにする |
+| ビルド時に作る | Add Componentで付けたとき、0.1.0-test8までに作ったコンポーネント | コンポーネントに保存された値（Add Componentの直後は既定の設定）。インスペクタでは変えられないので、変えるときは展開ボタンでMenu Itemにする |
 
 ヒエラルキーのMenu Itemでは、次の形の階層ができます。Jerry'sと同じ感覚で、並べ替え、表示名とアイコンの変更、別のサブメニューやアバターの別の場所への移動ができます。
 
@@ -81,7 +83,7 @@ Face Tracking            MA Menu Installer ＋ Menu Item（サブメニュー）
 ├ Face Tracking          トグル  KxNFTM/FaceTracking
 ├ Eye Tracking           トグル  KxNFTM/EyeTracking
 ├ Lip Tracking           トグル  KxNFTM/LipTracking
-├ Pupil                  トグル  KxNFTM/Pupil（UEプリセットのみ）
+├ Pupil                  トグル  KxNFTM/Pupil
 ├ Visemes                トグル  KxNFTM/Visemes
 ├ Sensitivity            サブメニュー（感度のRadialを足したときだけ）
 │ ├ Eye                  Radial  KxNFTM/Sensitivity/Eye
@@ -101,7 +103,7 @@ Face Tracking            MA Menu Installer ＋ Menu Item（サブメニュー）
 ビルド時には、アバターにあるMA Menu Itemのうち、パラメーター名（MA Parametersのリネームを当てた後の名前）が `KxNFTM/` の公開名と一致するものを読みます。
 
 - Menu Itemがあるトグルはメニューに出し、同期Boolのパラメーター（1つにつき1bit）を作る。既定値はMenu Itemの既定値（Default）、保存はMenu Itemの保存（Saved）の設定に従う。同期は設定にかかわらず常に有効にする（リモートのクライアントも自分のアニメーターでSetの重みを決めるため）
-- Menu Itemを消したトグルはメニューに出ず、パラメーターも作らない。コンポーネントに保存された既定値のまま動く（右クリックで作った直後とプリセットを選び直した後はプリセットの値。展開ボタンで移行したときは、移行前の既定値を引き継ぐ）
+- Menu Itemを消したトグルはメニューに出ず、パラメーターも作らない。コンポーネントに保存された既定値のまま動く（右クリックで作った直後は既定の設定の値。展開ボタンで移行したときは、移行前の既定値を引き継ぐ）
 - トグルのMenu Itemの値は1にする（値の自動設定でもよい）。1以外の値のMenu Itemと、同じパラメーターの項目が複数あるのに値の自動設定を使っているMenu Itemは読まず、警告（KxNFTM-W-19）を出す
 - 公開名を指すMenu Itemが1つも無いと、警告（KxNFTM-W-18）を出す
 - パラメーター名が公開名と違うMenu Itemは、利用者のものとして扱い読まない
@@ -110,7 +112,7 @@ Face Tracking            MA Menu Installer ＋ Menu Item（サブメニュー）
 
 ### トグル
 
-EXメニューに出すトグルは、ヒエラルキーのMenu Itemで決めます。インスペクタにトグルの一覧表はありません。Menu Itemを消したトグルを戻すときは、プリセットを選び直すか、Menu Itemを複製してパラメーター名を公開名にします。
+EXメニューに出すトグルは、ヒエラルキーのMenu Itemで決めます。インスペクタにトグルの一覧表はありません。Menu Itemを消したトグルを戻すときは、インスペクタの「トグル」にある「消したトグルのMenu Itemを戻す」を押します。消したトグルのMenu Itemだけを、Menu Itemが無いあいだの値を既定値にして作り直し、今あるMenu Itemは変えません（Undoで戻せます）。生成しない設定の表情補正のトグルは作りません。Menu Itemを複製してパラメーター名を公開名にしてもかまいません。
 
 | トグル | メニューでの切り替え対象 |
 | --- | --- |
@@ -129,18 +131,18 @@ EXメニューに出すトグルは、ヒエラルキーのMenu Itemで決めま
 
 Jerry's 7.0.5のFXにある補正を、DescriptorのParameter Behaviors（Custom式）として作ります。どれもオフなら、その補正もメニューのトグルも作りません。
 
-| 項目 | UE・ARKitの既定 | 意味 |
+| 項目 | 既定 | 意味 |
 | --- | --- | --- |
 | エミュレーション | 有効 | 笑うと頬とえくぼが上がる、口の動きで眉が動く、見開くと瞳孔が縮む、などを足す。トラッキングの値を下回らない下限として書く |
 | 制限 | 有効 | 唇をすぼめたときに上唇を上げすぎない、など同時に動かすと崩れる組み合わせに上限を掛ける |
 | Eye Sync | 有効（メニューの既定値はオフ） | 左右のまばたきを平均して両目へ書く |
-| 規則の一覧 | すべてチェック | 補正を規則ごとに表示する折りたたみ。チェックを外した規則は作らない。外すとプリセットは Custom になる。対象のシェイプがSetに無い規則には「対象のシェイプなし」と出て、ビルドでも作られない |
+| 規則の一覧 | すべてチェック | 補正を規則ごとに表示する折りたたみ。チェックを外した規則は作らない。対象のシェイプがSetに無い規則には「対象のシェイプなし」と出て、ビルドでも作られない |
 
 アバター全体のCustom式の命令数が上限の2048を超えるときは、優先度の低い規則から作らずに警告（KxNFTM-W-12）を出します。
 
 ### 感度
 
-EXメニューの「Face Tracking」に「Sensitivity」を足し、Radialで目と口の効き方を変えられるようにします。プリセットには含まれないので、変えてもCustomにはなりません。
+EXメニューの「Face Tracking」に「Sensitivity」を足し、Radialで目と口の効き方を変えられるようにします。
 ヒエラルキーのMenu Itemのときは、下の目・口の感度の代わりに「Radialを追加」「Radialを削除」のボタンが出て、RadialのMenu Itemの有無で系統が決まります。値の保存はRadialのMenu Itemの保存（Saved）に従います。
 
 | 項目 | 既定 | 意味 |

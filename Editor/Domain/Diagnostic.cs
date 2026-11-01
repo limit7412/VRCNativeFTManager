@@ -58,8 +58,7 @@ namespace NativeFTManager.Domain
         /// <summary>SDKのFaceTrackingKeyが本製品の対応表と食い違う（M1で追加）</summary>
         public const string KeyMismatch = "E-06";
 
-        /// <summary>ARKitプリセットでGeneratorがアバターに無い</summary>
-        public const string GeneratorMissing = "W-01";
+        // W-01（ARKitプリセットでGeneratorが無い）はプリセットの廃止で欠番にした。番号は使い回さない
 
         /// <summary>連携がOffで、GeneratorのSet書き込みもオフ</summary>
         public const string GeneratorSetWriteOff = "W-02";
@@ -137,7 +136,6 @@ namespace NativeFTManager.Domain
                 { JerrysDetected, DiagnosticSeverity.NonFatal },
                 { StateBehaviorUnavailable, DiagnosticSeverity.NonFatal },
                 { KeyMismatch, DiagnosticSeverity.NonFatal },
-                { GeneratorMissing, DiagnosticSeverity.Warning },
                 { GeneratorSetWriteOff, DiagnosticSeverity.Warning },
                 { GeneratorSetSparse, DiagnosticSeverity.Warning },
                 { UseAllTrackingKeysOff, DiagnosticSeverity.Warning },

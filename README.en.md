@@ -31,10 +31,11 @@ Manual installation from the zip, the booth version (unitypackage), and how upda
 ## Usage
 
 1. Right-click the avatar in the Hierarchy and choose `Kx NativeFT Manager` under "Kx VRC NativeFT Manager". An object with the component is created directly under the avatar, with the Expressions Menu "Face Tracking" (an MA Menu Installer and MA Menu Items) as its children. You can also add the component to an existing object (including the avatar root) with "Add Component"; its menu is then generated at build time (see "Expressions Menu" below)
-   - If the avatar has Kx VRC ARKit BlendShape Generator, the preset is ARKit. The Generator's Set output is enabled during the build only
-   - Otherwise the preset is UE. Prepare the Blendshapes Sets on the Descriptor with Auto Fill or by hand
+   - It starts with every toggle in the menu and every correction (Emulation, Limits, Eye Sync) generated (see "Default Settings" below)
+   - If the avatar has Kx VRC ARKit BlendShape Generator, the Generator's Set output is enabled during the build only
+   - Otherwise, prepare the Blendshapes Sets on the Descriptor with Auto Fill or by hand
    - When the Descriptor has no Set and the avatar has no Generator component, the mapping table of the Generator in the project (0.2.2 or later) builds a Set during the build from the ARKit- or UE-named shapes of the Face Tracking Meshes (or the lip sync mesh when that list is empty) (information KxNFTM-I-06). Avatars that already have ARKit shapes do not need Auto Fill
-2. Choose a preset in the inspector, and change individual settings as described in "Settings" below if needed
+2. If needed, change individual settings in the inspector and the Menu Items in the hierarchy as described in "Settings" below
 3. Upload. Use "Face Tracking" in the Expressions Menu to switch Face Tracking, Eye Tracking, Lip Tracking, Pupil and Visemes. The corrections (Emulation, Limits, Eye Sync) are in "Settings" below it. The labels are in English whatever the editor language, and can be changed freely
 
 Jerry's Face Tracking Templates cannot be on the same avatar. If it is still there, the inspector and the build report an error (KxNFTM-E-04), so remove its prefab before uploading.
@@ -49,21 +50,22 @@ The settings are listed in the order they appear in the inspector. The language 
 The top of the inspector shows the number of Blendshapes Sets on the Descriptor and the number of assigned keys, the state of Use All Tracking Keys, and whether Kx VRC ARKit BlendShape Generator is present and its Set output is enabled.
 Below that, errors, warnings and notices about the settings or the avatar appear with numbers starting with `KxNFTM-`. Each message states the cause and what to do, and the same messages appear in the NDMF console at build time.
 
-### Preset and Generator Component
+### Generator Component
 
 | Item | Default | Meaning |
 | --- | --- | --- |
-| Preset | From the context menu, ARKit if the avatar has the Generator and UE otherwise. UE with Add Component | A combination of the toggle layout and which corrections to generate. Choosing a preset rewrites the toggles and the correction settings. With Menu Items in the hierarchy, it deletes the Menu Items of toggles not in the preset, adds the missing ones, and sets the defaults to the preset values (existing Menu Items keep their names, icons and places; Undo restores them). Changing a toggle or a correction away from the preset switches it to Custom |
 | Use Generator Component | On | Enables the Set output of the Kx VRC ARKit BlendShape Generator component on the avatar during the build only. The Generator's settings in the scene are not changed. Does nothing when the avatar has no Generator component. Grayed out with a warning (KxNFTM-W-20) when the Generator is not installed in the project. "Generator Integration" saved with 0.1.0-test10 or earlier is read as on for Auto and off for Off |
 
-The presets contain the following.
+### Default Settings
 
-| Preset | Toggles in the menu | Corrections | Intended avatars |
-| --- | --- | --- | --- |
-| UE | All eight (Eye Sync defaults to off) | Emulation, Limits and Eye Sync are generated | Avatars with UE (Unified Expressions) shapes. Equivalent to the UE version of Jerry's |
-| ARKit | The seven other than Pupil (Eye Sync defaults to off) | Same as UE | Avatars that use Kx VRC ARKit BlendShape Generator. ARKit shapes have no pupils |
-| Minimal | Face Tracking, Eye Tracking and Lip Tracking | None | When you want the fewest synced bits and menu entries |
-| Custom | Whatever you set | Whatever you set | Selected automatically when any of the above is changed |
+A component created from the right-click menu or added with Add Component starts with the following settings. The "preset" of the 0.1.0-test releases has been removed (the preset value saved by an older version is no longer read; the toggle and correction settings stay as they are).
+
+| Target | Default |
+| --- | --- |
+| Toggles in the menu | All eight (only Eye Sync defaults to off) |
+| Corrections | Emulation, Limits and Eye Sync are all generated |
+
+ARKit shapes have no pupils, so the Pupil toggle has no Set to switch and is removed from the menu at build time (KxNFTM-I-05). If you do not want to keep it in the hierarchy, delete the Pupil Menu Item. To reduce synced bits, delete the Menu Items of toggles you do not need and turn off the corrections.
 
 ### Expressions Menu
 
@@ -72,7 +74,7 @@ There are two ways the Expressions Menu is made. A component created from the ri
 | Way | When | Where the toggle layout is decided |
 | --- | --- | --- |
 | Menu Items in the hierarchy | Created from the right-click menu, or after pressing "Expand the menu into the hierarchy" | The MA Menu Items under the component |
-| Generated at build time | Added with Add Component, or created with 0.1.0-test8 or earlier | The values stored in the component (the preset values right after Add Component). They cannot be changed in the inspector; to change them, convert to Menu Items with the expand button |
+| Generated at build time | Added with Add Component, or created with 0.1.0-test8 or earlier | The values stored in the component (the default settings right after Add Component). They cannot be changed in the inspector; to change them, convert to Menu Items with the expand button |
 
 With Menu Items in the hierarchy, the following hierarchy is created. As with Jerry's, you can reorder the items, change their labels and icons, and move them to another submenu or elsewhere on the avatar.
 
@@ -81,7 +83,7 @@ Face Tracking            MA Menu Installer + Menu Item (submenu)
 ├ Face Tracking          Toggle  KxNFTM/FaceTracking
 ├ Eye Tracking           Toggle  KxNFTM/EyeTracking
 ├ Lip Tracking           Toggle  KxNFTM/LipTracking
-├ Pupil                  Toggle  KxNFTM/Pupil (UE preset only)
+├ Pupil                  Toggle  KxNFTM/Pupil
 ├ Visemes                Toggle  KxNFTM/Visemes
 ├ Sensitivity            Submenu (only after adding a sensitivity Radial)
 │ ├ Eye                  Radial  KxNFTM/Sensitivity/Eye
@@ -101,7 +103,7 @@ Each item gets a bundled default icon (an eye, lips, a gear and so on). Replace 
 At build time, the MA Menu Items on the avatar whose parameter name (after the renames of MA Parameters) matches a public `KxNFTM/` name are read.
 
 - A toggle with a Menu Item appears in the menu and gets a synced Bool parameter (1 bit each). Its default follows the Default setting of the Menu Item, and saving follows its Saved setting. Syncing is always on regardless of the setting, because remote clients decide the Set weights with their own animators
-- A toggle whose Menu Item is deleted stays out of the menu and has no parameter. It keeps the default value stored in the component (the preset value right after creating from the right-click menu or choosing a preset again; after migrating with the expand button, the default from before migration)
+- A toggle whose Menu Item is deleted stays out of the menu and has no parameter. It keeps the default value stored in the component (the default settings right after creating from the right-click menu; after migrating with the expand button, the default from before migration)
 - The value of a toggle Menu Item must be 1 (or use the automatic value). Menu Items with another value, and Menu Items that use the automatic value while the same parameter has several items, are not read, with a warning (KxNFTM-W-19)
 - When no Menu Item points to a public name, a warning (KxNFTM-W-18) appears
 - Menu Items whose parameter name differs from the public names are treated as your own and are not read
@@ -110,7 +112,7 @@ A component whose menu is generated at build time shows an "Expand the menu into
 
 ### Toggles
 
-The toggles in the Expressions Menu are decided by the Menu Items in the hierarchy. The inspector has no table of toggles. To bring back a toggle whose Menu Item was deleted, choose the preset again, or duplicate a Menu Item and set its parameter name to the public name.
+The toggles in the Expressions Menu are decided by the Menu Items in the hierarchy. The inspector has no table of toggles. To bring back a toggle whose Menu Item was deleted, press "Restore deleted toggle Menu Items" under "Toggles" in the inspector. It recreates only the Menu Items of deleted toggles, with the value the toggle had while its Menu Item was missing as the default, and leaves existing Menu Items unchanged (Undo restores them). Toggles of corrections that are not generated are not recreated. You can also duplicate a Menu Item and set its parameter name to the public name.
 
 | Toggle | What it switches in the menu |
 | --- | --- |
@@ -129,18 +131,18 @@ While the matching correction is not generated (see "Expression Corrections" bel
 
 The corrections in the FX of Jerry's 7.0.5 are generated as Parameter Behaviors (Custom expressions) on the Descriptor. When a correction is off, neither the correction nor its menu toggle is generated.
 
-| Item | Default for UE and ARKit | Meaning |
+| Item | Default | Meaning |
 | --- | --- | --- |
 | Emulation | On | Adds movements such as raising cheeks and dimples when smiling, moving brows with the mouth, and narrowing pupils when the eyes widen. Written as a lower bound that never goes below the tracked value |
 | Limits | On | Puts upper bounds on combinations that break when moved together, such as not raising the upper lip too far while the lips pucker |
 | Eye Sync | On (the menu default is off) | Writes the average of both eyelids to both eyes |
-| Rules | All checked | A foldout listing each correction rule. Unchecked rules are not generated, and unchecking one switches the preset to Custom. Rules whose target shape is not in any Set show "No target shape" and are not generated at build time either |
+| Rules | All checked | A foldout listing each correction rule. Unchecked rules are not generated. Rules whose target shape is not in any Set show "No target shape" and are not generated at build time either |
 
 When the avatar-wide Custom expression instructions would exceed the limit of 2048, the rules with the lowest priority are dropped with a warning (KxNFTM-W-12).
 
 ### Sensitivity
 
-Adds "Sensitivity" under "Face Tracking" in the Expressions Menu, with Radials that change how strongly the eyes and the mouth move. Sensitivity is not part of the presets, so changing it does not switch the preset to Custom.
+Adds "Sensitivity" under "Face Tracking" in the Expressions Menu, with Radials that change how strongly the eyes and the mouth move.
 With Menu Items in the hierarchy, "Add Radial" and "Remove Radial" buttons replace the eye and lip sensitivity settings below, and whether a Radial Menu Item exists decides the channel. Saving the value follows the Saved setting of the Radial Menu Item.
 
 | Item | Default | Meaning |

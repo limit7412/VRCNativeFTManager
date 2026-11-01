@@ -15,7 +15,7 @@ namespace NativeFTManager.Presentation
     /// NativeFTManagerComponentのインスペクタ
     ///
     /// 表示文言はNDMFのローカライズ機構から引く。
-    /// 並びは仕様書6.4に沿い、状態表示、警告、プリセット、トグル、表情補正、Descriptorの設定、見積もり、詳細の順に出す
+    /// 並びは仕様書6.4に沿い、状態表示、警告、Generator連携、トグル、表情補正、Descriptorの設定、見積もり、詳細の順に出す
     /// </summary>
     [CustomEditor(typeof(NativeFTManagerComponent))]
     [CanEditMultipleObjects]
@@ -28,7 +28,6 @@ namespace NativeFTManager.Presentation
             "prop.face_emo_trigger.lip_only",
         };
 
-        private SerializedProperty _preset;
         private SerializedProperty _lerpSpeed;
         private SerializedProperty _excludedSetNames;
         private SerializedProperty _setUseAllTrackingKeys;
@@ -55,7 +54,6 @@ namespace NativeFTManager.Presentation
             // インスペクタが操作されるまで古い表示のままにしない
             UpdateCheck.ResultChanged += Repaint;
 
-            _preset = serializedObject.FindProperty(nameof(NativeFTManagerComponent.preset));
             _lerpSpeed = serializedObject.FindProperty(nameof(NativeFTManagerComponent.lerpSpeed));
             _excludedSetNames = serializedObject.FindProperty(nameof(NativeFTManagerComponent.excludedSetNames));
             _setUseAllTrackingKeys = serializedObject.FindProperty(nameof(NativeFTManagerComponent.setUseAllTrackingKeys));
@@ -96,14 +94,7 @@ namespace NativeFTManager.Presentation
                 DrawStatus(_report);
             }
 
-            // 何か操作されたときだけプリセットとの一致を見直す。開いただけでCustomへ書き換えると、
-            // 古い版で保存したコンポーネントのシーンが、見ただけで変更扱いになるため
-            EditorGUI.BeginChangeCheck();
-
             EditorGUILayout.Space();
-            EditorGUI.BeginChangeCheck();
-            EditorGUILayout.PropertyField(_preset, G("inspector.preset"));
-            bool presetChanged = EditorGUI.EndChangeCheck();
             // Generatorが導入されていなければ、連携の設定は効かないのでグレーアウトする（W-20で案内する）。
             // 値は書き換えない。後からGeneratorを取り込めば、そのまま連携が有効になる
             using (new EditorGUI.DisabledScope(!GeneratorAccess.IsInstalled))
@@ -151,57 +142,7 @@ namespace NativeFTManager.Presentation
                 EditorGUI.indentLevel--;
             }
 
-            bool changed = EditorGUI.EndChangeCheck();
             serializedObject.ApplyModifiedProperties();
-            if (changed)
-            {
-                SyncPreset(presetChanged);
-            }
-        }
-
-        /// <summary>
-        /// プリセットを選び直したら中身を書き込み、中身をプリセットから変えたらCustomにする（仕様書6.3）
-        /// </summary>
-        private void SyncPreset(bool presetChanged)
-        {
-            foreach (var component in targets.OfType<NativeFTManagerComponent>())
-            {
-                if (presetChanged && component.preset != NativeFTPreset.Custom)
-                {
-                    Undo.RecordObject(component, S("inspector.undo.preset"));
-                    NativeFTPresets.Apply(component, component.preset);
-                    MarkModified(component);
-
-                    // ヒエラルキーのメニューでは、プリセットのトグルの構成をMenu Itemの増減で反映する（仕様書6.3）
-                    if (ComponentSettings.UsesHierarchyMenu(component))
-                    {
-                        MenuHierarchyBuilder.ApplyPreset(component, component.preset, S("inspector.undo.preset"));
-                    }
-                }
-                else if (!MatchesPreset(component))
-                {
-                    Undo.RecordObject(component, S("inspector.undo.preset"));
-                    component.preset = NativeFTPreset.Custom;
-                    MarkModified(component);
-                }
-            }
-
-            serializedObject.Update();
-        }
-
-        /// <summary>
-        /// プリセットとの一致。ヒエラルキーのメニューでは、トグルの構成をMenu Itemから読む
-        /// </summary>
-        private static bool MatchesPreset(NativeFTManagerComponent component)
-        {
-            if (!ComponentSettings.UsesHierarchyMenu(component))
-            {
-                return NativeFTPresets.Matches(component, component.preset);
-            }
-
-            var menu = MenuHierarchyScanner.Scan(component);
-            return NativeFTPresets.Matches(
-                component, component.preset, ComponentSettings.GetToggleSource(component, menu), true);
         }
 
         /// <summary>
@@ -259,8 +200,7 @@ namespace NativeFTManager.Presentation
         }
 
         /// <summary>
-        /// 感度（仕様書5.6）。プリセットには含めないので、変えてもCustomにならない。
-        /// どの系統も無効のあいだは上限の倍率を出さない
+        /// 感度（仕様書5.6）。どの系統も無効のあいだは上限の倍率を出さない
         /// </summary>
         private void DrawSensitivity()
         {
@@ -607,7 +547,7 @@ namespace NativeFTManager.Presentation
                 component.menuMode = NativeFTMenuMode.Hierarchy;
 
                 // Menu Itemにしないトグルの固定の値はtogglesに残るので、古い版で保存して表に無いトグルを、
-                // 持たないときと同じ値で加えておく。加えないと、展開後の表で固定の値を編集できない
+                // 持たないときと同じ値で加えておく。Menu Itemを戻すときにも、この値を既定値に使う
                 if (component.toggles == null)
                 {
                     component.toggles = new System.Collections.Generic.List<ToggleSettings>();
@@ -645,6 +585,16 @@ namespace NativeFTManager.Presentation
                 {
                     MenuHierarchyBuilder.FillMissingIcons(component, undoName);
                     MenuHierarchyBuilder.RestoreEnglishNames(component, undoName);
+                }
+            }
+
+            // Menu Itemを消したトグルを、Menu Itemが無いあいだの値で作り直す。今ある項目は変えない
+            if (GUILayout.Button(S("inspector.menu.restore_toggles")))
+            {
+                var undoName = S("inspector.undo.menu_item");
+                foreach (var component in targets.OfType<NativeFTManagerComponent>())
+                {
+                    MenuHierarchyBuilder.RestoreToggles(component, ComponentSettings.GetFeatures(component), undoName);
                 }
             }
 

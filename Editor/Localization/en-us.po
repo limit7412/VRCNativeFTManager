@@ -155,12 +155,6 @@ msgstr "Found (Blendshapes Set output is off)"
 msgid "inspector.status.generator_set_write"
 msgstr "Found (Blendshapes Set output is on)"
 
-msgid "inspector.preset"
-msgstr "Preset"
-
-msgid "inspector.preset.tooltip"
-msgstr "Group of settings. UE matches Jerry's Templates, ARKit leaves out the pupils, and Minimal has only the eye and mouth toggles. Changing any of them switches to Custom"
-
 msgid "inspector.use_generator_component"
 msgstr "Use Generator Component"
 
@@ -235,12 +229,6 @@ msgstr "[KxNFTM-E-06] Tracking keys do not match the SDK"
 msgid "diag.E-06:description"
 msgstr "The FaceTrackingKey of the VRChat SDK differs from this tool's table, so the Sets were not split ({0}). Update this tool."
 
-msgid "diag.W-01"
-msgstr "[KxNFTM-W-01] ARKit BlendShape Generator not found"
-
-msgid "diag.W-01:description"
-msgstr "The preset is ARKit, but the avatar has no Kx VRC ARKit BlendShape Generator. Add the Generator or change the preset to UE."
-
 msgid "diag.W-02"
 msgstr "[KxNFTM-W-02] Generator shapes are not used for face tracking"
 
@@ -296,9 +284,6 @@ msgid "diag.W-15:description"
 msgstr "Avatar Optimizer's native face tracking support is enabled only with VRChat SDK 3.10.6-beta.4 or later. With the current SDK, optimization may break face tracking shapes. Update the SDK to the stable 3.10.6 or later."
 
 # M2: inspector
-msgid "inspector.undo.preset"
-msgstr "Change preset"
-
 msgid "inspector.undo.rules"
 msgstr "Change correction rules"
 
@@ -376,7 +361,7 @@ msgid "diag.W-13"
 msgstr "[KxNFTM-W-13] Synced bits are likely to exceed the limit"
 
 msgid "diag.W-13:description"
-msgstr "Synced parameters are estimated at {0} bits, over the limit of {1} bits ({2} bits by this tool). Remove other parameters or show fewer toggles in the menu (the Minimal preset uses 3 bits)."
+msgstr "Synced parameters are estimated at {0} bits, over the limit of {1} bits ({2} bits by this tool). Remove other parameters or show fewer toggles in the menu."
 
 msgid "diag.I-01"
 msgstr "[KxNFTM-I-01] Some corrections were skipped because the shapes are missing"
@@ -739,6 +724,9 @@ msgstr "The selected components make their menus in different ways. Select them 
 msgid "inspector.menu.feature_disabled"
 msgstr "\"{0}\" is not generated, so its Menu Item is removed from the menu at build time."
 
+msgid "inspector.menu.restore_toggles"
+msgstr "Restore deleted toggle Menu Items"
+
 msgid "inspector.menu.add_radial"
 msgstr "Add Radial"
 
@@ -755,7 +743,7 @@ msgid "diag.W-18"
 msgstr "[KxNFTM-W-18] No menu toggles were found"
 
 msgid "diag.W-18:description"
-msgstr "The menu is set to be kept in the hierarchy, but the avatar has no MA Menu Item that points to a parameter of this tool (KxNFTM/). No toggle appears in the menu, and every toggle works with a fixed value. Choosing a preset again recreates the Menu Items of the toggles in the preset."
+msgstr "The menu is set to be kept in the hierarchy, but the avatar has no MA Menu Item that points to a parameter of this tool (KxNFTM/). No toggle appears in the menu, and every toggle works with the fixed value stored in the component. \"Restore deleted toggle Menu Items\" in the inspector recreates the Menu Items of the toggles."
 
 msgid "diag.W-19"
 msgstr "[KxNFTM-W-19] A toggle Menu Item does not have the value 1"

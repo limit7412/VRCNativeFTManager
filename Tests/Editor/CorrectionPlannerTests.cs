@@ -9,13 +9,13 @@ namespace NativeFTManager.Tests
     {
         private static ToggleSet UeToggles(CorrectionFeatures features)
         {
-            var settings = NativeFTPresets.CreateToggles(NativeFTPreset.UE);
+            var settings = ToggleSettings.CreateDefaults();
             return ToggleSet.Resolve(toggle => settings.FirstOrDefault(s => s.toggle == toggle), features);
         }
 
         private static ToggleSet HiddenToggles(CorrectionFeatures features)
         {
-            var settings = NativeFTPresets.CreateToggles(NativeFTPreset.UE)
+            var settings = ToggleSettings.CreateDefaults()
                 .Select(s => new ToggleSettings(s.toggle, false, true))
                 .ToList();
             return ToggleSet.Resolve(toggle => settings.FirstOrDefault(s => s.toggle == toggle), features);

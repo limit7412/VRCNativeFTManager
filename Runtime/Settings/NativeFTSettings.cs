@@ -4,20 +4,6 @@ using System.Collections.Generic;
 namespace NativeFTManager
 {
     /// <summary>
-    /// 設定のまとまり（仕様書6.3）
-    ///
-    /// 中身（トグルの構成と表情補正の有無）は <see cref="NativeFTPresets"/> に置く。
-    /// どのまとまりとも一致しない設定はCustomになる
-    /// </summary>
-    public enum NativeFTPreset
-    {
-        UE = 0,
-        ARKit = 1,
-        Minimal = 2,
-        Custom = 3,
-    }
-
-    /// <summary>
     /// EXメニューの作り方（仕様書8.3）
     ///
     /// 値はシリアライズされるので、並びを変えずに末尾へ足す
@@ -95,11 +81,20 @@ namespace NativeFTManager
         }
 
         /// <summary>
-        /// UEプリセットのトグル（すべてメニューに出す）
+        /// 追加したてのコンポーネントのトグル（仕様書6.3）。すべてメニューに出し、Eye Syncだけ既定でオフにする。
+        /// 既定値はJerry's 7.0.5のExpression Parametersに合わせる。
+        /// Pupilは、Jerry'sでは無効（EyeDilationEnable = 0）だが、仕様書7.1に合わせて有効にしている。
+        /// Setの無いトグル（ARKitのシェイプに瞳孔が無いときのPupilなど）は、ビルド時にメニューから外れる（I-05）
         /// </summary>
         public static List<ToggleSettings> CreateDefaults()
         {
-            return NativeFTPresets.CreateToggles(NativeFTPreset.UE);
+            var toggles = new List<ToggleSettings>();
+            foreach (NativeFTToggle toggle in Enum.GetValues(typeof(NativeFTToggle)))
+            {
+                toggles.Add(new ToggleSettings(toggle, true, toggle != NativeFTToggle.EyeSync));
+            }
+
+            return toggles;
         }
 
         public ToggleSettings Clone()

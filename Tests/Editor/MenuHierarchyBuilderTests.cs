@@ -32,15 +32,31 @@ namespace NativeFTManager.Tests
             _created.Clear();
         }
 
-        private NativeFTManagerComponent CreateExpanded(NativeFTPreset preset)
+        /// <summary>
+        /// 既定の設定で展開したコンポーネント。テストではResetが走らないので、既定値をここで入れる
+        /// </summary>
+        private NativeFTManagerComponent CreateExpanded()
         {
             var gameObject = new GameObject("MenuHierarchyBuilderTests");
             _created.Add(gameObject);
             var component = gameObject.AddComponent<NativeFTManagerComponent>();
-            NativeFTPresets.Apply(component, preset);
+            component.toggles = ToggleSettings.CreateDefaults();
+            component.enableEmulation = true;
+            component.enableLimits = true;
+            component.enableEyeSync = true;
             var toggles = ComponentSettings.ResolveToggles(component);
             component.menuMode = NativeFTMenuMode.Hierarchy;
             MenuHierarchyBuilder.Expand(component, toggles, UndoName);
+            return component;
+        }
+
+        /// <summary>
+        /// 既定の設定で展開してから、Pupilのトグルを消したもの（ARKitのシェイプのアバターでよくある形）
+        /// </summary>
+        private NativeFTManagerComponent CreateExpandedWithoutPupil()
+        {
+            var component = CreateExpanded();
+            MenuHierarchyBuilder.RemoveToggle(component, NativeFTToggle.Pupil, UndoName);
             return component;
         }
 
@@ -49,27 +65,27 @@ namespace NativeFTManager.Tests
             return MenuHierarchyScanner.Scan(component);
         }
 
-        [TestCase(NativeFTPreset.UE)]
-        [TestCase(NativeFTPreset.ARKit)]
-        [TestCase(NativeFTPreset.Minimal)]
-        public void Expand_ReadsBackAsThePreset(NativeFTPreset preset)
+        [Test]
+        public void Expand_ReadsBackAsTheDefaults()
         {
-            var component = CreateExpanded(preset);
+            var component = CreateExpanded();
 
             var menu = Read(component);
 
+            var resolved = ComponentSettings.ResolveToggles(component, menu);
             Assert.That(
-                NativeFTPresets.Matches(component, preset, ComponentSettings.GetToggleSource(component, menu), true),
-                Is.True);
-            Assert.That(
-                ComponentSettings.ResolveToggles(component, menu).Dynamic.Select(t => t.Toggle),
-                Is.EqualTo(NativeFTPresets.CreateToggles(preset).Where(t => t.showInMenu).Select(t => t.toggle)));
+                resolved.Dynamic.Select(t => t.Toggle),
+                Is.EqualTo(System.Enum.GetValues(typeof(NativeFTToggle)).Cast<NativeFTToggle>()));
+            foreach (var expected in ToggleSettings.CreateDefaults())
+            {
+                Assert.That(resolved[expected.toggle].DefaultValue, Is.EqualTo(expected.defaultValue), expected.toggle.ToString());
+            }
         }
 
         [Test]
         public void Expand_MakesOneInstalledSubMenu()
         {
-            var component = CreateExpanded(NativeFTPreset.UE);
+            var component = CreateExpanded();
 
             var root = MenuHierarchyBuilder.FindRoot(component);
             Assert.That(root, Is.Not.Null);
@@ -88,7 +104,7 @@ namespace NativeFTManager.Tests
         [Test]
         public void Expand_KeepsTheEnumOrder()
         {
-            var component = CreateExpanded(NativeFTPreset.UE);
+            var component = CreateExpanded();
             var root = MenuHierarchyBuilder.FindRoot(component).transform;
 
             var parameters = Enumerable.Range(0, 5)
@@ -108,7 +124,7 @@ namespace NativeFTManager.Tests
         [Test]
         public void Expand_Twice_DoesNotDuplicate()
         {
-            var component = CreateExpanded(NativeFTPreset.UE);
+            var component = CreateExpanded();
             int count = component.GetComponentsInChildren<ModularAvatarMenuItem>(true).Length;
 
             MenuHierarchyBuilder.Expand(component, ComponentSettings.ResolveToggles(component, Read(component)), UndoName);
@@ -119,7 +135,7 @@ namespace NativeFTManager.Tests
         [Test]
         public void Expand_GivesEveryItemADefaultIcon()
         {
-            var component = CreateExpanded(NativeFTPreset.UE);
+            var component = CreateExpanded();
             MenuHierarchyBuilder.AddRadial(component, SensitivityChannel.Eye, true, UndoName);
             MenuHierarchyBuilder.AddRadial(component, SensitivityChannel.Lip, true, UndoName);
 
@@ -138,7 +154,7 @@ namespace NativeFTManager.Tests
         [Test]
         public void Expand_FillsOnlyEmptyIcons()
         {
-            var component = CreateExpanded(NativeFTPreset.UE);
+            var component = CreateExpanded();
             var root = MenuHierarchyBuilder.FindRoot(component).transform;
             var emptied = root.GetChild(1).GetComponent<ModularAvatarMenuItem>();
             emptied.Control.icon = null;
@@ -159,7 +175,7 @@ namespace NativeFTManager.Tests
         [Test]
         public void Expand_LeavesTheUsersOwnSubMenuIconEmpty()
         {
-            var component = CreateExpanded(NativeFTPreset.UE);
+            var component = CreateExpanded();
             var root = MenuHierarchyBuilder.FindRoot(component).transform;
 
             // Settingsの項目を、根の外に置いた利用者のサブメニューへ移す
@@ -186,7 +202,7 @@ namespace NativeFTManager.Tests
         [Test]
         public void Expand_LeavesTheUsersOwnSubMenuUnderTheRootIconEmpty()
         {
-            var component = CreateExpanded(NativeFTPreset.UE);
+            var component = CreateExpanded();
             var root = MenuHierarchyBuilder.FindRoot(component).transform;
 
             // Settingsの項目を、根の直下に作った利用者のサブメニューへ移す
@@ -211,20 +227,53 @@ namespace NativeFTManager.Tests
         }
 
         [Test]
-        public void ApplyPreset_RemovesHiddenTogglesAndEmptySettings()
+        public void RestoreToggles_AddsOnlyTheDeletedToggles()
         {
-            var component = CreateExpanded(NativeFTPreset.UE);
-
-            NativeFTPresets.Apply(component, NativeFTPreset.Minimal);
-            MenuHierarchyBuilder.ApplyPreset(component, NativeFTPreset.Minimal, UndoName);
-
-            var menu = Read(component);
-            Assert.That(
-                NativeFTPresets.Matches(
-                    component, NativeFTPreset.Minimal, ComponentSettings.GetToggleSource(component, menu), true),
-                Is.True);
+            var component = CreateExpanded();
             var root = MenuHierarchyBuilder.FindRoot(component).transform;
-            Assert.That(root.childCount, Is.EqualTo(3));
+            root.GetChild(0).name = "Renamed";
+            MenuHierarchyBuilder.RemoveToggle(component, NativeFTToggle.Pupil, UndoName);
+            MenuHierarchyBuilder.RemoveToggle(component, NativeFTToggle.EyeSync, UndoName);
+
+            int restored = MenuHierarchyBuilder.RestoreToggles(
+                component, ComponentSettings.GetFeatures(component), UndoName);
+
+            Assert.That(restored, Is.EqualTo(2));
+            Assert.That(root.GetChild(0).name, Is.EqualTo("Renamed"));
+            var menu = Read(component);
+            Assert.That(menu.Contains(NativeFTToggle.Pupil), Is.True);
+            Assert.That(menu.GetToggle(NativeFTToggle.EyeSync).defaultValue, Is.False);
+            Assert.That(MenuHierarchyBuilder.RestoreToggles(
+                component, ComponentSettings.GetFeatures(component), UndoName), Is.EqualTo(0));
+        }
+
+        [Test]
+        public void RestoreToggles_SkipsCorrectionsThatAreNotGenerated()
+        {
+            var component = CreateExpanded();
+            MenuHierarchyBuilder.RemoveToggle(component, NativeFTToggle.Limits, UndoName);
+            component.enableLimits = false;
+
+            MenuHierarchyBuilder.RestoreToggles(component, ComponentSettings.GetFeatures(component), UndoName);
+
+            Assert.That(Read(component).Contains(NativeFTToggle.Limits), Is.False);
+        }
+
+        [Test]
+        public void RestoreToggles_UsesTheFixedValueOfTheHiddenToggle()
+        {
+            var component = CreateExpanded();
+            MenuHierarchyBuilder.RemoveToggle(component, NativeFTToggle.Visemes, UndoName);
+            var visemes = component.toggles.First(t => t.toggle == NativeFTToggle.Visemes);
+            visemes.defaultValue = false;
+            visemes.saved = false;
+
+            MenuHierarchyBuilder.RestoreToggles(component, ComponentSettings.GetFeatures(component), UndoName);
+
+            var restored = Read(component).GetToggle(NativeFTToggle.Visemes);
+            Assert.That(restored.showInMenu, Is.True);
+            Assert.That(restored.defaultValue, Is.False);
+            Assert.That(restored.saved, Is.False);
         }
 
         [Test]
@@ -233,7 +282,7 @@ namespace NativeFTManager.Tests
             var gameObject = new GameObject("MenuHierarchyBuilderTests");
             _created.Add(gameObject);
             var component = gameObject.AddComponent<NativeFTManagerComponent>();
-            NativeFTPresets.Apply(component, NativeFTPreset.UE);
+            component.toggles = ToggleSettings.CreateDefaults();
             var visemes = component.toggles.First(t => t.toggle == NativeFTToggle.Visemes);
             visemes.showInMenu = false;
             visemes.defaultValue = false;
@@ -250,7 +299,7 @@ namespace NativeFTManager.Tests
         [Test]
         public void RemoveRadial_KeepsAnAssetSubMenu()
         {
-            var component = CreateExpanded(NativeFTPreset.UE);
+            var component = CreateExpanded();
             var radial = MenuHierarchyBuilder.AddRadial(component, SensitivityChannel.Eye, true, UndoName);
             var subMenu = radial.transform.parent.GetComponent<ModularAvatarMenuItem>();
             subMenu.MenuSource = SubmenuSource.MenuAsset;
@@ -268,7 +317,7 @@ namespace NativeFTManager.Tests
             try
             {
                 LanguagePrefs.Language = language;
-                var component = CreateExpanded(NativeFTPreset.ARKit);
+                var component = CreateExpandedWithoutPupil();
                 MenuHierarchyBuilder.AddRadial(component, SensitivityChannel.Eye, true, UndoName);
                 var root = MenuHierarchyBuilder.FindRoot(component);
                 var items = root.GetComponentsInChildren<ModularAvatarMenuItem>(true);
@@ -304,7 +353,7 @@ namespace NativeFTManager.Tests
             try
             {
                 LanguagePrefs.Language = language;
-                var component = CreateExpanded(NativeFTPreset.UE);
+                var component = CreateExpanded();
                 MenuHierarchyBuilder.AddRadial(component, SensitivityChannel.Eye, true, UndoName);
                 var items = MenuHierarchyBuilder.FindRoot(component).GetComponentsInChildren<ModularAvatarMenuItem>(true);
 
@@ -324,7 +373,7 @@ namespace NativeFTManager.Tests
         public void RestoreEnglishNames_ClearsJapaneseLabelsWrittenByOlderVersions()
         {
             // 0.1.0-test13からtest15までは、日本語のエディタで作るとlabelに日本語を書いていた
-            var component = CreateExpanded(NativeFTPreset.UE);
+            var component = CreateExpanded();
             var radial = MenuHierarchyBuilder.AddRadial(component, SensitivityChannel.Eye, true, UndoName);
             var root = MenuHierarchyBuilder.FindRoot(component).GetComponent<ModularAvatarMenuItem>();
             var settings = root.transform.Find(MenuPlan.SettingsMenuName).GetComponent<ModularAvatarMenuItem>();
@@ -349,7 +398,7 @@ namespace NativeFTManager.Tests
         public void RestoreEnglishNames_RenamesJapaneseObjectNamesWrittenByOlderVersions()
         {
             // 0.1.0-test12までは、日本語のエディタで作るとオブジェクト名が日本語だった
-            var component = CreateExpanded(NativeFTPreset.UE);
+            var component = CreateExpanded();
             var root = MenuHierarchyBuilder.FindRoot(component);
             var settings = root.transform.Find(MenuPlan.SettingsMenuName);
             var eye = FindToggleItem(component, NativeFTToggle.EyeTracking);
@@ -385,10 +434,10 @@ namespace NativeFTManager.Tests
         }
 
         [Test]
-        public void ApplyPreset_KeepsItemsWithJapaneseObjectNames()
+        public void RestoreToggles_KeepsItemsWithJapaneseObjectNames()
         {
             // 0.1.0-test12までは、日本語のエディタで作るとオブジェクト名が日本語だった
-            var component = CreateExpanded(NativeFTPreset.ARKit);
+            var component = CreateExpandedWithoutPupil();
             var root = MenuHierarchyBuilder.FindRoot(component);
             root.name = "フェイストラッキング";
             foreach (Transform child in root.transform)
@@ -396,8 +445,7 @@ namespace NativeFTManager.Tests
                 child.name = "目のトラッキング";
             }
 
-            NativeFTPresets.Apply(component, NativeFTPreset.UE);
-            MenuHierarchyBuilder.ApplyPreset(component, NativeFTPreset.UE, UndoName);
+            MenuHierarchyBuilder.RestoreToggles(component, ComponentSettings.GetFeatures(component), UndoName);
 
             Assert.That(MenuHierarchyBuilder.FindRoot(component), Is.SameAs(root));
             Assert.That(root.name, Is.EqualTo("フェイストラッキング"));
@@ -405,23 +453,9 @@ namespace NativeFTManager.Tests
         }
 
         [Test]
-        public void ApplyPreset_KeepsRenamedItems()
-        {
-            var component = CreateExpanded(NativeFTPreset.ARKit);
-            var root = MenuHierarchyBuilder.FindRoot(component).transform;
-            root.GetChild(0).name = "Renamed";
-
-            NativeFTPresets.Apply(component, NativeFTPreset.UE);
-            MenuHierarchyBuilder.ApplyPreset(component, NativeFTPreset.UE, UndoName);
-
-            Assert.That(root.GetChild(0).name, Is.EqualTo("Renamed"));
-            Assert.That(Read(component).Contains(NativeFTToggle.Pupil), Is.True);
-        }
-
-        [Test]
         public void AddToggle_GoesWhereTheOthersWereMoved()
         {
-            var component = CreateExpanded(NativeFTPreset.ARKit);
+            var component = CreateExpandedWithoutPupil();
             var moved = new GameObject("Moved");
             moved.transform.SetParent(component.transform, false);
             var root = MenuHierarchyBuilder.FindRoot(component).transform;
@@ -435,7 +469,7 @@ namespace NativeFTManager.Tests
         [Test]
         public void AddRadial_CreatesSensitivityBeforeSettings()
         {
-            var component = CreateExpanded(NativeFTPreset.UE);
+            var component = CreateExpanded();
 
             var radial = MenuHierarchyBuilder.AddRadial(component, SensitivityChannel.Eye, false, UndoName);
 
@@ -454,7 +488,7 @@ namespace NativeFTManager.Tests
         [Test]
         public void RemoveRadial_RemovesTheEmptySubMenu()
         {
-            var component = CreateExpanded(NativeFTPreset.UE);
+            var component = CreateExpanded();
             var root = MenuHierarchyBuilder.FindRoot(component).transform;
             int count = root.childCount;
             MenuHierarchyBuilder.AddRadial(component, SensitivityChannel.Lip, true, UndoName);

@@ -61,33 +61,30 @@ namespace NativeFTManager.Infra
         }
 
         /// <summary>
-        /// プリセットの構成に合わせる。プリセットでメニューに出すトグルが無ければ足し、出さないトグルは外し、
-        /// 既定値をプリセットの値にする。今ある項目の名前、アイコン、場所、保存の設定は変えない
+        /// Menu Itemを消したトグルを作り直す。既定値と保存は、Menu Itemが無いあいだの固定の値
+        /// （コンポーネントのtoggles）に合わせるので、戻しただけでは挙動が変わらない。
+        /// 生成しない表情補正のトグルは作らない。今ある項目の名前、アイコン、場所、既定値、保存の設定は変えない。
+        /// 作り直した数を返す
         /// </summary>
-        public static void ApplyPreset(NativeFTManagerComponent component, NativeFTPreset preset, string undoName)
+        public static int RestoreToggles(NativeFTManagerComponent component, CorrectionFeatures features, string undoName)
         {
-            if (preset == NativeFTPreset.Custom)
+            int restored = 0;
+            foreach (NativeFTToggle toggle in Enum.GetValues(typeof(NativeFTToggle)))
             {
-                return;
+                if (!features.IsEnabled(toggle))
+                {
+                    continue;
+                }
+
+                if (FindItems(component, ResolvedToggle.GetParameterName(toggle), MenuEntryKind.Toggle).Count == 0)
+                {
+                    var settings = component.GetToggle(toggle);
+                    AddToggle(component, toggle, settings.defaultValue, settings.saved, undoName);
+                    restored++;
+                }
             }
 
-            bool corrections = NativeFTPresets.EnablesCorrections(preset);
-            foreach (var settings in NativeFTPresets.CreateToggles(preset))
-            {
-                bool show = settings.showInMenu && (!IsCorrection(settings.toggle) || corrections);
-                if (!show)
-                {
-                    RemoveToggle(component, settings.toggle, undoName);
-                }
-                else if (FindItems(component, ResolvedToggle.GetParameterName(settings.toggle), MenuEntryKind.Toggle).Count == 0)
-                {
-                    AddToggle(component, settings.toggle, settings.defaultValue, settings.saved, undoName);
-                }
-                else
-                {
-                    SetDefault(component, settings.toggle, settings.defaultValue, undoName);
-                }
-            }
+            return restored;
         }
 
         public static ModularAvatarMenuItem AddToggle(
@@ -553,11 +550,6 @@ namespace NativeFTManager.Infra
             {
                 targets.Add(new OwnItem(item, icon, englishName, legacyJapaneseName));
             }
-        }
-
-        private static bool IsCorrection(NativeFTToggle toggle)
-        {
-            return MenuPlan.IsSetting(toggle);
         }
 
         private static IEnumerable<(string, MenuEntryKind)> MainParameters()
