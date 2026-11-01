@@ -184,6 +184,33 @@ namespace NativeFTManager.Tests
         }
 
         [Test]
+        public void Expand_LeavesTheUsersOwnSubMenuUnderTheRootIconEmpty()
+        {
+            var component = CreateExpanded(NativeFTPreset.UE);
+            var root = MenuHierarchyBuilder.FindRoot(component).transform;
+
+            // Settingsの項目を、根の直下に作った利用者のサブメニューへ移す
+            var own = new GameObject("My Settings");
+            own.transform.SetParent(root, false);
+            var ownItem = own.AddComponent<ModularAvatarMenuItem>();
+            ownItem.Control = new VRCExpressionsMenu.Control
+            {
+                type = VRCExpressionsMenu.Control.ControlType.SubMenu,
+                parameter = new VRCExpressionsMenu.Control.Parameter { name = string.Empty },
+            };
+            ownItem.MenuSource = SubmenuSource.Children;
+            var settings = root.GetChild(root.childCount - 2);
+            while (settings.childCount > 0)
+            {
+                settings.GetChild(0).SetParent(own.transform, false);
+            }
+
+            MenuHierarchyBuilder.FillMissingIcons(component, UndoName);
+
+            Assert.That(ownItem.Control.icon, Is.Null);
+        }
+
+        [Test]
         public void ApplyPreset_RemovesHiddenTogglesAndEmptySettings()
         {
             var component = CreateExpanded(NativeFTPreset.UE);

@@ -475,20 +475,36 @@ namespace NativeFTManager.Infra
             if (root != null)
             {
                 targets.Add((root.GetComponent<ModularAvatarMenuItem>(), MenuIcon.FaceTrackingMenu));
-                AddOwnSubMenu(targets, root, FindContainer(component, SettingsParameters()), MenuIcon.Settings);
-                AddOwnSubMenu(targets, root, FindContainer(component, SensitivityParameters()), MenuIcon.Sensitivity);
+                AddOwnSubMenu(targets, root, FindContainer(component, SettingsParameters()), SettingsObjectNames, MenuIcon.Settings);
+                AddOwnSubMenu(targets, root, FindContainer(component, SensitivityParameters()), SensitivityObjectNames, MenuIcon.Sensitivity);
             }
 
             return targets.Where(target => target.Item1 != null && target.Item1.Control != null && target.Item1.Control.icon == null);
         }
 
+        /// <summary>
+        /// 本製品が作ったSettingsのサブメニューのオブジェクト名。0.1.0-test11までは日本語のエディタで「設定」と名付けていた
+        /// </summary>
+        private static readonly string[] SettingsObjectNames = { MenuPlan.SettingsMenuName, "設定" };
+
+        /// <summary>
+        /// 本製品が作ったSensitivityのサブメニューのオブジェクト名。0.1.0-test11までは日本語のエディタで「感度」と名付けていた
+        /// </summary>
+        private static readonly string[] SensitivityObjectNames = { MenuPlan.SensitivityMenuName, "感度" };
+
+        /// <summary>
+        /// 本製品が作ったサブメニューだけを補完の対象に加える。根の直下にあり、作ったときのオブジェクト名のままのものを本製品のものとみなす。
+        /// 利用者が根の直下に作った別名のサブメニューへ項目を移した場合は、そのサブメニューを含めない。
+        /// 本製品のサブメニューを利用者が改名した場合も含めないが、アイコンが付かないだけで済むので、取り違えるよりよい
+        /// </summary>
         private static void AddOwnSubMenu(
             List<(ModularAvatarMenuItem, MenuIcon)> targets,
             GameObject root,
             Transform container,
+            string[] objectNames,
             MenuIcon icon)
         {
-            if (container == null || container.parent != root.transform)
+            if (container == null || container.parent != root.transform || !objectNames.Contains(container.name))
             {
                 return;
             }
