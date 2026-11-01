@@ -17,7 +17,7 @@ It also suppresses FaceEmo while face tracking is active. It does not integrate 
 - VRChat SDK Avatars 3.10.6 or later
 - NDMF 1.6.0 or later
 - Modular Avatar 1.12.0 or later
-- Kx VRC ARKit BlendShape Generator 0.2.1 or later (VCC/ALCOM installs it together with this package)
+- Kx VRC ARKit BlendShape Generator 0.2.1 or later (VCC/ALCOM installs it together with this package. If the booth version is imported without it, this package still works and only the Generator integration stops)
 
 How this package relates to the Generator, and the conditions for using Avatar Optimizer (1.9.21 or later) together, are in [Requirements and companion packages](Documentation~/requirements.en.md).
 
@@ -53,7 +53,7 @@ Below that, errors, warnings and notices about the settings or the avatar appear
 | Item | Default | Meaning |
 | --- | --- | --- |
 | Preset | From the context menu, ARKit if the avatar has the Generator and UE otherwise. UE with Add Component | A combination of the toggle layout and which corrections to generate. Choosing a preset rewrites the toggles and the correction settings. With Menu Items in the hierarchy, it deletes the Menu Items of toggles not in the preset, adds the missing ones, and sets the defaults to the preset values (existing Menu Items keep their names, icons and places; Undo restores them). Changing a toggle or a correction away from the preset switches it to Custom |
-| Use Generator Component | On | Enables the Set output of the Kx VRC ARKit BlendShape Generator component on the avatar during the build only. The Generator's settings in the scene are not changed. Does nothing when the avatar has no Generator component. "Generator Integration" saved with 0.1.0-test10 or earlier is read as on for Auto and off for Off |
+| Use Generator Component | On | Enables the Set output of the Kx VRC ARKit BlendShape Generator component on the avatar during the build only. The Generator's settings in the scene are not changed. Does nothing when the avatar has no Generator component. Grayed out with a warning (KxNFTM-W-20) when the Generator is not installed in the project. "Generator Integration" saved with 0.1.0-test10 or earlier is read as on for Auto and off for Off |
 
 The presets contain the following.
 

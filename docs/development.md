@@ -38,8 +38,12 @@ AAOは1.9.21でネイティブFTに対応し、SetとParameter Behaviorsの対�
 本体のasmdefでは `versionDefines` でAAOの版（`KX_AAO_NATIVE_FT`、1.9.21以降）とSDKの版（`KX_VRC_SDK_AAO_FT`、AAO 1.9.21が対応を有効にする3.10.6-beta.4以降）を判定し、古い組み合わせのときに警告（W-14、W-15）を出すだけにしている。
 0.1.0-test11までは、AAO対策用に空のアセンブリ `NativeFTManager.Editor.AAOCompat`（`Editor/AAOCompat/`）を残していた。0.1.0-test12で取り除き、そのGUIDは `booth_package.py` の `RETIRED_GUIDS` に載せた。
 
-ARKit BlendShape Generatorは必須の依存で、`NativeFTManager.Editor` がGeneratorの `ARKitBlendShapeGenerator.Runtime` を直接参照する。
-Generatorの型に触るのは `Editor/Infra/GeneratorAccess.cs` だけにしている。
+ARKit BlendShape Generatorは必須の依存だが、`NativeFTManager.Editor` はGeneratorのアセンブリを参照しない。
+booth版はVPMの依存解決を通らず、同梱したGeneratorのunitypackageを取り込み忘れることがある。asmdefで参照すると、そのときEditorアセンブリ全体がコンパイルできず、警告も出せない。
+Generatorの型には `Editor/Infra/GeneratorAccess.cs` だけがリフレクションで触る。型やフィールドが見つからなければ `GeneratorAccess.IsInstalled` がfalseになり、W-20を出してアバターにGeneratorが無いのと同じに振る舞う。
+asmdefの `versionDefines` は `Packages/` のパッケージにしか効かず、`Assets/` に入るbooth版のGeneratorを判定できないので使わない。
+Set名の定数 `FaceTrackingSetNames.Generator` は `GeneratorAccess.DefaultSetName` に複製してある。Generatorを入れた構成のテスト（`GeneratorAccessTests`）が一致を確かめる。
+CIの `EditMode tests` はGeneratorを入れた構成と入れない構成の両方で回す。テストのasmdefは `versionDefines` で `KX_TEST_GENERATOR_INSTALLED` を立て、構成ごとに検証を切り替える。
 0.1.0-test9までは任意依存で、Generatorが入っているときだけコンパイルする `NativeFTManager.Editor.GeneratorCompat` に置いていた。0.1.0-test10で本体へ統合し、そのGUIDは `booth_package.py` の `RETIRED_GUIDS` に載せた。
 
 Generatorの版の下限は `package.json` の `vpmDependencies` にある。

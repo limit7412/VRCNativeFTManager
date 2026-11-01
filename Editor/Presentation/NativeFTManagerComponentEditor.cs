@@ -104,7 +104,12 @@ namespace NativeFTManager.Presentation
             EditorGUI.BeginChangeCheck();
             EditorGUILayout.PropertyField(_preset, G("inspector.preset"));
             bool presetChanged = EditorGUI.EndChangeCheck();
-            EditorGUILayout.PropertyField(_useGeneratorComponent, G("inspector.use_generator_component"));
+            // Generatorが導入されていなければ、連携の設定は効かないのでグレーアウトする（W-20で案内する）。
+            // 値は書き換えない。後からGeneratorを取り込めば、そのまま連携が有効になる
+            using (new EditorGUI.DisabledScope(!GeneratorAccess.IsInstalled))
+            {
+                EditorGUILayout.PropertyField(_useGeneratorComponent, G("inspector.use_generator_component"));
+            }
 
             EditorGUILayout.Space();
             DrawToggles();
@@ -544,6 +549,8 @@ namespace NativeFTManager.Presentation
                     return report.GeneratorSetWriteEnabled
                         ? "inspector.status.generator_set_write"
                         : "inspector.status.generator_present";
+                case GeneratorPresence.NotInstalled:
+                    return "inspector.status.generator_not_installed";
                 default:
                     return "inspector.status.generator_none";
             }

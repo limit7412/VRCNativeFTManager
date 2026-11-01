@@ -146,6 +146,9 @@ msgstr "ARKit BlendShape Generator"
 msgid "inspector.status.generator_none"
 msgstr "なし"
 
+msgid "inspector.status.generator_not_installed"
+msgstr "未導入"
+
 msgid "inspector.status.generator_present"
 msgstr "あり（Set書き込みはオフ）"
 
@@ -759,3 +762,9 @@ msgstr "[KxNFTM-W-19] 値が1にならないトグルのMenu Itemがあります
 
 msgid "diag.W-19:description"
 msgstr "パラメーター「{0}」を指すトグルのMenu Itemは、値が1ではないか、同じパラメーターを指す複数の項目で値の自動設定を使っているため、読みませんでした。本製品のトグルはBoolなので、値を1にしてください。値の自動設定は、そのパラメーターの項目が1つだけのときに使えます。"
+
+msgid "diag.W-20"
+msgstr "[KxNFTM-W-20] ARKit BlendShape Generatorがプロジェクトに導入されていません"
+
+msgid "diag.W-20:description"
+msgstr "Kx VRC ARKit BlendShape Generatorがプロジェクトに見つからないか、連携に必要な機能を持たない古い版です。Generatorとの連携を止めて、Descriptorにある既存のSetだけを分割します。「Generatorコンポーネントを使う」は効かないためグレーアウトしています。booth版は、zipに同梱したVRCARKitBlendShapeGeneratorのunitypackageも取り込んでください。VCC版は、VCCでプロジェクトの依存を解決し直してください。"

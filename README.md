@@ -17,7 +17,7 @@ English: [README.en.md](README.en.md)
 - VRChat SDK Avatars 3.10.6 以降
 - NDMF 1.6.0 以降
 - Modular Avatar 1.12.0 以降
-- Kx VRC ARKit BlendShape Generator 0.2.1 以降（VCC/ALCOMでは本製品と一緒に入る）
+- Kx VRC ARKit BlendShape Generator 0.2.1 以降（VCC/ALCOMでは本製品と一緒に入る。booth版で取り込み忘れても本製品は動き、Generatorとの連携だけが止まる）
 
 Generatorとの関係と、Avatar Optimizer（1.9.21以降）との併用の条件は[必要環境と併用するパッケージ](Documentation~/requirements.md)にあります。
 
@@ -53,7 +53,7 @@ Jerry'sとの違いは[Jerry'sからの移行](Documentation~/jerrys.md)に、�
 | 項目 | 既定 | 意味 |
 | --- | --- | --- |
 | プリセット | 右クリックで作るとき、アバターにGeneratorがあれば ARKit、無ければ UE。Add Componentでは UE | トグルの構成と表情補正を作るかの組。選び直すとトグルと表情補正の設定を書き換える。ヒエラルキーのMenu Itemのときは、プリセットに無いトグルのMenu Itemを消し、足りないMenu Itemを足し、既定値をプリセットの値にする（今あるMenu Itemの名前・アイコン・場所はそのまま。Undoで戻せる）。トグルや表情補正をプリセットから変えると Custom になる |
-| Generatorコンポーネントを使う | オン | アバターにあるKx VRC ARKit BlendShape Generatorのコンポーネントの、Set書き込みをビルド中だけ有効にする。シーンのGeneratorの設定は変わらない。アバターにGeneratorのコンポーネントが無ければ何もしない。0.1.0-test10までの「Generator連携」の Auto はオン、Off はオフとして読む |
+| Generatorコンポーネントを使う | オン | アバターにあるKx VRC ARKit BlendShape Generatorのコンポーネントの、Set書き込みをビルド中だけ有効にする。シーンのGeneratorの設定は変わらない。アバターにGeneratorのコンポーネントが無ければ何もしない。プロジェクトにGeneratorが入っていなければグレーアウトし、警告（KxNFTM-W-20）を出す。0.1.0-test10までの「Generator連携」の Auto はオン、Off はオフとして読む |
 
 プリセットの中身は次のとおりです。
 

@@ -26,10 +26,13 @@ Releasesの `VRCNativeFTManager_<バージョン>.zip` に、unitypackageが2つ
 | `VRCNativeFTManager_<バージョン>.unitypackage` | `Assets/AtelierKairox/VRCNativeFTManager/` |
 | `VRCARKitBlendShapeGenerator_<バージョン>.unitypackage` | `Assets/AtelierKairox/VRCARKitBlendShapeGenerator/` |
 
-本製品はKx VRC ARKit BlendShape Generatorを必須の依存に持ち、Generatorが無いとコンパイルが通りません。
+本製品はKx VRC ARKit BlendShape Generatorを必須の依存に持ちます。
 booth版はVCC/ALCOMの依存解決を通らないので、Generatorのunitypackageを同梱しています。
 同梱するのは、本製品のリリースを作った時点で最新のGeneratorです。
 両方を展開してUnityへドラッグしてください。
+
+Generatorを取り込み忘れても、本製品はコンパイルが通り動きます。
+そのときは警告（KxNFTM-W-20）が出て、Generatorとの連携だけが止まります（[必要環境と併用するパッケージ](requirements.md)）。
 
 Generatorをすでに入れている場合は、Generatorのunitypackageは取り込まなくて構いません。
 GeneratorをVCC/ALCOMで入れている場合は、Generatorのunitypackageを取り込まないでください。Generatorが二組になり、コンパイルが通らなくなります。

@@ -118,6 +118,9 @@ namespace NativeFTManager.Domain
         /// <summary>公開パラメーターを指すトグルのMenu Itemで、値が1でない（仕様書8.3）</summary>
         public const string MenuItemValueInvalid = "W-19";
 
+        /// <summary>Generatorがプロジェクトに導入されていない。booth版で同梱のunitypackageを取り込み忘れたときに出る</summary>
+        public const string GeneratorNotInstalled = "W-20";
+
         /// <summary>W-04の判定に使う、割り当てキー数の下限</summary>
         public const int GeneratorSetMinimumKeys = 10;
 
@@ -149,6 +152,7 @@ namespace NativeFTManager.Domain
                 { UnusedToggleRemoved, DiagnosticSeverity.Information },
                 { MenuItemsMissing, DiagnosticSeverity.Warning },
                 { MenuItemValueInvalid, DiagnosticSeverity.Warning },
+                { GeneratorNotInstalled, DiagnosticSeverity.Warning },
             };
 
         public static IEnumerable<string> All => Severities.Keys;
