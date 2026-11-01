@@ -33,6 +33,7 @@ Manual installation from the zip, the booth version (unitypackage), and how upda
 1. Right-click the avatar in the Hierarchy and choose `Kx NativeFT Manager` under "Kx VRC NativeFT Manager". An object with the component is created directly under the avatar, with the Expressions Menu "Face Tracking" (an MA Menu Installer and MA Menu Items) as its children. You can also add the component to an existing object (including the avatar root) with "Add Component"; its menu is then generated at build time (see "Expressions Menu" below)
    - If the avatar has Kx VRC ARKit BlendShape Generator, the preset is ARKit. The Generator's Set output is enabled during the build only
    - Otherwise the preset is UE. Prepare the Blendshapes Sets on the Descriptor with Auto Fill or by hand
+   - When the Descriptor has no Set and the avatar has no Generator component, the mapping table of the Generator in the project (0.2.2 or later) builds a Set during the build from the ARKit- or UE-named shapes of the Face Tracking Meshes (or the lip sync mesh when that list is empty) (information KxNFTM-I-06). Avatars that already have ARKit shapes do not need Auto Fill
 2. Choose a preset in the inspector, and change individual settings as described in "Settings" below if needed
 3. Upload. Use "Face Tracking" in the Expressions Menu to switch Face Tracking, Eye Tracking, Lip Tracking, Pupil and Visemes. The corrections (Emulation, Limits, Eye Sync) are in "Settings" below it. The labels are in English whatever the editor language, and can be changed freely
 

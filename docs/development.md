@@ -43,6 +43,7 @@ booth版はVPMの依存解決を通らず、同梱したGeneratorのunitypackage
 Generatorの型には `Editor/Infra/GeneratorAccess.cs` だけがリフレクションで触る。型やフィールドが見つからなければ `GeneratorAccess.IsInstalled` がfalseになり、W-20を出してアバターにGeneratorが無いのと同じに振る舞う。
 asmdefの `versionDefines` は `Packages/` のパッケージにしか効かず、`Assets/` に入るbooth版のGeneratorを判定できないので使わない。
 Set名の定数 `FaceTrackingSetNames.Generator` は `GeneratorAccess.DefaultSetName` に複製してある。Generatorを入れた構成のテスト（`GeneratorAccessTests`）が一致を確かめる。
+アバターにGeneratorのコンポーネントが無くSetも無いときは、Generator 0.2.2以降が公開する `ARKitBlendShapeGenerator.FaceTrackingSetMapping` を同じくリフレクションで呼び、メッシュのシェイプ名からSetを作る（`Editor/Infra/ShapeMappedSetReader.cs`、仕様書10.1のF-20）。`GetKeyNames()` の並びが `FaceTrackingGroupTable` と一致しないときは使わない。CIが入れるGeneratorが0.2.1のうちは、Generatorを入れた構成でもこの検証は飛ばす（`GENERATOR_VERSION` を上げると走る）。
 CIの `EditMode tests` はGeneratorを入れた構成と入れない構成の両方で回す。テストのasmdefは `versionDefines` で `KX_TEST_GENERATOR_INSTALLED` を立て、構成ごとに検証を切り替える。
 0.1.0-test9までは任意依存で、Generatorが入っているときだけコンパイルする `NativeFTManager.Editor.GeneratorCompat` に置いていた。0.1.0-test10で本体へ統合し、そのGUIDは `booth_package.py` の `RETIRED_GUIDS` に載せた。
 

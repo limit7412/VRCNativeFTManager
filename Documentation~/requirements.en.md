@@ -26,6 +26,11 @@ This package looks up the Generator's types by reflection, so it still compiles 
 In that case, it shows a warning (KxNFTM-W-20), grays out "Use Generator Component" in the inspector, and splits only the Blendshapes Sets on the Descriptor.
 The Generator row of the status shows "Not installed".
 Once the Generator is imported, the integration works with the same settings.
+
+Even when the avatar has no Generator component, the mapping table of Generator 0.2.2 or later in the project is used.
+When the Descriptor has no Blendshapes Set, a Set that assigns the ARKit- or UE-named shapes of the Face Tracking Meshes (or the lip sync mesh when that list is empty) to the keys is built during the build and then split (information KxNFTM-I-06).
+This saves pressing Auto Fill on avatars that already have ARKit shapes.
+No Set is built when the Descriptor has any Set or the avatar has a Generator component.
 An old Generator that lacks the field needed for the integration is treated as not installed.
 
 Whether to use the Generator is up to each avatar.

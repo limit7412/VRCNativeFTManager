@@ -121,6 +121,11 @@ namespace NativeFTManager.Domain
         /// <summary>Generatorがプロジェクトに導入されていない。booth版で同梱のunitypackageを取り込み忘れたときに出る</summary>
         public const string GeneratorNotInstalled = "W-20";
 
+        /// <summary>
+        /// Setが無くGeneratorのコンポーネントも無いので、Generatorの対応表でメッシュのシェイプからSetを作った（仕様書5.1）
+        /// </summary>
+        public const string SetMappedFromShapes = "I-06";
+
         /// <summary>W-04の判定に使う、割り当てキー数の下限</summary>
         public const int GeneratorSetMinimumKeys = 10;
 
@@ -153,6 +158,7 @@ namespace NativeFTManager.Domain
                 { MenuItemsMissing, DiagnosticSeverity.Warning },
                 { MenuItemValueInvalid, DiagnosticSeverity.Warning },
                 { GeneratorNotInstalled, DiagnosticSeverity.Warning },
+                { SetMappedFromShapes, DiagnosticSeverity.Information },
             };
 
         public static IEnumerable<string> All => Severities.Keys;

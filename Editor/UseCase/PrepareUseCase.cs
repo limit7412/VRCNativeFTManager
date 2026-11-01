@@ -43,6 +43,7 @@ namespace NativeFTManager.UseCase
             DiagnosticReporter.Report(AvatarDiagnostics.Evaluate(facts), primary);
 
             var state = context.GetState<BuildState>();
+            state.GeneratorPresent = facts.Generator == GeneratorPresence.Present;
             if (facts.Generator == GeneratorPresence.Present)
             {
                 if (primary.useGeneratorComponent)

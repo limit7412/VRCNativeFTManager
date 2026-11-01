@@ -215,7 +215,7 @@ msgid "diag.E-03"
 msgstr "[KxNFTM-E-03] Blendshapes Setがありません"
 
 msgid "diag.E-03:description"
-msgstr "DescriptorにBlendshapes Setが1つも無いため、フェイストラッキングは動きません。Kx VRC ARKit BlendShape Generatorを使うときは「Generatorコンポーネントを使う」をオンに、使わないときはDescriptorのオートフィルか手入力でSetを作ってください。"
+msgstr "DescriptorにBlendshapes Setが1つも無いため、フェイストラッキングは動きません。Kx VRC ARKit BlendShape Generatorを使うときは「Generatorコンポーネントを使う」をオンに、使わないときはDescriptorのオートフィルか手入力でSetを作ってください。アバターにGeneratorのコンポーネントが無ければ、プロジェクトのGenerator（0.2.2以降）の対応表でFace Tracking Meshes（空ならリップシンクのメッシュ）のシェイプからもSetを作ろうとしますが、割り当てられるシェイプがありませんでした。"
 
 msgid "diag.E-04"
 msgstr "[KxNFTM-E-04] Jerry's Face Tracking Templatesが残っています"
@@ -768,3 +768,9 @@ msgstr "[KxNFTM-W-20] ARKit BlendShape Generatorがプロジェクトに導入�
 
 msgid "diag.W-20:description"
 msgstr "Kx VRC ARKit BlendShape Generatorがプロジェクトに見つからないか、連携に必要な機能を持たない古い版です。Generatorとの連携を止めて、Descriptorにある既存のSetだけを分割します。「Generatorコンポーネントを使う」は効かないためグレーアウトしています。booth版は、zipに同梱したVRCARKitBlendShapeGeneratorのunitypackageも取り込んでください。VCC版は、VCCでプロジェクトの依存を解決し直してください。"
+
+msgid "diag.I-06"
+msgstr "[KxNFTM-I-06] メッシュのシェイプからBlendshapes Setを作りました"
+
+msgid "diag.I-06:description"
+msgstr "DescriptorにSetが無く、アバターにKx VRC ARKit BlendShape Generatorのコンポーネントも無いため、プロジェクトのGeneratorの対応表で、Face Tracking Meshes（空ならリップシンクのメッシュ）にあるARKit名・UE名のシェイプを{0}個のキーへ割り当てたSetをビルド用の複製に作りました。シーンのDescriptorは変わりません。"

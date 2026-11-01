@@ -57,6 +57,27 @@ namespace NativeFTManager.Tests
             }
         }
 
+        [Test]
+        public void FindBlendShapeNames_MapsArkitShapes_WhenTheGeneratorPublishesItsTable()
+        {
+            // 対応表の公開はGenerator 0.2.2から。CIが入れるGeneratorがそれより古いときは確かめられない
+            if (FindType(GeneratorAccess.SetMappingTypeName) == null)
+            {
+                Assert.That(GeneratorAccess.CanMapShapes, Is.False);
+                Assert.That(GeneratorAccess.FindBlendShapeNames(new[] { "jawOpen" }), Is.Null);
+                Assert.Ignore("The installed Generator does not publish FaceTrackingSetMapping yet.");
+            }
+
+            Assert.That(GeneratorAccess.CanMapShapes, Is.True);
+            var names = GeneratorAccess.FindBlendShapeNames(new[] { "eyeBlinkLeft", "jawOpen" });
+            var keys = NativeFTManager.Domain.FaceTrackingGroupTable.GetKeyNames().ToList();
+
+            Assert.That(names.Length, Is.EqualTo(NativeFTManager.Domain.FaceTrackingGroupTable.KeyCount));
+            Assert.That(names[keys.IndexOf("EyeClosedLeft")], Is.EqualTo("eyeBlinkLeft"));
+            Assert.That(names[keys.IndexOf("JawOpen")], Is.EqualTo("jawOpen"));
+            Assert.That(names[keys.IndexOf("TongueRoll")], Is.EqualTo(string.Empty));
+        }
+
         private static Type FindType(string fullName)
         {
             return AppDomain.CurrentDomain.GetAssemblies()
@@ -80,6 +101,8 @@ namespace NativeFTManager.Tests
                 Assert.That(GeneratorAccess.IsSetWriteEnabled(root), Is.False);
                 Assert.DoesNotThrow(() => GeneratorAccess.EnableSetWrite(root));
                 Assert.That(GeneratorAccess.SetName, Is.EqualTo(GeneratorAccess.DefaultSetName));
+                Assert.That(GeneratorAccess.CanMapShapes, Is.False);
+                Assert.That(GeneratorAccess.FindBlendShapeNames(new[] { "jawOpen" }), Is.Null);
             }
             finally
             {

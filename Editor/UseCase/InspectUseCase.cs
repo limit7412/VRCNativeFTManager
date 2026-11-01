@@ -58,6 +58,20 @@ namespace NativeFTManager.UseCase
 
             var descriptor = avatarRoot.GetComponent<VRCAvatarDescriptor>();
             var sets = FaceTrackingDescriptorAccess.ReadSets(descriptor);
+
+            // ビルドと同じく、SetもGeneratorのコンポーネントも無ければメッシュのシェイプからSetを作れるか見る（仕様書5.1）。
+            // ビルド中に他のツールが加えるシェイプは、ここでは読めない
+            if (sets.Count == 0 && facts.Generator != GeneratorPresence.Present)
+            {
+                var mapped = ShapeMappedSetReader.Read(descriptor);
+                if (mapped != null)
+                {
+                    sets.Add(mapped.Set);
+                    report.Diagnostics.Add(
+                        new Diagnostic(DiagnosticCodes.SetMappedFromShapes, mapped.Set.AssignedKeyCount));
+                }
+            }
+
             report.SetCount = sets.Count;
             foreach (var set in sets)
             {
