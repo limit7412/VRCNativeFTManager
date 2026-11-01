@@ -21,5 +21,12 @@ namespace NativeFTManager.UseCase
 
         /// <summary>GeneratorがDescriptorへ書くSetの名前（連携できるときだけ）</summary>
         public string GeneratorSetName;
+
+        /// <summary>
+        /// アバターにGeneratorのコンポーネントがあったか。
+        /// あるときは、Setが無くてもシェイプからSetを作らない（仕様書5.1）。
+        /// Set書き込みを止めたGeneratorは、利用者がSetを書かせないと決めたものとして扱う
+        /// </summary>
+        public bool GeneratorPresent;
     }
 }

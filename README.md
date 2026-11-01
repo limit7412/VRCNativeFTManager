@@ -33,6 +33,7 @@ zipからの手動インストールとbooth版（unitypackage）の手順、お
 1. ヒエラルキーでアバターを右クリックし、「Kx VRC NativeFT Manager」の `Kx NativeFT Manager` を選ぶ。アバター直下に、コンポーネントを付けたオブジェクトができ、その子にEXメニューの「Face Tracking」（MA Menu InstallerとMA Menu Itemの階層）ができる。既存のオブジェクト（アバタールートを含む）へ「Add Component」でコンポーネントを付けてもよいが、その場合のメニューはビルド時に作られる（下の「EXメニュー」）
    - アバターにKx VRC ARKit BlendShape Generatorがあれば、プリセットはARKitになる。GeneratorのSet書き込みはビルド中だけ有効になる
    - Generatorが無ければ、プリセットはUEになる。DescriptorのBlendshapes Setは、オートフィルか手入力で用意しておく
+   - DescriptorにSetが1つも無く、アバターにGeneratorのコンポーネントも無いときは、プロジェクトのGenerator（0.2.2以降）の対応表で、Face Tracking Meshes（空ならリップシンクのメッシュ）にあるARKit名・UE名のシェイプからビルド中にSetを作る（情報 KxNFTM-I-06）。元からARKitのシェイプを持つアバターなら、オートフィルを押さなくてよい
 2. インスペクタでプリセットを選び、必要なら下の「設定項目」に沿って個別に変える
 3. アップロードする。EXメニューの「Face Tracking」から、フェイストラッキング全体（Face Tracking）・目（Eye Tracking）・口（Lip Tracking）・瞳孔（Pupil）・ビゼーム（Visemes）を切り替える。表情補正の切り替え（Emulation・Limits・Eye Sync）は、その下の「Settings」にある。表示名はエディタの言語によらず英語で付き、自由に変えられる
 

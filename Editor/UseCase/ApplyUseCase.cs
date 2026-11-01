@@ -75,6 +75,21 @@ namespace NativeFTManager.UseCase
                 }
             }
 
+            if (sets.Count == 0 && !state.GeneratorPresent)
+            {
+                // Setが1つも無く、Generatorのコンポーネントも無いときは、Generatorの対応表でメッシュのシェイプからSetを作る。
+                // MAのマージとGeneratorの後なので、ビルド中に加わったシェイプも読む
+                var mapped = ShapeMappedSetReader.Read(descriptor);
+                if (mapped != null)
+                {
+                    ShapeMappedSetReader.AddToDescriptor(descriptor, mapped);
+                    sets.Add(mapped.Set);
+                    DiagnosticReporter.Report(
+                        new Diagnostic(DiagnosticCodes.SetMappedFromShapes, mapped.Set.AssignedKeyCount),
+                        primary);
+                }
+            }
+
             if (sets.Count == 0)
             {
                 DiagnosticReporter.Report(new Diagnostic(DiagnosticCodes.NoSets), primary);
