@@ -17,7 +17,6 @@ namespace NativeFTManager.Domain
             IReadOnlyList<ToggleLayerPlan> layers,
             IReadOnlyDictionary<FaceTrackingGroup, float> defaultWeights,
             IReadOnlyDictionary<string, float> gateWeights = null,
-            VisemeLayerPlan visemeLayer = null,
             IReadOnlyList<FloatParameterPlan> floatParameters = null,
             TrackingReapplyPlan trackingReapply = null)
         {
@@ -26,7 +25,6 @@ namespace NativeFTManager.Domain
             Layers = layers;
             DefaultWeights = defaultWeights;
             GateWeights = gateWeights ?? new Dictionary<string, float>();
-            VisemeLayer = visemeLayer;
             TrackingReapply = trackingReapply;
         }
 
@@ -47,14 +45,11 @@ namespace NativeFTManager.Domain
         /// <summary>ゲートSetの既定の重み。キーはGateSlot.Key</summary>
         public IReadOnlyDictionary<string, float> GateWeights { get; }
 
-        /// <summary>ビゼームを切り替えるレイヤー（仕様書5.5）。切り替えないならnull</summary>
-        public VisemeLayerPlan VisemeLayer { get; }
-
         /// <summary>Tracking Controlの再適用のレイヤー（仕様書10.3、F-22）。作らないならnull</summary>
         public TrackingReapplyPlan TrackingReapply { get; }
 
         /// <summary>コントローラを作る必要があるか（レイヤーが1つでもあるか）</summary>
-        public bool HasAnyLayer => Layers.Count > 0 || VisemeLayer != null || TrackingReapply != null;
+        public bool HasAnyLayer => Layers.Count > 0 || TrackingReapply != null;
 
         /// <summary>グループを受け持つレイヤー。トグルで変わらないグループはnull</summary>
         public ToggleLayerPlan FindLayer(FaceTrackingGroup group)
@@ -67,27 +62,6 @@ namespace NativeFTManager.Domain
         {
             return Layers.FirstOrDefault(layer => layer.Gates.Any(gate => gate.Key == gateKey));
         }
-    }
-
-    /// <summary>
-    /// ビゼームのレイヤー。On / OffステートのVRC Animator Tracking ControlでMouth &amp; Jawを
-    /// Tracking（ビゼーム有効）とAnimation（ビゼーム無効）に切り替える。
-    /// トグルをメニューに出さず既定で無効にしたときは、Offだけの固定のレイヤーにする
-    /// </summary>
-    internal sealed class VisemeLayerPlan
-    {
-        public const string LayerName = NativeFTManagerParameterNames.LayerPrefix + "Visemes";
-
-        public VisemeLayerPlan(ToggleLayerPlan layer, bool alwaysOff)
-        {
-            Layer = layer;
-            AlwaysOff = alwaysOff;
-        }
-
-        /// <summary>遷移の計画。AlwaysOffのときは遷移を持たない</summary>
-        public ToggleLayerPlan Layer { get; }
-
-        public bool AlwaysOff { get; }
     }
 
     internal sealed class FloatParameterPlan
@@ -358,7 +332,6 @@ namespace NativeFTManager.Domain
                 layers,
                 defaultWeights,
                 gateWeights,
-                BuildVisemeLayer(toggles),
                 floatParameters,
                 trackingReapply ? TrackingReapplyPlanner.Build(toggles) : null);
         }
@@ -366,28 +339,6 @@ namespace NativeFTManager.Domain
         private static string GetLayerName(IEnumerable<string> slots)
         {
             return NativeFTManagerParameterNames.LayerPrefix + string.Join("/", slots);
-        }
-
-        /// <summary>
-        /// ビゼームのレイヤー。トグルをメニューに出すなら切り替え、出さずに既定で無効ならOffに固定する。
-        /// 出さずに既定で有効なら、Tracking Controlを置く理由が無いのでレイヤーを作らない
-        /// </summary>
-        private static VisemeLayerPlan BuildVisemeLayer(ToggleSet toggles)
-        {
-            var visemes = toggles[NativeFTToggle.Visemes];
-            if (!visemes.IsDynamic)
-            {
-                return visemes.DefaultValue
-                    ? null
-                    : new VisemeLayerPlan(
-                        new ToggleLayerPlan(VisemeLayerPlan.LayerName, new FaceTrackingGroup[0], new ToggleTransitionPlan[0]),
-                        true);
-            }
-
-            var condition = new GroupCondition(new[] { new ToggleLiteral(NativeFTToggle.Visemes, true) });
-            return new VisemeLayerPlan(
-                BuildLayer(VisemeLayerPlan.LayerName, condition, new FaceTrackingGroup[0], new GateSlot[0], toggles),
-                false);
         }
 
         /// <summary>

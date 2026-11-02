@@ -183,6 +183,56 @@ namespace NativeFTManager.Tests
         }
 
         [Test]
+        public void Plan_Visemes_LimitsTheVisemeShapesBehindTheGate()
+        {
+            // Setのビゼーム対応とLip Syncのシェイプを重複なく集め、上限0を置く（仕様書5.5）
+            var set = SetWith(("JawOpen", "JawOpen"));
+            set.VisemeBlendShapeNames[0] = "vrc.v_sil";
+            set.VisemeBlendShapeNames[10] = "vrc.v_aa";
+            var plan = CorrectionPlanner.Plan(
+                new[] { set }, UeToggles(CorrectionFeatures.None), null, 0, new[] { "vrc.v_aa", "vrc.v_oh" });
+
+            var visemes = plan.Behaviors.Where(b => b.RuleId == VisemeSuppression.RuleId).ToArray();
+            Assert.That(visemes.Select(b => b.TargetBlendShape), Is.EqualTo(new[] { "vrc.v_sil", "vrc.v_aa", "vrc.v_oh" }));
+            Assert.That(visemes.Select(b => b.Mode), Is.All.EqualTo(CorrectionMode.LimitMax));
+            Assert.That(visemes.Select(b => b.Expression), Is.All.EqualTo("0"));
+            Assert.That(visemes.Select(b => b.GateSetName), Is.All.EqualTo("KxNFTM/Gate/Visemes"));
+            Assert.That(plan.Gates.Select(g => g.Key), Does.Contain(VisemeSuppression.GateKey));
+        }
+
+        [Test]
+        public void Plan_Visemes_SkipsShapesTheTrackingAlsoDrives()
+        {
+            // FTのキーにも割り当てたシェイプを上限0にすると、FTの口まで止まる
+            var set = SetWith(("JawOpen", "MouthOpen"));
+            set.VisemeBlendShapeNames[10] = "MouthOpen";
+            var plan = CorrectionPlanner.Plan(new[] { set }, UeToggles(CorrectionFeatures.None), null, 0, new[] { "vrc.v_oh" });
+
+            Assert.That(
+                plan.Behaviors.Where(b => b.RuleId == VisemeSuppression.RuleId).Select(b => b.TargetBlendShape),
+                Is.EqualTo(new[] { "vrc.v_oh" }));
+        }
+
+        [Test]
+        public void Plan_Visemes_NothingToStopWithoutVisemeShapes()
+        {
+            var plan = CorrectionPlanner.Plan(new[] { FullSet() }, UeToggles(CorrectionFeatures.None), null, 0);
+
+            Assert.That(plan.Behaviors.Any(b => b.RuleId == VisemeSuppression.RuleId), Is.False);
+            Assert.That(plan.Gates.Select(g => g.Key), Does.Not.Contain(VisemeSuppression.GateKey));
+        }
+
+        [Test]
+        public void Plan_Visemes_HiddenAndOn_NeverStops()
+        {
+            var set = SetWith(("JawOpen", "JawOpen"));
+            set.VisemeBlendShapeNames[10] = "vrc.v_aa";
+            var plan = CorrectionPlanner.Plan(new[] { set }, HiddenToggles(CorrectionFeatures.None), null, 0);
+
+            Assert.That(plan.Behaviors.Any(b => b.RuleId == VisemeSuppression.RuleId), Is.False);
+        }
+
+        [Test]
         public void GetPossibleGates_CoversEveryGateThePlanUses()
         {
             var toggles = UeToggles(CorrectionFeatures.All);

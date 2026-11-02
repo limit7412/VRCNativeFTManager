@@ -123,20 +123,13 @@ namespace NativeFTManager.Domain
     internal static class TrackingReapplyPlanner
     {
         /// <summary>
-        /// 目を戻す条件はEyeのSetと同じ（FT ∧ Eye）。口を戻す条件はLipのSetの条件にVisemesを足す。
-        /// Visemesのトグルは、オフのときMouth &amp; JawをAnimationにしてビゼームを止めるので、
-        /// その間に口をTrackingへ戻すと打ち消し合う。
+        /// 目を戻す条件はEyeのSetと同じ（FT ∧ Eye）、口はLipのSetと同じ（FT ∧ Lip）。
         /// メニューに出さないトグルは既定値で畳む。目も口も決して戻さない設定ならnullを返す
         /// </summary>
         public static TrackingReapplyPlan Build(ToggleSet toggles)
         {
             var eyes = new Part(GroupCondition.For(FaceTrackingGroup.Eye).Simplify(toggles), toggles);
-            var mouth = new Part(
-                new GroupCondition(GroupCondition.For(FaceTrackingGroup.Lip).Literals
-                        .Concat(new[] { new ToggleLiteral(NativeFTToggle.Visemes, true) })
-                        .ToArray())
-                    .Simplify(toggles),
-                toggles);
+            var mouth = new Part(GroupCondition.For(FaceTrackingGroup.Lip).Simplify(toggles), toggles);
 
             var combinations = eyes.Values
                 .SelectMany(eye => mouth.Values.Select(lip => (eye, lip)))

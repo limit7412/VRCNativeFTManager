@@ -128,6 +128,12 @@ namespace NativeFTManager.Domain
                 }
             }
 
+            var visemeGate = VisemeSuppression.GetGate(toggles);
+            if (visemeGate != null)
+            {
+                gates.Add(visemeGate);
+            }
+
             return gates;
         }
 
@@ -135,11 +141,13 @@ namespace NativeFTManager.Domain
         /// <param name="toggles">トグル</param>
         /// <param name="excludedRules">個別に外した規則のid</param>
         /// <param name="existingInstructions">Descriptorに元からあるCustom式の命令数</param>
+        /// <param name="lipSyncShapes">DescriptorのLip Sync（Viseme Blend Shape）のシェイプ。Visemesのトグルが口パクを止める対象に加える</param>
         public static CorrectionPlan Plan(
             IReadOnlyList<FaceTrackingSetData> sets,
             ToggleSet toggles,
             ICollection<string> excludedRules,
-            int existingInstructions)
+            int existingInstructions,
+            IEnumerable<string> lipSyncShapes = null)
         {
             var behaviors = new List<CorrectionBehaviorPlan>();
             var gates = new List<GateSlot>();
@@ -198,7 +206,55 @@ namespace NativeFTManager.Domain
                 }
             }
 
+            PlanVisemeSuppression(sets, toggles, lipSyncShapes, budget, behaviors, gates, dropped, ref instructions);
+
             return new CorrectionPlan(behaviors, gates, missing, dropped, instructions);
+        }
+
+        /// <summary>
+        /// Visemesのトグルで口パクを止めるLimitBlendshapeMax（仕様書5.5）。表情補正の規則と同じ命令数の予算に入れ、
+        /// 超えるなら規則と同じく落としてW-12で知らせる。止めるシェイプが無ければ何も作らない
+        /// </summary>
+        private static void PlanVisemeSuppression(
+            IReadOnlyList<FaceTrackingSetData> sets,
+            ToggleSet toggles,
+            IEnumerable<string> lipSyncShapes,
+            int budget,
+            List<CorrectionBehaviorPlan> behaviors,
+            List<GateSlot> gates,
+            List<string> dropped,
+            ref int instructions)
+        {
+            if (!VisemeSuppression.IsPossible(toggles))
+            {
+                return;
+            }
+
+            var shapes = VisemeSuppression.GetTargetShapes(sets, lipSyncShapes);
+            if (shapes.Count == 0)
+            {
+                return;
+            }
+
+            var gate = VisemeSuppression.GetGate(toggles);
+            int cost = CustomExpression.Analyze(VisemeSuppression.Expression).Instructions * shapes.Count;
+            if (instructions + cost > budget)
+            {
+                dropped.Add(VisemeSuppression.RuleId);
+                return;
+            }
+
+            instructions += cost;
+            behaviors.AddRange(shapes.Select(shape => new CorrectionBehaviorPlan(
+                VisemeSuppression.RuleId,
+                CorrectionMode.LimitMax,
+                shape,
+                VisemeSuppression.Expression,
+                gate?.SetName)));
+            if (gate != null)
+            {
+                gates.Add(gate);
+            }
         }
 
         /// <summary>

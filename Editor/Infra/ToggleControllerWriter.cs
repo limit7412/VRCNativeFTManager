@@ -65,13 +65,6 @@ namespace NativeFTManager.Infra
                 WriteLayer(layerPlan, layers[layers.Length - 1].stateMachine);
             }
 
-            if (plan.VisemeLayer != null)
-            {
-                controller.AddLayer(plan.VisemeLayer.Layer.Name);
-                var layers = controller.layers;
-                WriteVisemeLayer(plan.VisemeLayer, layers[layers.Length - 1].stateMachine, saveAsset);
-            }
-
             if (plan.TrackingReapply != null)
             {
                 controller.AddLayer(TrackingReapplyPlan.LayerName);
@@ -90,25 +83,6 @@ namespace NativeFTManager.Infra
             controller.layers = allLayers;
 
             return controller;
-        }
-
-        /// <summary>
-        /// ビゼームのレイヤー（仕様書5.5）。Tracking ControlはSDKの安定した型なので直接参照する。
-        /// Mouth &amp; JawをAnimationにするとビゼームが止まる。ネイティブFTの口にも効くかは確認項目2で確かめる
-        /// </summary>
-        private static void WriteVisemeLayer(VisemeLayerPlan plan, AnimatorStateMachine stateMachine, Action<Object> saveAsset)
-        {
-            if (plan.AlwaysOff)
-            {
-                var off = AddState(stateMachine, ToggleLayerPlan.OffState, new Vector3(250f, 0f));
-                AddMouthTrackingControl(off, VRC_AnimatorTrackingControl.TrackingType.Animation, saveAsset);
-                stateMachine.defaultState = off;
-                return;
-            }
-
-            var states = WriteLayer(plan.Layer, stateMachine);
-            AddMouthTrackingControl(states[ToggleLayerPlan.OnState], VRC_AnimatorTrackingControl.TrackingType.Tracking, saveAsset);
-            AddMouthTrackingControl(states[ToggleLayerPlan.OffState], VRC_AnimatorTrackingControl.TrackingType.Animation, saveAsset);
         }
 
         /// <summary>
@@ -184,15 +158,6 @@ namespace NativeFTManager.Infra
                 "m_LocalPosition.x",
                 new AnimationCurve(new Keyframe(0f, 0f), new Keyframe(lengthSeconds, 0f)));
             return clip;
-        }
-
-        private static void AddMouthTrackingControl(
-            AnimatorState state,
-            VRC_AnimatorTrackingControl.TrackingType mouth,
-            Action<Object> saveAsset)
-        {
-            // 口以外は変えない。目やまぶたまで触ると、ほかのツールのTracking Controlと競合するため
-            AddTrackingControl(state, VRC_AnimatorTrackingControl.TrackingType.NoChange, mouth, saveAsset);
         }
 
         /// <summary>目と口だけを指定し、ほかの部位はNo ChangeにするTracking Controlを付ける</summary>

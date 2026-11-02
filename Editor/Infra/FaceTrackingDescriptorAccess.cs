@@ -16,6 +16,24 @@ namespace NativeFTManager.Infra
     /// </summary>
     internal static class FaceTrackingDescriptorAccess
     {
+        /// <summary>
+        /// Lip SyncがViseme Blend Shape系のとき、ビゼームに割り当てたシェイプ（仕様書5.5）。
+        /// ほかの方式では、残っている名前は口パクに使われないので返さない。
+        /// 方式の名前で判定し、ネイティブFTで加わったViseme Blend Shapeの派生も含める
+        /// </summary>
+        public static IReadOnlyList<string> ReadLipSyncVisemeShapes(VRCAvatarDescriptor descriptor)
+        {
+            if (descriptor == null
+                || descriptor.VisemeSkinnedMesh == null
+                || descriptor.VisemeBlendShapes == null
+                || descriptor.lipSync.ToString().IndexOf("VisemeBlendShape", StringComparison.Ordinal) < 0)
+            {
+                return new string[0];
+            }
+
+            return descriptor.VisemeBlendShapes.Where(name => !string.IsNullOrEmpty(name)).ToArray();
+        }
+
         public static List<FaceTrackingSetData> ReadSets(VRCAvatarDescriptor descriptor)
         {
             var result = new List<FaceTrackingSetData>();

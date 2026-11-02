@@ -143,7 +143,11 @@ namespace NativeFTManager.UseCase
                 .Sum(info => info.Instructions);
 
             report.Corrections = CorrectionPlanner.Plan(
-                split.CorrectionSources, toggles, excludedRules, existingInstructions);
+                split.CorrectionSources,
+                toggles,
+                excludedRules,
+                existingInstructions,
+                FaceTrackingDescriptorAccess.ReadLipSyncVisemeShapes(descriptor));
             report.Estimate = BuildEstimate.Calculate(
                 split.Sets,
                 split.Created.Count,

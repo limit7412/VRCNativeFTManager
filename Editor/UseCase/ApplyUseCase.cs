@@ -201,7 +201,11 @@ namespace NativeFTManager.UseCase
                 .Sum(info => info.Instructions);
 
             var corrections = CorrectionPlanner.Plan(
-                result.CorrectionSources, toggles, ComponentSettings.GetExcludedRules(primary), existingInstructions);
+                result.CorrectionSources,
+                toggles,
+                ComponentSettings.GetExcludedRules(primary),
+                existingInstructions,
+                FaceTrackingDescriptorAccess.ReadLipSyncVisemeShapes(descriptor));
 
             if (corrections.MissingTargets.Count > 0)
             {

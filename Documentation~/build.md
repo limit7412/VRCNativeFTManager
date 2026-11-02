@@ -9,7 +9,8 @@ English: [build.en.md](build.en.md)
 - メニューに出すトグルごとに同期Boolのパラメーターを作り（ビルド時に作る形ならメニューも作り、ヒエラルキーのMenu Itemの形ならMenu Itemから既定値と保存を読み）、FXのレイヤーでSetの重みを0と1に切り替える。パラメーターは `KxNFTM/FaceTracking`、`KxNFTM/EyeTracking`、`KxNFTM/LipTracking`、`KxNFTM/Pupil`、`KxNFTM/Visemes`、`KxNFTM/Emulation`、`KxNFTM/Limits`、`KxNFTM/EyeSync` で、既定の設定なら計8bit
 - 切り替えるSetが無いトグル（ARKitのシェイプしか持たないアバターのPupilなど）は、EXメニューの項目と同期パラメーターを外す（KxNFTM-I-05）。生成しない表情補正のトグルのMenu Itemがヒエラルキーに残っているときも同じく外す
 - 感度を有効にした系統は、Setの倍率を上限の倍率まで上げ、Radialの段階ごとのステートでSetの重みを書く（下の「感度の仕組み」）
-- Visemesを切ると、FXのTracking ControlでMouth & JawをAnimationにしてビゼームを止める
+- Visemesを切ると、FT ∧ Lip の間だけゲートSet `KxNFTM/Gate/Visemes` の重みを1にし、口パクのシェイプに置いた上限0のLimitBlendshapeMaxを効かせる。Tracking Controlは使わない（Mouth & JawをAnimationにするとFTの口まで止まるため）
+- 「FT中は目と口のトラッキングを戻す」がオンなら、FXに `KxNFTM TrackingReapply` を作り、FT ∧ Eye の間は目を、FT ∧ Lip の間は口を、0.5秒ごとにTracking Controlで Tracking へ戻す。アバターのFXやFaceEmoがAnimationにしてFTの視線や口が止まるのを防ぐ
 - 表情補正を、DescriptorのParameter Behaviors（Custom式）として足す。係数はJerry's 7.0.5のFXから移した（出典は[THIRD_PARTY_NOTICES](../Editor/THIRD_PARTY_NOTICES.md)）
   - エミュレーション: 笑うと頬と口角のくぼみを上げる、口から眉を動かす、見開くと瞳孔を縮めるなど。追跡した値を下回らない下限（Limit Min）として書く
   - 制限: 唇をすぼめると口の上下を抑えるなど、同時に動かすと崩れる組み合わせの上限（Limit Max）を書く

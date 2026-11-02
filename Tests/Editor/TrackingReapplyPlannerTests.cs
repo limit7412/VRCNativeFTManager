@@ -10,7 +10,6 @@ namespace NativeFTManager.Tests
         private const string FT = NativeFTManagerParameterNames.FaceTracking;
         private const string Eye = NativeFTManagerParameterNames.EyeTracking;
         private const string Lip = NativeFTManagerParameterNames.LipTracking;
-        private const string Visemes = NativeFTManagerParameterNames.Visemes;
 
         /// <summary>既定の設定（すべてのトグルをメニューに出す）に、指定したトグルの設定を上書きする</summary>
         private static ToggleSet CreateToggles(params ToggleSettings[] overrides)
@@ -75,22 +74,18 @@ namespace NativeFTManager.Tests
         {
             var plan = TrackingReapplyPlanner.Build(CreateToggles());
 
-            // 口はLipのSetの条件にVisemesを足したもの。Face Trackingは目と口で1つにまとめ、
-            // Face Trackingのオンとオフを同時に求める組み合わせは作らない
+            // Face Trackingは目と口で1つにまとめ、Face Trackingのオンとオフを同時に求める組み合わせは作らない
             Assert.That(
                 plan.TransitionsFrom(TrackingReapplyPlan.ArmedState).Select(Describe),
                 Is.EqualTo(new[]
                 {
-                    $"Armed->Apply Eyes+Mouth: {FT} & {Eye} & {Lip} & {Visemes}",
+                    $"Armed->Apply Eyes+Mouth: {FT} & {Eye} & {Lip}",
                     $"Armed->Apply Eyes: {FT} & {Eye} & !{Lip}",
-                    $"Armed->Apply Eyes: {FT} & {Eye} & !{Visemes}",
-                    $"Armed->Apply Mouth: !{Eye} & {FT} & {Lip} & {Visemes}",
+                    $"Armed->Apply Mouth: !{Eye} & {FT} & {Lip}",
                     $"Armed->Idle: !{FT}",
                     $"Armed->Idle: !{FT} & !{Lip}",
-                    $"Armed->Idle: !{FT} & !{Visemes}",
                     $"Armed->Idle: !{Eye} & !{FT}",
                     $"Armed->Idle: !{Eye} & !{Lip}",
-                    $"Armed->Idle: !{Eye} & !{Visemes}",
                 }));
         }
 
@@ -107,7 +102,6 @@ namespace NativeFTManager.Tests
                     $"Apply Eyes+Mouth->Armed: !{FT}",
                     $"Apply Eyes+Mouth->Armed: !{Eye}",
                     $"Apply Eyes+Mouth->Armed: !{Lip}",
-                    $"Apply Eyes+Mouth->Armed: !{Visemes}",
                     "Apply Eyes+Mouth->Armed:  (exit 1)",
                 }));
             Assert.That(
@@ -115,7 +109,7 @@ namespace NativeFTManager.Tests
                 Is.EqualTo(new[]
                 {
                     $"Idle->Armed: {FT} & {Eye}",
-                    $"Idle->Armed: {FT} & {Lip} & {Visemes}",
+                    $"Idle->Armed: {FT} & {Lip}",
                 }),
                 "Idleは周期を持たず、トグルの変化だけで抜ける");
         }
@@ -126,8 +120,7 @@ namespace NativeFTManager.Tests
             var plan = TrackingReapplyPlanner.Build(CreateToggles(
                 Hidden(NativeFTToggle.FaceTracking, true),
                 Hidden(NativeFTToggle.EyeTracking, true),
-                Hidden(NativeFTToggle.LipTracking, true),
-                Hidden(NativeFTToggle.Visemes, true)));
+                Hidden(NativeFTToggle.LipTracking, true)));
 
             Assert.That(
                 plan.States.Select(state => state.Name),
@@ -144,15 +137,23 @@ namespace NativeFTManager.Tests
         }
 
         [Test]
-        public void Build_HiddenVisemesOff_OnlyAppliesTheEyes()
+        public void Build_HiddenLipOff_OnlyAppliesTheEyes()
         {
-            // Visemesを既定でオフに固定すると口は常にAnimationなので、口は戻さない
-            var plan = TrackingReapplyPlanner.Build(CreateToggles(Hidden(NativeFTToggle.Visemes, false)));
+            var plan = TrackingReapplyPlanner.Build(CreateToggles(Hidden(NativeFTToggle.LipTracking, false)));
 
             Assert.That(plan.States.Any(state => state.Mouth), Is.False);
             Assert.That(
                 plan.States.Select(state => state.Name),
                 Is.EqualTo(new[] { TrackingReapplyPlan.ArmedState, "Apply Eyes", TrackingReapplyPlan.IdleState }));
+        }
+
+        [Test]
+        public void Build_VisemesOff_StillAppliesTheMouth()
+        {
+            // Visemesは口パクのシェイプの上限で止め、Tracking Controlを使わない。口のトラッキングは戻し続ける
+            var plan = TrackingReapplyPlanner.Build(CreateToggles(Hidden(NativeFTToggle.Visemes, false)));
+
+            Assert.That(plan.States.Any(state => state.Mouth), Is.True);
         }
 
         [Test]
