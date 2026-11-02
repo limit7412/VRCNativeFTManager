@@ -36,7 +36,7 @@ CIでも実行されるが（[ci.md](ci.md)）、Unityライセンスのsecret�
 Avatar Optimizerの型には触らないため、AAO対策の処理は持たない。
 AAOは1.9.21でネイティブFTに対応し、SetとParameter Behaviorsの対象シェイプを自分で保護する。
 本体のasmdefでは `versionDefines` でAAOの版（`KX_AAO_NATIVE_FT`、1.9.21以降）とSDKの版（`KX_VRC_SDK_AAO_FT`、AAO 1.9.21が対応を有効にする3.10.6-beta.4以降）を判定し、古い組み合わせのときに警告（W-14、W-15）を出すだけにしている。
-0.1.0-test11までは、AAO対策用に空のアセンブリ `NativeFTManager.Editor.AAOCompat`（`Editor/AAOCompat/`）を残していた。0.1.0-test12で取り除き、そのGUIDは `booth_package.py` の `RETIRED_GUIDS` に載せた。
+かつてAAO対策用に置いていた空のアセンブリ `NativeFTManager.Editor.AAOCompat`（`Editor/AAOCompat/`）は取り除き、そのGUIDは `booth_package.py` の `RETIRED_GUIDS` に載せた。
 
 ARKit BlendShape Generatorは必須の依存だが、`NativeFTManager.Editor` はGeneratorのアセンブリを参照しない。
 booth版はVPMの依存解決を通らず、同梱したGeneratorのunitypackageを取り込み忘れることがある。asmdefで参照すると、そのときEditorアセンブリ全体がコンパイルできず、警告も出せない。
@@ -46,7 +46,7 @@ Set名の定数 `FaceTrackingSetNames.Generator` は `GeneratorAccess.DefaultSet
 アバターにGeneratorのコンポーネントが無くSetも無いときは、Generator 0.2.2以降が公開する `ARKitBlendShapeGenerator.FaceTrackingSetMapping` を同じくリフレクションで呼び、メッシュのシェイプ名からSetを作る（`Editor/Infra/ShapeMappedSetReader.cs`、仕様書10.1のF-20）。`GetKeyNames()` の並びが `FaceTrackingGroupTable` と一致しないときは使わない。
 「ARKitをUEに変換」がオンなら、Setを作る前に `ARKitBlendShapeGenerator.UnifiedExpressionsConversion.ConvertArkitShapes(SkinnedMeshRenderer)` を同じくリフレクションで呼び、同じメッシュへUE名のシェイプキーを書き足す（`GeneratorAccess.ConvertToUnifiedExpressions`）。変換はGenerator 0.2.3から公開されており、それより古い版では何もしない。
 CIの `EditMode tests` はGeneratorを入れた構成と入れない構成の両方で回す。テストのasmdefは `versionDefines` で `KX_TEST_GENERATOR_INSTALLED` を立て、構成ごとに検証を切り替える。
-0.1.0-test9までは任意依存で、Generatorが入っているときだけコンパイルする `NativeFTManager.Editor.GeneratorCompat` に置いていた。0.1.0-test10で本体へ統合し、そのGUIDは `booth_package.py` の `RETIRED_GUIDS` に載せた。
+かつてGeneratorは任意依存で、連携の処理はGeneratorが入っているときだけコンパイルする `NativeFTManager.Editor.GeneratorCompat` に置いていた。本体へ統合したあと、そのGUIDは `booth_package.py` の `RETIRED_GUIDS` に載せた。
 
 Generatorの版の下限は `package.json` の `vpmDependencies` にある。
 今の下限は、Generatorの安定版の0.2.3である。連携に使う型は、Set名の定数（`FaceTrackingSetNames`）が0.2.1-test3から、対応表（`FaceTrackingSetMapping`）が0.2.2から、UE変換（`UnifiedExpressionsConversion`）が0.2.3から含まれている。
