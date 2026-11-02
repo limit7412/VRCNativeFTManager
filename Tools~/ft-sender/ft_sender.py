@@ -261,12 +261,21 @@ def run_gui(args, values):
             status.set(f"送信中 {args.host}:{args.port} {args.rate:g} Hz")
             send_button.config(text="送信停止")
 
+    def clear_sine():
+        # サイン波の対象は values に無くても 0〜1 で動くので、値を決め直す操作では一緒に外す
+        for var in sine_vars.values():
+            var.set(False)
+        with sender.lock:
+            sender.sine_keys = set()
+
     def apply_preset(*_):
         name = preset_var.get().split(" ", 1)[0]
+        clear_sine()
         sender.set_values(resolve(PRESETS[name][1]))
         refresh_scales()
 
     def all_zero():
+        clear_sine()
         sender.set_values({})
         refresh_scales()
 
