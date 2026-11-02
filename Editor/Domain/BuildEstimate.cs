@@ -8,9 +8,11 @@ namespace NativeFTManager.Domain
     /// ビルド結果の見積もり（仕様書6.4の7、F-13）
     ///
     /// ビルド前のDescriptorから、分割とParameter Behaviorsの生成を同じ規則でなぞって数える。
-    /// Face Tracking Operationsの数え方はVRChatのドキュメントの説明に沿うが、細部は公開されていないので目安である。
-    /// シェイプの対応は、そのシェイプを持つFace Tracking Meshの数だけ数える。
-    /// 重み0のSetも数えられるので、分割したSetとゲートSetもそのまま数える
+    /// Face Tracking Operationsは、SDK 3.10.6の<c>AvatarPerformance.CalculatePerformanceStats</c>と突き合わせた数え方に合わせる（issue #39、#42）。
+    /// キーのシェイプ対応は、そのシェイプを持つFace Tracking MeshのRendererの数だけ数える。同じMeshを使うRendererも別に数える。
+    /// Setのビゼーム対応は数えない。Parameter Behaviorは演算の数を1回だけ数え、Rendererの数で掛けない。
+    /// 重み0のSetも数えられるので、分割したSetとゲートSetもそのまま数える。
+    /// Custom以外のParameter Behaviorの数え方はSDKと突き合わせていないので、入力キーの数を1回だけ数える目安とする
     /// </summary>
     internal sealed class BuildEstimate
     {
@@ -59,7 +61,7 @@ namespace NativeFTManager.Domain
         /// <param name="existingBehaviors">Descriptorに元からあるParameter Behaviors</param>
         /// <param name="toggles">トグル</param>
         /// <param name="plan">FXのレイヤーの計画</param>
-        /// <param name="meshesWithShape">シェイプ名を持つFace Tracking Meshの数</param>
+        /// <param name="renderersWithShape">シェイプ名を持つFace Tracking MeshのRendererの数</param>
         /// <param name="otherSyncedBits">本製品以外の同期パラメーターのbit数</param>
         public static BuildEstimate Calculate(
             IReadOnlyList<FaceTrackingSetData> sets,
@@ -68,10 +70,10 @@ namespace NativeFTManager.Domain
             IReadOnlyList<ExistingBehavior> existingBehaviors,
             ToggleSet toggles,
             ToggleControllerPlan plan,
-            Func<string, int> meshesWithShape,
+            Func<string, int> renderersWithShape,
             int otherSyncedBits)
         {
-            int Meshes(string shape) => string.IsNullOrEmpty(shape) ? 0 : Math.Max(0, meshesWithShape(shape));
+            int Renderers(string shape) => string.IsNullOrEmpty(shape) ? 0 : Math.Max(0, renderersWithShape(shape));
 
             var estimate = new BuildEstimate
             {
@@ -89,19 +91,13 @@ namespace NativeFTManager.Domain
             {
                 for (int key = 0; key < FaceTrackingGroupTable.KeyCount; key++)
                 {
-                    estimate.Operations += Meshes(set.GetBlendShapeName(key));
-                }
-
-                for (int viseme = 0; viseme < FaceTrackingGroupTable.VisemeCount; viseme++)
-                {
-                    estimate.Operations += Meshes(set.GetVisemeBlendShapeName(viseme));
+                    estimate.Operations += Renderers(set.GetBlendShapeName(key));
                 }
             }
 
             foreach (var behavior in corrections.Behaviors)
             {
-                estimate.Operations += CustomExpression.Analyze(behavior.Expression).Operations
-                                       * Math.Max(1, Meshes(behavior.TargetBlendShape));
+                estimate.Operations += CustomExpression.Analyze(behavior.Expression).Operations;
             }
 
             foreach (var behavior in existingBehaviors)
@@ -112,12 +108,12 @@ namespace NativeFTManager.Domain
                     if (info.IsValid)
                     {
                         estimate.ExistingInstructions += info.Instructions;
-                        estimate.Operations += info.Operations * Math.Max(1, Meshes(behavior.TargetBlendShape));
+                        estimate.Operations += info.Operations;
                     }
                 }
                 else
                 {
-                    estimate.Operations += behavior.InputCount * Math.Max(1, Meshes(behavior.TargetBlendShape));
+                    estimate.Operations += behavior.InputCount;
                 }
             }
 
