@@ -2,7 +2,7 @@
 
 VRChatのネイティブFace Tracking向けに、Jerry's Templates相当のトグルと表情補正をEXメニューから操作できるようにするNDMFプラグインです。
 ヒエラルキーの右クリックからアバターへ追加するだけで使えます。[Kx VRC ARKit BlendShape Generator](https://github.com/limit7412/VRCARKitBlendShapeGenerator)を依存に持ち、アバターにGeneratorがあれば連携します。
-FaceEmoの抑制も本製品が行います。[Kx VRC FE-JsT Bridge](https://github.com/limit7412/VRCFE-JsTBridge)とは連携せず、同じアバターでの併用もしません。
+FaceEmoの抑制も本製品が行います。
 
 English: [README.en.md](README.en.md)
 

@@ -13,14 +13,14 @@ Below that, errors, warnings and notices about the settings or the avatar appear
 
 | Item | Default | Meaning |
 | --- | --- | --- |
-| Auto-set Shape Keys | On | Assigns the shape keys to a Blendshapes Set automatically at build time. When the avatar has a Kx VRC ARKit BlendShape Generator component, its Set output is enabled during the build only (the Generator's settings in the scene are not changed). Otherwise, only when the Descriptor has no Set, a Set is built from the ARKit- or UE-named shapes of the face mesh with the Generator's mapping table. Grayed out with a warning (KxNFTM-W-20) when the Generator is not installed in the project. Values saved under the former names "Use Generator Component" and "Generator Integration" (0.1.0-test10 or earlier; Auto is on, Off is off) are read |
+| Auto-set Shape Keys | On | Assigns the shape keys to a Blendshapes Set automatically at build time. When the avatar has a Kx VRC ARKit BlendShape Generator component, its Set output is enabled during the build only (the Generator's settings in the scene are not changed). Otherwise, only when the Descriptor has no Set, a Set is built from the ARKit- or UE-named shapes of the face mesh with the Generator's mapping table. Grayed out with a warning (KxNFTM-W-20) when the Generator is not installed in the project |
 | Convert ARKit to UE | On | When the avatar has no Generator component, adds Unified Expressions shape keys converted from the ARKit shape keys of the face mesh during the build only, before the Set is built. Keys that UE splits into left/right or upper/lower, such as browInnerUp, cheekPuff, mouthPress, mouthFunnel and mouthLeft/Right, then move separately. The original mesh is not changed. Grayed out when Auto-set Shape Keys is off, when the Generator is not installed or does not have the conversion, and when the avatar has a Generator component (its output naming setting is used) |
 
 When the avatar has no Generator component and the Descriptor already has Sets, those Sets are used as they are. Prepare them with Auto Fill or by hand. Avatars that already have ARKit shapes do not need Auto Fill, because a Set is built during the build when the Descriptor has none.
 
 ## Default Settings
 
-A component created from the right-click menu or added with Add Component starts with the following settings. The "preset" of the 0.1.0-test releases has been removed (the preset value saved by an older version is no longer read; the toggle and correction settings stay as they are).
+A component created from the right-click menu or added with Add Component starts with the following settings.
 
 | Target | Default |
 | --- | --- |
@@ -36,7 +36,7 @@ There are two ways the Expressions Menu is made. A component created from the ri
 | Way | When | Where the toggle layout is decided |
 | --- | --- | --- |
 | Menu Items in the hierarchy | Created from the right-click menu, or after pressing "Expand the menu into the hierarchy" | The MA Menu Items under the component |
-| Generated at build time | Added with Add Component, or created with 0.1.0-test8 or earlier | The values stored in the component (the default settings right after Add Component). They cannot be changed in the inspector; to change them, convert to Menu Items with the expand button |
+| Generated at build time | Added with Add Component | The values stored in the component (the default settings right after Add Component). They cannot be changed in the inspector; to change them, convert to Menu Items with the expand button |
 
 With Menu Items in the hierarchy, the following hierarchy is created. As with Jerry's, you can reorder the items, change their labels and icons, and move them to another submenu or elsewhere on the avatar.
 
@@ -58,9 +58,7 @@ Face Tracking            MA Menu Installer + Menu Item (submenu)
 
 The object names are always the English names above, whatever the editor language. The label field of each Menu Item stays empty, so the object name is shown in the Expressions Menu. To rename an item, change its object name or fill in the label of the Menu Item.
 
-Hierarchies created in a Japanese editor with 0.1.0-test15 or earlier keep their Japanese names (object names up to test12, the label field of the Menu Items from test13). Pressing "Fill empty icons and restore the default English names" under Toggles in the inspector restores the English names only for items that still have the Japanese names this package gave them. Names you have set yourself are not changed. The Japanese names also keep working if you leave them.
-
-Each item gets a bundled default icon (an eye, lips, a gear and so on). Replace the Icon of a Menu Item to use your own. Pressing the button above fills in the default icon only for items whose icon is empty, and keeps icons you have set (hierarchies created with 0.1.0-test14 or earlier have empty icons, so use this to add them). Menus generated at build time get the same default icons.
+Each item gets a bundled default icon (an eye, lips, a gear and so on). Replace the Icon of a Menu Item to use your own. Pressing "Fill empty icons and restore the default English names" under "Toggles" in the inspector fills in the default icon only for items whose icon is empty, and keeps icons you have set. The second half of the button name restores the default English names that an older version gave in Japanese in a Japanese editor; names you have set yourself are not changed. Menus generated at build time get the same default icons.
 
 At build time, the MA Menu Items on the avatar whose parameter name (after the renames of MA Parameters) matches a public `KxNFTM/` name are read.
 

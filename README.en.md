@@ -2,7 +2,7 @@
 
 An NDMF plugin that brings Jerry's Templates style toggles and expression corrections, operated from the Expressions Menu, to avatars that use VRChat's native Face Tracking.
 Add it to your avatar from the Hierarchy context menu and it works. It depends on [Kx VRC ARKit BlendShape Generator](https://github.com/limit7412/VRCARKitBlendShapeGenerator) and integrates with it when the avatar has one.
-It also suppresses FaceEmo while face tracking is active. It does not integrate with [Kx VRC FE-JsT Bridge](https://github.com/limit7412/VRCFE-JsTBridge), and the two should not be used on the same avatar.
+It also suppresses FaceEmo while face tracking is active.
 
 日本語: [README.md](README.md)
 
