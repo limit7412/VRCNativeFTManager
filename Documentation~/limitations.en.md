@@ -17,6 +17,6 @@ A correction rule is generated only when the shape it writes to is in a Set (the
 
 ## When no tracking data arrives
 
-Whether face shapes go back to 0 or stay at the last value when the tracker stops or VRCFaceTracking exits is decided by VRChat. This has not been checked on the VRChat client yet.
-Turn "Face Tracking" off in the Expressions Menu while you are not using a tracker. The Set weights become 0 and FaceEmo suppression is released.
+When the tracker stops or VRCFaceTracking exits, face shapes do not stay at the last value; they go back to their rest state (0) right away. For example, if data stops while the mouth is open, the mouth closes.
+Turn "Face Tracking" off in the Expressions Menu while you are not using a tracker. The Set weights become 0 so animation expressions show again, and FaceEmo suppression is released.
 If you often use the avatar without a tracker, you can also set the toggle's default value to off.
