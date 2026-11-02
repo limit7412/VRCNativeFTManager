@@ -23,20 +23,24 @@ The booth zip contains the unitypackages of both this package and the Generator 
 
 The booth version does not go through the dependency resolution of VCC/ALCOM, so the Generator unitypackage may be left unimported.
 This package looks up the Generator's types by reflection, so it still compiles and works in a project without the Generator.
-In that case, it shows a warning (KxNFTM-W-20), grays out "Use Generator Component" in the inspector, and splits only the Blendshapes Sets on the Descriptor.
+In that case, it shows a warning (KxNFTM-W-20), grays out "Auto-set Shape Keys" and "Convert ARKit to UE" in the inspector, and splits only the Blendshapes Sets on the Descriptor.
 The Generator row of the status shows "Not installed".
 Once the Generator is imported, the integration works with the same settings.
 
 Even when the avatar has no Generator component, the mapping table of Generator 0.2.2 or later in the project is used.
 When the Descriptor has no Blendshapes Set, a Set that assigns the ARKit- or UE-named shapes of the Face Tracking Meshes (or the lip sync mesh when that list is empty) to the keys is built during the build and then split (information KxNFTM-I-06).
 This saves pressing Auto Fill on avatars that already have ARKit shapes.
-No Set is built when the Descriptor has any Set or the avatar has a Generator component.
+No Set is built when the Descriptor has any Set, when the avatar has a Generator component, or when "Auto-set Shape Keys" in the inspector is off.
+
+When "Convert ARKit to UE" in the inspector is on (the default), Unified Expressions shape keys converted from the ARKit shape keys of the same meshes are added to the build copy before the Set is built.
+The conversion is the same as the Generator's UE output naming, so keys that UE splits into left/right or upper/lower, such as browInnerUp and cheekPuff, each get their own split shape.
+It needs a Generator version that publishes the conversion. With an older version, nothing is converted and the ARKit-named shapes are assigned as they are.
 An old Generator that lacks the field needed for the integration is treated as not installed.
 
 Whether to use the Generator is up to each avatar.
 If the avatar has no Generator component, the integration does nothing and the Blendshapes Sets on the Descriptor are used as they are.
 
-When "Use Generator Component" in the inspector is on and the avatar has a Generator component, the Generator's Set output is enabled during the build only.
+When "Auto-set Shape Keys" in the inspector is on and the avatar has a Generator component, the Generator's Set output is enabled during the build only.
 It is on by default, including for a Manager created from the context menu.
 The Generator's Set is created only during the build, so it is not included in the inspector's estimate.
 

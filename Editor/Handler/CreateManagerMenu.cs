@@ -27,7 +27,7 @@ namespace NativeFTManager.Handler
 
         /// <summary>
         /// Managerを作る。Generatorは必須の依存なので、汎用版とARKit版を分けず1つにした。
-        /// 「Generatorコンポーネントを使う」は常にオンで作り、アバターにGeneratorが無ければ何もしない
+        /// 「シェイプキーを自動でセット」は常にオンで作り、アバターにGeneratorが無ければ何もしない
         /// </summary>
         [MenuItem(MenuRoot + ObjectName, false, Priority)]
         private static void Create(MenuCommand command)
@@ -46,7 +46,7 @@ namespace NativeFTManager.Handler
             // AddComponentでResetが走り、既定値が入る
             var component = gameObject.AddComponent<NativeFTManagerComponent>();
             var searchRoot = MenuHierarchyScanner.GetSearchRoot(component);
-            component.useGeneratorComponent = true;
+            component.autoSetShapeKeys = true;
 
             // 既定のトグルの構成をそのままMenu Itemにし、以後はMenu Itemの側を正にする。
             // アバターにすでにManagerがあり、こちらが重複として消される側なら作らない。

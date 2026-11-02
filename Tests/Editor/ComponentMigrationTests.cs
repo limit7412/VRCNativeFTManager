@@ -23,11 +23,14 @@ namespace NativeFTManager.Tests
         }
 
         /// <summary>
-        /// 0.1.0-test10までの列挙体GeneratorIntegration（Off=0、Auto=1）で保存した値を読む
+        /// 旧名で保存した「シェイプキーを自動でセット」を読む。
+        /// 0.1.0-test10までは列挙体GeneratorIntegration（Off=0、Auto=1）、その後はbool useGeneratorComponentだった
         /// </summary>
-        [TestCase(0, false)]
-        [TestCase(1, true)]
-        public void UseGeneratorComponent_ReadsGeneratorIntegration(int saved, bool expected)
+        [TestCase("generatorIntegration", 0, false)]
+        [TestCase("generatorIntegration", 1, true)]
+        [TestCase("useGeneratorComponent", 0, false)]
+        [TestCase("useGeneratorComponent", 1, true)]
+        public void AutoSetShapeKeys_ReadsFormerNames(string formerName, int saved, bool expected)
         {
             if (!AssetDatabase.IsValidFolder(Folder))
             {
@@ -36,18 +39,18 @@ namespace NativeFTManager.Tests
 
             var gameObject = new GameObject("ComponentMigration");
             var component = gameObject.AddComponent<NativeFTManagerComponent>();
-            component.useGeneratorComponent = !expected;
+            component.autoSetShapeKeys = !expected;
             PrefabUtility.SaveAsPrefabAsset(gameObject, PrefabPath);
             Object.DestroyImmediate(gameObject);
 
             var yaml = File.ReadAllText(PrefabPath);
-            var current = "useGeneratorComponent: " + (expected ? 0 : 1);
+            var current = "autoSetShapeKeys: " + (expected ? 0 : 1);
             StringAssert.Contains(current, yaml);
-            File.WriteAllText(PrefabPath, yaml.Replace(current, "generatorIntegration: " + saved));
+            File.WriteAllText(PrefabPath, yaml.Replace(current, formerName + ": " + saved));
             AssetDatabase.ImportAsset(PrefabPath, ImportAssetOptions.ForceUpdate);
 
             var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(PrefabPath);
-            Assert.That(prefab.GetComponent<NativeFTManagerComponent>().useGeneratorComponent, Is.EqualTo(expected));
+            Assert.That(prefab.GetComponent<NativeFTManagerComponent>().autoSetShapeKeys, Is.EqualTo(expected));
         }
     }
 }

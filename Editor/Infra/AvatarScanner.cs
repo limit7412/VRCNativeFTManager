@@ -36,7 +36,7 @@ namespace NativeFTManager.Infra
                 FaceEmoSuppressionEnabled = suppression != null && suppression.enabled,
                 FaceEmoSuppressionNeverEngaged = suppression != null && suppression.enabled
                     && SuppressionTrigger.Build(suppression.trigger, toggles).IsNeverEngaged,
-                UseGeneratorComponent = component.useGeneratorComponent,
+                AutoSetShapeKeys = component.autoSetShapeKeys,
                 // Generatorの導入漏れ（W-20）はアバターの外に置いたときも知らせる
                 Generator = GeneratorAccess.IsInstalled ? GeneratorPresence.None : GeneratorPresence.NotInstalled,
                 SetUseAllTrackingKeys = component.setUseAllTrackingKeys,

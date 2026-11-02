@@ -23,7 +23,7 @@ booth版のzipには、本製品とGeneratorのunitypackageが入っています
 
 booth版はVCC/ALCOMの依存解決を通らないので、Generatorのunitypackageを取り込み忘れることがあります。
 本製品はGeneratorの型をリフレクションで引くので、Generatorが入っていないプロジェクトでもコンパイルが通り、動きます。
-そのときは警告（KxNFTM-W-20）を出し、インスペクタの「Generatorコンポーネントを使う」をグレーアウトして、DescriptorにあるBlendshapes Setだけを分割します。
+そのときは警告（KxNFTM-W-20）を出し、インスペクタの「シェイプキーを自動でセット」と「ARKitをUEに変換」をグレーアウトして、DescriptorにあるBlendshapes Setだけを分割します。
 状態表示のGeneratorの欄は「未導入」になります。
 Generatorを取り込むと、設定はそのままで連携が有効になります。
 連携に必要なフィールドを持たない古い版のGeneratorも、入っていないものとして扱います。
@@ -31,12 +31,16 @@ Generatorを取り込むと、設定はそのままで連携が有効になり�
 アバターにGeneratorのコンポーネントが無くても、プロジェクトにGenerator 0.2.2以降が入っていれば、その対応表を使います。
 DescriptorにBlendshapes Setが1つも無いとき、Face Tracking Meshes（空ならリップシンクのメッシュ）にあるARKit名・UE名のシェイプをキーへ割り当てたSetをビルド中に作り、分割します（情報 KxNFTM-I-06）。
 元からARKitのシェイプを持つアバターで、オートフィルを押す手間を省くためです。
-Setが1つでもあるとき、またはアバターにGeneratorのコンポーネントがあるときは作りません。
+Setが1つでもあるとき、アバターにGeneratorのコンポーネントがあるとき、インスペクタの「シェイプキーを自動でセット」がオフのときは作りません。
+
+インスペクタの「ARKitをUEに変換」がオン（既定）なら、Setを作る前に、同じメッシュのARKit名のシェイプキーからUnified Expressions名のシェイプキーをビルド用の複製に書き足します。
+変換はGeneratorの出力名をUEにしたときと同じで、browInnerUpやcheekPuffのようにUEで左右・上下に分かれるキーには、分けた形がそれぞれ入ります。
+変換を公開している版のGeneratorが要ります。古い版では変換せず、ARKit名のシェイプをそのまま割り当てます。
 
 Generatorを使うかどうかはアバターごとに決められます。
 アバターにGeneratorのコンポーネントが無ければ連携は何もせず、DescriptorのBlendshapes Setをそのまま使います。
 
-インスペクタの「Generatorコンポーネントを使う」がオンのとき、アバターにGeneratorのコンポーネントがあれば、ビルド中だけGeneratorのSet書き込みを有効にします。
+インスペクタの「シェイプキーを自動でセット」がオンのとき、アバターにGeneratorのコンポーネントがあれば、ビルド中だけGeneratorのSet書き込みを有効にします。
 既定はオンで、右クリックで作ったManagerも最初からオンになっています。
 GeneratorのSetはビルド中にしか作られないので、インスペクタの見積もりには入りません。
 

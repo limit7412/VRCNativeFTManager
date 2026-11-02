@@ -75,10 +75,17 @@ namespace NativeFTManager.UseCase
                 }
             }
 
-            if (sets.Count == 0 && !state.GeneratorPresent)
+            if (sets.Count == 0 && !state.GeneratorPresent && primary.autoSetShapeKeys)
             {
                 // Setが1つも無く、Generatorのコンポーネントも無いときは、Generatorの対応表でメッシュのシェイプからSetを作る。
-                // MAのマージとGeneratorの後なので、ビルド中に加わったシェイプも読む
+                // MAのマージとGeneratorの後なので、ビルド中に加わったシェイプも読む。
+                // 「ARKitをUEに変換」がオンなら、先にARKit名のシェイプキーからUE名のシェイプキーを書き足す。
+                // 対応表はUE名を優先するので、左右や上下に分かれるキーにはそれぞれ別のシェイプが入る
+                if (primary.convertArkitToUnifiedExpressions)
+                {
+                    ShapeMappedSetReader.ConvertToUnifiedExpressions(descriptor);
+                }
+
                 var mapped = ShapeMappedSetReader.Read(descriptor);
                 if (mapped != null)
                 {

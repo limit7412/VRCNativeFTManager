@@ -33,7 +33,8 @@ namespace NativeFTManager.Presentation
         private SerializedProperty _setUseAllTrackingKeys;
         private SerializedProperty _visemeDampenOverride;
         private SerializedProperty _visemeDampenAmount;
-        private SerializedProperty _useGeneratorComponent;
+        private SerializedProperty _autoSetShapeKeys;
+        private SerializedProperty _convertArkitToUnifiedExpressions;
         private SerializedProperty _enableEmulation;
         private SerializedProperty _enableLimits;
         private SerializedProperty _enableEyeSync;
@@ -59,7 +60,9 @@ namespace NativeFTManager.Presentation
             _setUseAllTrackingKeys = serializedObject.FindProperty(nameof(NativeFTManagerComponent.setUseAllTrackingKeys));
             _visemeDampenOverride = serializedObject.FindProperty(nameof(NativeFTManagerComponent.visemeDampenOverride));
             _visemeDampenAmount = serializedObject.FindProperty(nameof(NativeFTManagerComponent.visemeDampenAmount));
-            _useGeneratorComponent = serializedObject.FindProperty(nameof(NativeFTManagerComponent.useGeneratorComponent));
+            _autoSetShapeKeys = serializedObject.FindProperty(nameof(NativeFTManagerComponent.autoSetShapeKeys));
+            _convertArkitToUnifiedExpressions = serializedObject.FindProperty(
+                nameof(NativeFTManagerComponent.convertArkitToUnifiedExpressions));
             _enableEmulation = serializedObject.FindProperty(nameof(NativeFTManagerComponent.enableEmulation));
             _enableLimits = serializedObject.FindProperty(nameof(NativeFTManagerComponent.enableLimits));
             _enableEyeSync = serializedObject.FindProperty(nameof(NativeFTManagerComponent.enableEyeSync));
@@ -99,8 +102,10 @@ namespace NativeFTManager.Presentation
             // 値は書き換えない。後からGeneratorを取り込めば、そのまま連携が有効になる
             using (new EditorGUI.DisabledScope(!GeneratorAccess.IsInstalled))
             {
-                EditorGUILayout.PropertyField(_useGeneratorComponent, G("inspector.use_generator_component"));
+                EditorGUILayout.PropertyField(_autoSetShapeKeys, G("inspector.auto_set_shape_keys"));
             }
+
+            DrawConvertArkitToUnifiedExpressions();
 
             EditorGUILayout.Space();
             DrawToggles();
@@ -143,6 +148,38 @@ namespace NativeFTManager.Presentation
             }
 
             serializedObject.ApplyModifiedProperties();
+        }
+
+        /// <summary>
+        /// 「ARKitをUEに変換」。自動セットの下位の設定なので字下げして置く。
+        /// 自動セットがオフ、Generatorが無い、または変換を公開していない版のときはグレーアウトする。
+        /// アバターにGeneratorのコンポーネントがあるときは使われないので、グレーアウトして理由を出す。
+        /// どの場合も値は書き換えない
+        /// </summary>
+        private void DrawConvertArkitToUnifiedExpressions()
+        {
+            bool generatorComponent = _report != null && _report.Generator == GeneratorPresence.Present;
+            bool usable = GeneratorAccess.CanConvertToUnifiedExpressions
+                          && !generatorComponent
+                          && (_autoSetShapeKeys.hasMultipleDifferentValues || _autoSetShapeKeys.boolValue);
+
+            EditorGUI.indentLevel++;
+            using (new EditorGUI.DisabledScope(!usable))
+            {
+                EditorGUILayout.PropertyField(_convertArkitToUnifiedExpressions, G("inspector.convert_arkit_to_ue"));
+            }
+
+            EditorGUI.indentLevel--;
+
+            if (generatorComponent)
+            {
+                EditorGUILayout.HelpBox(S("inspector.convert_arkit_to_ue.generator_component"), MessageType.None);
+            }
+            else if (GeneratorAccess.IsInstalled && !GeneratorAccess.CanConvertToUnifiedExpressions)
+            {
+                // Generatorが無いときはW-20で案内するので、ここでは古い版のときだけ出す
+                EditorGUILayout.HelpBox(S("inspector.convert_arkit_to_ue.outdated"), MessageType.None);
+            }
         }
 
         /// <summary>
