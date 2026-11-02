@@ -142,12 +142,17 @@ namespace NativeFTManager.Domain
         /// <param name="excludedRules">個別に外した規則のid</param>
         /// <param name="existingInstructions">Descriptorに元からあるCustom式の命令数</param>
         /// <param name="lipSyncShapes">DescriptorのLip Sync（Viseme Blend Shape）のシェイプ。Visemesのトグルが口パクを止める対象に加える</param>
+        /// <param name="allSets">
+        /// Descriptorへ書くSetの全体（分割しなかったSetを含む）。Visemesのトグルは、ここのビゼーム対応を対象にし、
+        /// ここのFTのキーに割り当てたシェイプを対象から外す。nullならsetsを使う
+        /// </param>
         public static CorrectionPlan Plan(
             IReadOnlyList<FaceTrackingSetData> sets,
             ToggleSet toggles,
             ICollection<string> excludedRules,
             int existingInstructions,
-            IEnumerable<string> lipSyncShapes = null)
+            IEnumerable<string> lipSyncShapes = null,
+            IReadOnlyList<FaceTrackingSetData> allSets = null)
         {
             var behaviors = new List<CorrectionBehaviorPlan>();
             var gates = new List<GateSlot>();
@@ -206,7 +211,7 @@ namespace NativeFTManager.Domain
                 }
             }
 
-            PlanVisemeSuppression(sets, toggles, lipSyncShapes, budget, behaviors, gates, dropped, ref instructions);
+            PlanVisemeSuppression(allSets ?? sets, toggles, lipSyncShapes, budget, behaviors, gates, dropped, ref instructions);
 
             return new CorrectionPlan(behaviors, gates, missing, dropped, instructions);
         }

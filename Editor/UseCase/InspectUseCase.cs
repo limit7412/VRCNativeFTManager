@@ -147,7 +147,8 @@ namespace NativeFTManager.UseCase
                 toggles,
                 excludedRules,
                 existingInstructions,
-                FaceTrackingDescriptorAccess.ReadLipSyncVisemeShapes(descriptor));
+                FaceTrackingDescriptorAccess.ReadLipSyncVisemeShapes(descriptor),
+                split.Sets);
             report.Estimate = BuildEstimate.Calculate(
                 split.Sets,
                 split.Created.Count,

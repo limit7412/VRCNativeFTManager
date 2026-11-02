@@ -205,7 +205,8 @@ namespace NativeFTManager.UseCase
                 toggles,
                 ComponentSettings.GetExcludedRules(primary),
                 existingInstructions,
-                FaceTrackingDescriptorAccess.ReadLipSyncVisemeShapes(descriptor));
+                FaceTrackingDescriptorAccess.ReadLipSyncVisemeShapes(descriptor),
+                result.Sets);
 
             if (corrections.MissingTargets.Count > 0)
             {

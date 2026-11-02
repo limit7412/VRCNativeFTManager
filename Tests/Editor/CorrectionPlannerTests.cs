@@ -214,6 +214,25 @@ namespace NativeFTManager.Tests
         }
 
         [Test]
+        public void Plan_Visemes_SkipsShapesOfSetsKeptUnsplit()
+        {
+            // 分割しなかったSetは補正の対象ではないが、そのFTのキーのシェイプも口パクの対象から外す
+            var split = SetWith(("JawOpen", "JawOpen"));
+            var kept = SetWith(("MouthClosed", "vrc.v_pp"));
+            var plan = CorrectionPlanner.Plan(
+                new[] { split },
+                UeToggles(CorrectionFeatures.None),
+                null,
+                0,
+                new[] { "vrc.v_pp", "vrc.v_aa" },
+                new[] { kept, split });
+
+            Assert.That(
+                plan.Behaviors.Where(b => b.RuleId == VisemeSuppression.RuleId).Select(b => b.TargetBlendShape),
+                Is.EqualTo(new[] { "vrc.v_aa" }));
+        }
+
+        [Test]
         public void Plan_Visemes_NothingToStopWithoutVisemeShapes()
         {
             var plan = CorrectionPlanner.Plan(new[] { FullSet() }, UeToggles(CorrectionFeatures.None), null, 0);
