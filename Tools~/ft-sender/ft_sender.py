@@ -242,9 +242,13 @@ def run_gui(args, values):
     status = tk.StringVar(value="停止中")
     preset_var = tk.StringVar(value="neutral")
     filter_var = tk.StringVar()
-    period_var = tk.StringVar(value="2.0")
+    period_var = tk.StringVar(value=f"{args.sine_period:g}")
     scales = {}
     sine_vars = {}
+    # コマンドラインの --sine と --sine-period も、--set と同じく GUI の初期状態にする
+    initial_sine = set(sum((expand(n) for n in args.sine), []))
+    sender.sine_keys = set(initial_sine)
+    sender.sine_period = args.sine_period
 
     def refresh_scales():
         current = sender.values
@@ -323,7 +327,7 @@ def run_gui(args, values):
     for i, key in enumerate(KEYS):
         var = tk.DoubleVar(value=sender.values.get(key, 0.0))
         scales[key] = var
-        sine = tk.BooleanVar(value=False)
+        sine = tk.BooleanVar(value=key in initial_sine)
         sine_vars[key] = sine
         label = ttk.Label(body, text=f"{i:3d} {key}", width=28)
         scale = ttk.Scale(body, from_=0.0, to=1.0, variable=var, length=220,
