@@ -769,12 +769,6 @@ msgstr "[KxNFTM-W-20] ARKit BlendShape Generator is not installed in the project
 msgid "diag.W-20:description"
 msgstr "Kx VRC ARKit BlendShape Generator was not found in the project, or it is an old version without the features this tool needs. The integration with the Generator is skipped, and only the existing Sets on the Descriptor are split. \"Auto-set Shape Keys\" and \"Convert ARKit to UE\" have no effect, so they are grayed out. For the booth version, also import the VRCARKitBlendShapeGenerator unitypackage included in the zip. For the VCC version, resolve the project dependencies again in VCC."
 
-msgid "diag.I-06"
-msgstr "[KxNFTM-I-06] Built a Blendshapes Set from the mesh shapes"
-
-msgid "diag.I-06:description"
-msgstr "The Descriptor has no Set and the avatar has no Kx VRC ARKit BlendShape Generator component, so a Set that assigns ARKit- or UE-named shapes of the Face Tracking Meshes (or the lip sync mesh when that list is empty) to {0} keys was built on the build copy with the mapping table of the Generator in the project. The Descriptor in the scene is not changed."
-
 msgid "diag.I-07"
 msgstr "[KxNFTM-I-07] Eye settings were switched to face tracking"
 
