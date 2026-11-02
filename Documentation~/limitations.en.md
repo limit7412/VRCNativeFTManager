@@ -1,18 +1,19 @@
-# Limitations of the experimental release
+# Limitations and notes
 
 日本語: [limitations.md](limitations.md)
 
-This package is an experimental 0.x release. Native Face Tracking became stable in VRChat SDK 3.10.6, but this package stays experimental until version 1.0, which will follow checks of the items below on the VRChat client.
+The features of this package (Blendshapes Set grouping, toggles for face tracking, eyes, mouth, pupils and visemes, expression corrections (emulation, limits, Eye Sync), sensitivity, and FaceEmo suppression) have been checked on the VRChat client.
+The behaviors below are worth knowing when you use it.
 
-## What works in the current version
+## When animations and face tracking drive the same shape
 
-Blendshapes Set grouping, toggles for face tracking, eyes, mouth, pupils and visemes, expression corrections (emulation, limits, Eye Sync), sensitivity, and FaceEmo suppression.
+While Face Tracking is on, the shapes in a Set are overwritten by the tracking values. Values that FX animations (such as hand gesture expressions) write to the same shapes are not visible.
+Turning "Face Tracking" (or "Eye Tracking" / "Lip Tracking") off in the Expressions Menu sets that Set's weight to 0, and the animation values show again.
+Shapes that are not in any Set (such as blush) keep showing the animation values during face tracking.
 
-## Still being checked on the VRChat client
+## Corrections that are not generated
 
-- Whether the State Behavior used by the toggles and the empty Sets (gates) used to switch the corrections work as intended. If the State Behavior type cannot be found, the build reports a warning (KxNFTM-E-05) and only the toggles and the sensitivity stop working
-- What face shapes do when no tracking data arrives (see the section below)
-- Whether native Face Tracking needs "Tracking Control reapply" and "warning on shapes shared by FaceEmo and tracking" from FE-JsT Bridge. They will be considered after this is checked
+A correction rule is generated only when the shape it writes to is in a Set (the build reports KxNFTM-I-01 otherwise). For example, on an avatar without an inner brow raise shape, the correction that makes sad brows from a frown has no effect.
 
 ## When no tracking data arrives
 

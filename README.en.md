@@ -6,10 +6,6 @@ It also suppresses FaceEmo while face tracking is active. It does not integrate 
 
 日本語: [README.md](README.md)
 
-> [!WARNING]
-> **This is an experimental release (0.x).** Native Face Tracking became stable in VRChat SDK 3.10.6, but this package stays experimental until version 1.0, which will follow checks on the VRChat client.
-> What is still being checked on the VRChat client is listed in [Limitations of the experimental release](Documentation~/limitations.en.md).
-
 ## Requirements
 
 - Unity 2022.3
@@ -229,7 +225,7 @@ Items in the foldout that usually need no change.
 - [Installation and updates](Documentation~/install.md) (Japanese)
 - [What happens at build time](Documentation~/build.en.md)
 - [Migrating from Jerry's](Documentation~/jerrys.en.md)
-- [Limitations of the experimental release](Documentation~/limitations.en.md)
+- [Limitations and notes](Documentation~/limitations.en.md)
 
 Information for developers (development environment and tests, CI, distribution packages) starts at [Development and running tests](docs/development.md) (Japanese).
 The specification and the overall plan are in [issue #1](https://github.com/limit7412/VRCNativeFTManager/issues/1) (Japanese).

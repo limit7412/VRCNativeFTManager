@@ -6,10 +6,6 @@ FaceEmoの抑制も本製品が行います。[Kx VRC FE-JsT Bridge](https://git
 
 English: [README.en.md](README.en.md)
 
-> [!WARNING]
-> **実験的な版（0.x）です。** ネイティブFace TrackingはVRChat SDK 3.10.6で正式版になりましたが、本製品はVRChatのクライアントでの確認が済んで1.0を出すまでは実験的な扱いとします。
-> VRChatのクライアントで確かめている途中の事項は[実験的な版の制約](Documentation~/limitations.md)にまとめています。
-
 ## 必要環境
 
 - Unity 2022.3
@@ -229,7 +225,7 @@ GeneratorのSetを使う場合、そのSetはビルド中にしか無いので�
 - [インストールと更新](Documentation~/install.md)
 - [ビルド時に行うこと](Documentation~/build.md)
 - [Jerry'sからの移行](Documentation~/jerrys.md)
-- [実験的な版の制約](Documentation~/limitations.md)
+- [制約と注意点](Documentation~/limitations.md)
 
 開発者向けの情報（開発環境とテスト、CI、配布パッケージ）は[開発環境とテストの実行](docs/development.md)から辿れます。
 仕様と全体計画は [issue #1](https://github.com/limit7412/VRCNativeFTManager/issues/1) にまとめています。
