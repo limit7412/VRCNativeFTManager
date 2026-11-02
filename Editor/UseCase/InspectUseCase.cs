@@ -124,7 +124,8 @@ namespace NativeFTManager.UseCase
             AvatarFacts facts)
         {
             var excludedRules = ComponentSettings.GetExcludedRules(component);
-            var plan = ToggleControllerPlanner.Build(toggles, CorrectionPlanner.GetPossibleGates(toggles, excludedRules));
+            var plan = ToggleControllerPlanner.Build(
+                toggles, CorrectionPlanner.GetPossibleGates(toggles, excludedRules), component.enableTrackingReapply);
 
             var referenced = FaceTrackingDescriptorAccess.GetSetNamesReferencedByBehaviors(descriptor);
             referenced.UnionWith(FaceTrackingStateBehaviorWriter.CollectReferencedSetNames(
