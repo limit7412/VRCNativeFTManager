@@ -117,12 +117,14 @@ The toggles in the Expressions Menu are decided by the Menu Items in the hierarc
 | Eye Tracking | The Sets of the eyes, eyelids, pupils and brows |
 | Lip Tracking | The mouth Set (including cheeks and tongue) |
 | Pupil | The pupil Set. It has no effect while Eye Tracking is off |
-| Visemes | Visemes (mouth movement from voice). Turning it off sets Mouth & Jaw to Animation with Tracking Control in FX, which stops visemes |
+| Visemes | Visemes (mouth movement from voice). Turning it off stops visemes only while face tracking moves the mouth (Face Tracking and Lip Tracking on). The mouth tracked by the camera keeps moving. Visemes are stopped by limiting their shapes (the viseme mapping of the Sets and the Lip Sync shapes) to 0, so shapes that a tracking key also uses are left out. On avatars with no such shape, the toggle is removed from the menu |
 | Emulation | The emulation correction. Appears under "Settings" in the Expressions Menu |
 | Limits | The limits correction. Appears under "Settings" |
 | Eye Sync | The correction that keeps both eyelids together. Appears under "Settings" |
 
 While the matching correction is not generated (see "Expression Corrections" below), a Menu Item left for Emulation, Limits or Eye Sync is removed from the menu at build time (KxNFTM-I-05). The inspector also shows a notice under "Toggles".
+
+"Restore Eye and Mouth Tracking During FT" below the toggles (on for a newly added component) keeps the tracked gaze and mouth moving even when Tracking Controls in the avatar's FX or FaceEmo expressions set the eyes or mouth to Animation. While face tracking is in use (the eyes with Face Tracking and Eye Tracking on, the mouth with Face Tracking and Lip Tracking on), they are set back to Tracking every 0.5 seconds. Parts that face tracking does not use are left to the avatar.
 
 ### Expression Corrections
 

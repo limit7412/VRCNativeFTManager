@@ -179,6 +179,12 @@ msgstr "Toggles"
 msgid "inspector.section.descriptor"
 msgstr "Avatar Descriptor (at build time)"
 
+msgid "inspector.tracking_reapply"
+msgstr "Restore Eye and Mouth Tracking During FT"
+
+msgid "inspector.tracking_reapply.tooltip"
+msgstr "While face tracking is on, set the eyes and mouth back to Tracking every 0.5 seconds. Tracking Controls in the avatar's FX or FaceEmo that switch them to Animation would otherwise stop the gaze and mouth of the face tracking"
+
 msgid "inspector.set_use_all_tracking_keys"
 msgstr "Enable Use All Tracking Keys"
 

@@ -124,7 +124,8 @@ namespace NativeFTManager.UseCase
             AvatarFacts facts)
         {
             var excludedRules = ComponentSettings.GetExcludedRules(component);
-            var plan = ToggleControllerPlanner.Build(toggles, CorrectionPlanner.GetPossibleGates(toggles, excludedRules));
+            var plan = ToggleControllerPlanner.Build(
+                toggles, CorrectionPlanner.GetPossibleGates(toggles, excludedRules), component.enableTrackingReapply);
 
             var referenced = FaceTrackingDescriptorAccess.GetSetNamesReferencedByBehaviors(descriptor);
             referenced.UnionWith(FaceTrackingStateBehaviorWriter.CollectReferencedSetNames(
@@ -143,7 +144,12 @@ namespace NativeFTManager.UseCase
                 .Sum(info => info.Instructions);
 
             report.Corrections = CorrectionPlanner.Plan(
-                split.CorrectionSources, toggles, excludedRules, existingInstructions);
+                split.CorrectionSources,
+                toggles,
+                excludedRules,
+                existingInstructions,
+                FaceTrackingDescriptorAccess.ReadLipSyncVisemeShapes(descriptor),
+                split.Sets);
             report.Estimate = BuildEstimate.Calculate(
                 split.Sets,
                 split.Created.Count,

@@ -201,7 +201,12 @@ namespace NativeFTManager.UseCase
                 .Sum(info => info.Instructions);
 
             var corrections = CorrectionPlanner.Plan(
-                result.CorrectionSources, toggles, ComponentSettings.GetExcludedRules(primary), existingInstructions);
+                result.CorrectionSources,
+                toggles,
+                ComponentSettings.GetExcludedRules(primary),
+                existingInstructions,
+                FaceTrackingDescriptorAccess.ReadLipSyncVisemeShapes(descriptor),
+                result.Sets);
 
             if (corrections.MissingTargets.Count > 0)
             {
@@ -285,6 +290,22 @@ namespace NativeFTManager.UseCase
             foreach (var layer in plan.Layers)
             {
                 ToggleBehaviorAttacher.Attach(fx, layer, new string[0], 0f, null);
+            }
+
+            // FTのSetが無ければ、Tracking Controlを戻しても動くものが無い。
+            // 残すとアバター側のAnimationへの切り替え（ビゼームを止める表情など）を打ち消すだけになる
+            if (plan.TrackingReapply != null)
+            {
+                RemoveLayerByName(fx, TrackingReapplyPlan.LayerName);
+            }
+        }
+
+        private static void RemoveLayerByName(UnityEditor.Animations.AnimatorController fx, string name)
+        {
+            int index = System.Array.FindIndex(fx.layers, layer => layer.name == name);
+            if (index >= 0)
+            {
+                fx.RemoveLayer(index);
             }
         }
     }

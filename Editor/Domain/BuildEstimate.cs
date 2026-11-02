@@ -150,7 +150,7 @@ namespace NativeFTManager.Domain
 
             var gates = new HashSet<string>(corrections.Gates.Select(gate => gate.Key));
             int count = plan.Layers.Count(layer => layer.Groups.Any(groups.Contains) || layer.Gates.Any(gate => gates.Contains(gate.Key)));
-            return count + (plan.VisemeLayer != null ? 1 : 0);
+            return count + (plan.TrackingReapply != null ? 1 : 0);
         }
     }
 }

@@ -85,7 +85,7 @@ namespace NativeFTManager.Tests
                     "KxNFTM Lip",
                     "KxNFTM Other",
                 }));
-            Assert.That(plan.VisemeLayer, Is.Null, "Visemesの設定が無ければTracking Controlを置かない");
+            Assert.That(plan.TrackingReapply, Is.Null, "再適用を指定しなければTracking Controlを置かない");
         }
 
         [Test]
@@ -220,24 +220,32 @@ namespace NativeFTManager.Tests
         }
 
         [Test]
-        public void Build_VisemeLayer_SwitchesWithTheToggle()
+        public void Build_VisemesGate_StopsVisemesOnlyWhileLipTracking()
         {
-            var plan = ToggleControllerPlanner.Build(CreateUeToggles());
+            // Visemesのトグルは、FT ∧ Lip ∧ ¬VisemesでゲートSetを有効にし、口パクのシェイプの上限を0にする（仕様書5.5）
+            var toggles = CreateUeToggles();
+            var plan = ToggleControllerPlanner.Build(toggles, CorrectionPlanner.GetPossibleGates(toggles, new string[0]));
 
-            Assert.That(plan.VisemeLayer, Is.Not.Null);
-            Assert.That(plan.VisemeLayer.AlwaysOff, Is.False);
+            var layer = plan.FindGateLayer(VisemeSuppression.GateKey);
+            Assert.That(layer, Is.Not.Null);
             Assert.That(
-                plan.VisemeLayer.Layer.TransitionsFrom(ToggleLayerPlan.OffState).Select(Describe),
-                Is.EqualTo(new[] { "Off->On: KxNFTM/Visemes" }));
+                layer.TransitionsFrom(ToggleLayerPlan.OffState).Select(Describe),
+                Is.EqualTo(new[]
+                {
+                    "Off->On: KxNFTM/FaceTracking & KxNFTM/LipTracking & !KxNFTM/Visemes",
+                }));
+            Assert.That(plan.GateWeights[VisemeSuppression.GateKey], Is.EqualTo(0f), "Visemesの既定はオン（口パクを止めない）");
         }
 
         [Test]
-        public void Build_HiddenVisemesDefaultingToOff_KeepsVisemesOff()
+        public void Build_HiddenVisemesDefaultingToOff_GatesOnFaceAndLipTracking()
         {
-            var plan = ToggleControllerPlanner.Build(CreateUeToggles(
-                new ToggleSettings(NativeFTToggle.Visemes, false, false)));
+            var toggles = CreateUeToggles(new ToggleSettings(NativeFTToggle.Visemes, false, false));
+            var plan = ToggleControllerPlanner.Build(toggles, CorrectionPlanner.GetPossibleGates(toggles, new string[0]));
 
-            Assert.That(plan.VisemeLayer.AlwaysOff, Is.True);
+            Assert.That(
+                plan.FindGateLayer(VisemeSuppression.GateKey).TransitionsFrom(ToggleLayerPlan.OffState).Select(Describe),
+                Is.EqualTo(new[] { "Off->On: KxNFTM/FaceTracking & KxNFTM/LipTracking" }));
         }
 
         [Test]

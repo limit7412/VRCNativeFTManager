@@ -117,12 +117,14 @@ EXメニューに出すトグルは、ヒエラルキーのMenu Itemで決めま
 | Eye Tracking | 目・まぶた・瞳孔・眉のSet |
 | Lip Tracking | 口のSet（頬、舌を含む） |
 | Pupil | 瞳孔のSet。Eye Trackingを切っているときは、こちらを入れても動かない |
-| Visemes | ビゼーム（音声による口の動き）。切ると、FXのTracking ControlでMouth & JawをAnimationにしてビゼームを止める |
+| Visemes | ビゼーム（発話による口パク）。切ると、FTで口を動かしている間（Face TrackingとLip Trackingがオン）だけ口パクを止める。カメラで追う口の動きは止めない。口パクのシェイプ（Setのビゼーム対応とLip Syncのシェイプ）の上限を0にして止めるので、FTのキーにも使っているシェイプは対象から外れる。止めるシェイプが無いアバターでは、このトグルはメニューから外れる |
 | Emulation | 表情補正のエミュレーション。EXメニューでは「Settings」の中に出る |
 | Limits | 表情補正の制限。「Settings」の中に出る |
 | Eye Sync | 左右のまぶたを揃える補正。「Settings」の中に出る |
 
 表情補正のEmulation・Limits・Eye Syncは、次の「表情補正」で対応する補正を作らない設定にしているあいだ、Menu Itemが残っていてもビルド時にメニューから外します（KxNFTM-I-05）。インスペクタの「トグル」にもその旨の案内が出ます。
+
+トグルの下の「FT中は目と口のトラッキングを戻す」（追加したてのコンポーネントでは有効）は、アバターのFXやFaceEmoの表情がTracking Controlで目や口をAnimationにしても、FTの視線と口が止まらないようにします。FT中（目はFace TrackingとEye Tracking、口はFace TrackingとLip Trackingがオンのあいだ）は0.5秒ごとにTrackingへ戻します。FTを使っていない部位はアバター側の切り替えのままです。
 
 ### 表情補正
 
