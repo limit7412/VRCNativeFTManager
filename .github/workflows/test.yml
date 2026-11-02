@@ -84,7 +84,7 @@ jobs:
   # `on`の`paths`フィルタを使わないのは、テストをrequired status checkに指定できる
   # ようにするため。`paths`で起動しなかったワークフローはチェックランを作らないので、
   # requiredに指定するとチェックが未作成のまま待ち状態になりPRをマージできなくなる。
-  # 一方、`if`で飛ばしたジョブはskippedのチェックランを残し、これはrequiredを満たす。
+  # そこでワークフローは常に起動し、テストのステップだけを`if`で飛ばす（理由はtestジョブに記述）。
   #
   # 対象パスの一覧はこのジョブだけに置く。`on`側にも書くと二重管理になり、
   # 片方だけ更新したときに「変更したのにテストが走らない」事故につながる。
@@ -309,24 +309,38 @@ jobs:
   # そのときもEditorアセンブリがコンパイルでき、W-20を出して動くことを確かめる（仕様書10.1）。
   # 既存の構成のジョブ名は「EditMode tests」のまま変えない。required status checkの名前を保つため。
   # Personalのアカウント認証を同時に2つ取らないよう、1つずつ順に回す
+  # スキップの判定はジョブの`if`ではなく、各ステップの`if`で行う。
+  #
+  # ジョブの`if`はマトリクスを展開する前に評価されるため、そこで飛ばすと
+  # チェックランが1つだけ作られ、その名前は`name`の式を評価しない文字列のまま残る
+  # （`matrix.generator && 'EditMode tests' || ...`）。required status checkの
+  # 「EditMode tests」はいつまでも報告されず、テスト対象に触れないPRをマージできなくなる。
+  # ステップで飛ばせば、マトリクスの各ジョブが展開後の名前でsuccessとして完了する。
   test:
     name: ${{ matrix.generator && 'EditMode tests' || 'EditMode tests (without Generator)' }}
     needs: [license, changes]
-    if: needs.license.outputs.available == 'true' && needs.changes.outputs.relevant == 'true'
     runs-on: ubuntu-latest
+    env:
+      RUN_TESTS: ${{ needs.license.outputs.available == 'true' && needs.changes.outputs.relevant == 'true' }}
     strategy:
       fail-fast: false
       max-parallel: 1
       matrix:
         generator: [true, false]
     steps:
+      - name: Skip notice
+        if: env.RUN_TESTS != 'true'
+        run: echo "::notice::ライセンスのsecretが無いか、テスト対象のファイルに変更がないためEditModeテストをスキップします"
+
       - name: Checkout package
+        if: env.RUN_TESTS == 'true'
         uses: actions/checkout@v7
         with:
           # テスト用プロジェクトのPackages配下へ直接チェックアウトする
           path: TestProject/Packages/${{ env.PACKAGE_NAME }}
 
       - name: Create Unity project
+        if: env.RUN_TESTS == 'true'
         run: |
           mkdir -p TestProject/Assets TestProject/ProjectSettings
           echo "m_EditorVersion: $UNITY_VERSION" > TestProject/ProjectSettings/ProjectVersion.txt
@@ -381,6 +395,7 @@ jobs:
           jq . TestProject/Packages/manifest.json > /dev/null
 
       - name: Install vrc-get
+        if: env.RUN_TESTS == 'true'
         run: |
           mkdir -p "$RUNNER_TEMP/bin"
           curl -fsSL -o "$RUNNER_TEMP/bin/vrc-get" \
@@ -390,6 +405,7 @@ jobs:
           "$RUNNER_TEMP/bin/vrc-get" --version
 
       - name: Resolve VPM dependencies
+        if: env.RUN_TESTS == 'true'
         working-directory: TestProject
         env:
           WITH_GENERATOR: ${{ matrix.generator }}
@@ -417,6 +433,7 @@ jobs:
           cat Packages/vpm-manifest.json
 
       - name: Cache Library
+        if: env.RUN_TESTS == 'true'
         uses: actions/cache@v6
         with:
           path: TestProject/Library
@@ -433,6 +450,7 @@ jobs:
       # 全てを無視する.gitignoreと空のコミット1つで作る。キャッシュから戻したLibraryや
       # テスト中に増えるartifactsがdirtyの原因にならない。
       - name: Make the test project a git repository for game-ci
+        if: env.RUN_TESTS == 'true'
         working-directory: TestProject
         run: |
           set -euo pipefail
@@ -454,6 +472,7 @@ jobs:
       # 渡さなければ、UNITY_SERIALがあればシリアル、無ければアカウント（Personal）で
       # 認証する
       - name: Run EditMode tests
+        if: env.RUN_TESTS == 'true'
         uses: game-ci/unity-test-runner@v4
         env:
           UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
@@ -469,7 +488,7 @@ jobs:
           checkName: ${{ matrix.generator && 'EditMode Test Results' || 'EditMode Test Results (without Generator)' }}
 
       - name: Upload test results
-        if: always()
+        if: always() && env.RUN_TESTS == 'true'
         uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.generator && 'editmode-test-results' || 'editmode-test-results-without-generator' }}
