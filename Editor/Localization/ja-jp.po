@@ -221,7 +221,7 @@ msgid "diag.E-03"
 msgstr "[KxNFTM-E-03] Blendshapes Setがありません"
 
 msgid "diag.E-03:description"
-msgstr "DescriptorにBlendshapes Setが1つも無いため、フェイストラッキングは動きません。「シェイプキーを自動でセット」がオンなら、アバターにKx VRC ARKit BlendShape Generatorのコンポーネントがあればその書くSetを使い、無ければプロジェクトのGenerator（0.2.2以降）の対応表でFace Tracking Meshes（空ならリップシンクのメッシュ）のシェイプからSetを作ります。オフにしているならオンにしてください。オンでもこの表示が出るときは割り当てられるシェイプが無いので、Descriptorのオートフィルか手入力でSetを作ってください。"
+msgstr "DescriptorにBlendshapes Setが1つも無いため、フェイストラッキングは動きません。「シェイプキーを自動でセット」がオンなら、アバターにKx VRC ARKit BlendShape Generatorのコンポーネントがあればその書くSetを使い、無ければプロジェクトのGenerator（0.2.3以降）の対応表でFace Tracking Meshes（空ならリップシンクのメッシュ）のシェイプからSetを作ります。オフにしているならオンにしてください。オンでもこの表示が出るときは割り当てられるシェイプが無いので、Descriptorのオートフィルか手入力でSetを作ってください。"
 
 msgid "diag.E-04"
 msgstr "[KxNFTM-E-04] Jerry's Face Tracking Templatesが残っています"

@@ -60,14 +60,8 @@ namespace NativeFTManager.Tests
         [Test]
         public void FindBlendShapeNames_MapsArkitShapes_WhenTheGeneratorPublishesItsTable()
         {
-            // 対応表の公開はGenerator 0.2.2から。CIが入れるGeneratorがそれより古いときは確かめられない
-            if (FindType(GeneratorAccess.SetMappingTypeName) == null)
-            {
-                Assert.That(GeneratorAccess.CanMapShapes, Is.False);
-                Assert.That(GeneratorAccess.FindBlendShapeNames(new[] { "jawOpen" }), Is.Null);
-                Assert.Ignore("The installed Generator does not publish FaceTrackingSetMapping yet.");
-            }
-
+            // 対応表の公開はGenerator 0.2.2から。依存の下限（0.2.3）を満たす版なら必ずある
+            Assert.That(FindType(GeneratorAccess.SetMappingTypeName), Is.Not.Null);
             Assert.That(GeneratorAccess.CanMapShapes, Is.True);
             var names = GeneratorAccess.FindBlendShapeNames(new[] { "eyeBlinkLeft", "jawOpen" });
             var keys = NativeFTManager.Domain.FaceTrackingGroupTable.GetKeyNames().ToList();
@@ -81,14 +75,8 @@ namespace NativeFTManager.Tests
         [Test]
         public void ConvertToUnifiedExpressions_AddsUeShapes_WhenTheGeneratorPublishesTheConversion()
         {
-            // UE変換の公開はGenerator 0.2.2系の#110から。CIが入れるGeneratorがそれより古いときは確かめられない
-            if (FindType(GeneratorAccess.ConversionTypeName) == null)
-            {
-                Assert.That(GeneratorAccess.CanConvertToUnifiedExpressions, Is.False);
-                Assert.That(GeneratorAccess.ConvertToUnifiedExpressions(null), Is.Null);
-                Assert.Ignore("The installed Generator does not publish UnifiedExpressionsConversion yet.");
-            }
-
+            // UE変換の公開はGenerator 0.2.3から。依存の下限（0.2.3）を満たす版なら必ずある
+            Assert.That(FindType(GeneratorAccess.ConversionTypeName), Is.Not.Null);
             Assert.That(GeneratorAccess.CanConvertToUnifiedExpressions, Is.True);
             var mesh = new Mesh
             {

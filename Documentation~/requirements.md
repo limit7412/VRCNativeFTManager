@@ -8,13 +8,13 @@ English: [requirements.en.md](requirements.en.md)
 - VRChat SDK Avatars 3.10.6 以降
 - NDMF 1.6.0 以降
 - Modular Avatar 1.12.0 以降
-- Kx VRC ARKit BlendShape Generator 0.2.1 以降
+- Kx VRC ARKit BlendShape Generator 0.2.3 以降
 
 ## SDKの版
 
 ネイティブFace TrackingはVRChat SDK 3.10.6で正式版になりました。SDKは安定版の3.10.6以降を入れてください。3.10.6のベータ版（3.10.6-beta.N）は3.10.6より前の版として扱われ、本製品を追加できません。
 
-本製品が依存に持つKx VRC ARKit BlendShape Generatorも安定版の0.2.1以降が対応しているので、プレリリースの表示を有効にする必要はありません。本製品を追加すると、VCC/ALCOMがGeneratorも一緒に入れます。
+本製品が依存に持つKx VRC ARKit BlendShape Generatorも安定版の0.2.3以降が対応しているので、プレリリースの表示を有効にする必要はありません。本製品を追加すると、VCC/ALCOMがGeneratorも一緒に入れます。
 
 ## Kx VRC ARKit BlendShape Generator
 
@@ -28,7 +28,7 @@ booth版はVCC/ALCOMの依存解決を通らないので、Generatorのunitypack
 Generatorを取り込むと、設定はそのままで連携が有効になります。
 連携に必要なフィールドを持たない古い版のGeneratorも、入っていないものとして扱います。
 
-アバターにGeneratorのコンポーネントが無くても、プロジェクトにGenerator 0.2.2以降が入っていれば、その対応表を使います。
+アバターにGeneratorのコンポーネントが無くても、プロジェクトにGenerator 0.2.3以降が入っていれば、その対応表を使います。
 DescriptorにBlendshapes Setが1つも無いとき、Face Tracking Meshes（空ならリップシンクのメッシュ）にあるARKit名・UE名のシェイプをキーへ割り当てたSetをビルド中に作り、分割します。
 元からARKitのシェイプを持つアバターで、オートフィルを押す手間を省くためです。
 Setが1つでもあるとき、アバターにGeneratorのコンポーネントがあるとき、インスペクタの「シェイプキーを自動でセット」がオフのときは作りません。

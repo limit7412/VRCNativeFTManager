@@ -43,13 +43,14 @@ booth版はVPMの依存解決を通らず、同梱したGeneratorのunitypackage
 Generatorの型には `Editor/Infra/GeneratorAccess.cs` だけがリフレクションで触る。型やフィールドが見つからなければ `GeneratorAccess.IsInstalled` がfalseになり、W-20を出してアバターにGeneratorが無いのと同じに振る舞う。
 asmdefの `versionDefines` は `Packages/` のパッケージにしか効かず、`Assets/` に入るbooth版のGeneratorを判定できないので使わない。
 Set名の定数 `FaceTrackingSetNames.Generator` は `GeneratorAccess.DefaultSetName` に複製してある。Generatorを入れた構成のテスト（`GeneratorAccessTests`）が一致を確かめる。
-アバターにGeneratorのコンポーネントが無くSetも無いときは、Generator 0.2.2以降が公開する `ARKitBlendShapeGenerator.FaceTrackingSetMapping` を同じくリフレクションで呼び、メッシュのシェイプ名からSetを作る（`Editor/Infra/ShapeMappedSetReader.cs`、仕様書10.1のF-20）。`GetKeyNames()` の並びが `FaceTrackingGroupTable` と一致しないときは使わない。CIが入れるGeneratorが0.2.1のうちは、Generatorを入れた構成でもこの検証は飛ばす（`GENERATOR_VERSION` を上げると走る）。
-「ARKitをUEに変換」がオンなら、Setを作る前に `ARKitBlendShapeGenerator.UnifiedExpressionsConversion.ConvertArkitShapes(SkinnedMeshRenderer)` を同じくリフレクションで呼び、同じメッシュへUE名のシェイプキーを書き足す（`GeneratorAccess.ConvertToUnifiedExpressions`）。変換を公開していない版では何もしない。こちらの検証も、CIのGeneratorが対応する版になるまでは飛ばす。
+アバターにGeneratorのコンポーネントが無くSetも無いときは、Generator 0.2.2以降が公開する `ARKitBlendShapeGenerator.FaceTrackingSetMapping` を同じくリフレクションで呼び、メッシュのシェイプ名からSetを作る（`Editor/Infra/ShapeMappedSetReader.cs`、仕様書10.1のF-20）。`GetKeyNames()` の並びが `FaceTrackingGroupTable` と一致しないときは使わない。
+「ARKitをUEに変換」がオンなら、Setを作る前に `ARKitBlendShapeGenerator.UnifiedExpressionsConversion.ConvertArkitShapes(SkinnedMeshRenderer)` を同じくリフレクションで呼び、同じメッシュへUE名のシェイプキーを書き足す（`GeneratorAccess.ConvertToUnifiedExpressions`）。変換はGenerator 0.2.3から公開されており、それより古い版では何もしない。
 CIの `EditMode tests` はGeneratorを入れた構成と入れない構成の両方で回す。テストのasmdefは `versionDefines` で `KX_TEST_GENERATOR_INSTALLED` を立て、構成ごとに検証を切り替える。
 0.1.0-test9までは任意依存で、Generatorが入っているときだけコンパイルする `NativeFTManager.Editor.GeneratorCompat` に置いていた。0.1.0-test10で本体へ統合し、そのGUIDは `booth_package.py` の `RETIRED_GUIDS` に載せた。
 
 Generatorの版の下限は `package.json` の `vpmDependencies` にある。
-今の下限は、Generatorの安定版の0.2.1である。連携に必要な定数（`FaceTrackingSetNames`）は0.2.1-test3から含まれている。
+今の下限は、Generatorの安定版の0.2.3である。連携に使う型は、Set名の定数（`FaceTrackingSetNames`）が0.2.1-test3から、対応表（`FaceTrackingSetMapping`）が0.2.2から、UE変換（`UnifiedExpressionsConversion`）が0.2.3から含まれている。
+booth版は依存解決を通らず古いGeneratorが残ることがあるので、下限より古い版でも動くよう、型が無ければその機能だけを止める。
 下限を変えるときは、テストのワークフローの `GENERATOR_VERSION`（[ci.md](ci.md)）も揃える。
 
 ## EXメニューのアイコン

@@ -47,7 +47,7 @@ env:
   VRC_SDK_VERSION: 3.10.6
   # package.jsonのvpmDependenciesにあるKx VRC ARKit BlendShape Generatorの下限と揃える。
   # 下限の版でコンパイルできることを確かめるため
-  GENERATOR_VERSION: 0.2.1
+  GENERATOR_VERSION: 0.2.3
   VRC_GET_VERSION: v1.9.2
   # unity-test-runnerが取得するgame-ci CLIの版。
   # 既定のlatestは版の解決にGitHub APIを叩き、共有ランナーでは他のジョブと
