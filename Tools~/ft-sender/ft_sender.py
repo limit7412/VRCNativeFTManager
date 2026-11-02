@@ -132,8 +132,8 @@ class Sender:
         self.values = {}
         self.sine_keys = set()
         self.sine_period = 2.0
-        self.sending = False
         self.lock = threading.Lock()
+        self.stop_event = None
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.thread = None
         self.started_at = time.monotonic()
@@ -165,20 +165,30 @@ class Sender:
         message = osc_blob_message(ADDRESS, encode(self.current()))
         self.socket.sendto(message, self.address)
 
-    def _loop(self):
-        while self.sending:
+    @property
+    def sending(self):
+        return self.stop_event is not None
+
+    def _loop(self, stop_event):
+        # 停止イベントはスレッドごとに持つ。止めた直後に再開しても、古いループが送り続けないようにするため
+        while not stop_event.is_set():
             self.send_once()
-            time.sleep(self.interval)
+            stop_event.wait(self.interval)
 
     def start(self):
         if self.sending:
             return
-        self.sending = True
-        self.thread = threading.Thread(target=self._loop, daemon=True)
+        self.stop_event = threading.Event()
+        self.thread = threading.Thread(target=self._loop, args=(self.stop_event,), daemon=True)
         self.thread.start()
 
     def stop(self):
-        self.sending = False
+        if not self.sending:
+            return
+        self.stop_event.set()
+        self.thread.join()
+        self.stop_event = None
+        self.thread = None
 
 
 def parse_set(items):

@@ -65,6 +65,17 @@ class FtSenderTests(unittest.TestCase):
         self.assertEqual(blob[71], 255)
         self.assertEqual(sum(blob), 510)
 
+    def test_restart_does_not_leave_old_loop(self):
+        sender = ft_sender.Sender("127.0.0.1", 9, 10)
+        for _ in range(5):
+            sender.start()
+            sender.stop()
+        sender.start()
+        alive = [t for t in __import__("threading").enumerate() if t.name.startswith("Thread") and t.is_alive() and t.daemon]
+        sender.stop()
+        self.assertEqual(len(alive), 1)
+        self.assertFalse(sender.sending)
+
 
 if __name__ == "__main__":
     unittest.main()

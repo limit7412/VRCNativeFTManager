@@ -44,7 +44,7 @@ VRCFT は、アバターが Use All Tracking Keys を立てているとき（OSC
 2. Unity のメニューの Tools > Kx VRC NativeFT Manager > Verification > Test Write Layer を開く
 3. アバターを選び、FT のキー（既定は JawOpen）と、そのキーで FT が動かすシェイプを指定する
    - Descriptor に Set があれば、その割り当てを候補に出す。Generator や Manager がビルド時に Set を作る構成ではシーンの Descriptor に Set が無いので、シェイプ名を一覧か手入力で指定する
-4. 「テスト用レイヤーを置く」を押す。生成物は `Assets/KxNFTMTest/Generated/<アバター名>/` にできる
+4. 「テスト用レイヤーを置く」を押す。生成物は `Assets/KxNFTMTest/Generated/<アバター名>_<アバターごとの識別子>/` にできる
 5. 確認が終わったら「取り除く」を押す。GameObject と生成フォルダを消す。コピーした `test-write-layer/` も消してよい
 
 EX メニューの `Test Write` サブメニューに、次の 3 つのトグルができる。パラメーター `KxNFTMTest/Write`（Int、ローカルのみ、保存なし）の値で切り替える。

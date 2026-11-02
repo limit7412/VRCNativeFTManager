@@ -266,7 +266,7 @@ namespace NativeFTManager.Verification
                 Undo.DestroyObjectImmediate(existing);
             }
 
-            var folder = $"{GeneratedRoot}/{SafeName(avatar.name)}";
+            var folder = GeneratedFolder(avatar);
             if (AssetDatabase.IsValidFolder(folder))
             {
                 AssetDatabase.DeleteAsset(folder);
@@ -277,7 +277,7 @@ namespace NativeFTManager.Verification
         {
             Remove(avatar);
 
-            var folder = $"{GeneratedRoot}/{SafeName(avatar.name)}";
+            var folder = GeneratedFolder(avatar);
             Directory.CreateDirectory(folder);
             AssetDatabase.Refresh();
 
@@ -389,6 +389,17 @@ namespace NativeFTManager.Verification
             item.isDefault = false;
             item.automaticValue = false;
             item.label = string.Empty;
+        }
+
+        /// <summary>
+        /// 生成物の置き場所。同じ名前のアバターが複数あっても互いの生成物を消さないよう、
+        /// アバターの GlobalObjectId（シーンとオブジェクトで決まり、エディタを再起動しても変わらない）から作る
+        /// </summary>
+        private static string GeneratedFolder(VRCAvatarDescriptor avatar)
+        {
+            var id = GlobalObjectId.GetGlobalObjectIdSlow(avatar.gameObject).ToString();
+            var hash = Hash128.Compute(id).ToString().Substring(0, 8);
+            return $"{GeneratedRoot}/{SafeName(avatar.name)}_{hash}";
         }
 
         private static string SafeName(string name)
