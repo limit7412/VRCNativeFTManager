@@ -8,7 +8,6 @@ English: [README.en.md](README.en.md)
 
 > [!WARNING]
 > **実験的な版（0.x）です。** ネイティブFace TrackingはVRChat SDK 3.10.6で正式版になりましたが、本製品はVRChatのクライアントでの確認が済んで1.0を出すまでは実験的な扱いとします。
-> パラメーターの名前（`KxNFTM/` で始まるもの）は1.0までに変わることがあり、変わった場合は保存したトグルの値が既定値へ戻ります。
 > VRChatのクライアントで確かめている途中の事項は[実験的な版の制約](Documentation~/limitations.md)にまとめています。
 
 ## 必要環境
