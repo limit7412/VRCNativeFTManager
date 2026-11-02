@@ -18,5 +18,5 @@ This package does not remove Jerry's for you, so remove its prefab before upload
 | Smoothing | Yes | No (left to VRChat's interpolation) |
 | Sensitivity | Seven continuous values | Two channels (eyes, mouth) in 8 steps, not created by default |
 
-The `KxNFTM/` prefix is provisional and will be finalized before 1.0.
+The parameter prefix is `KxNFTM/` and will not change in future versions.
 The labels of the menu generated at build time are in English, as in Jerry's. The menu created in the hierarchy from the right-click menu (MA Menu Items) also gets English object names and labels whatever the editor language, and can be reordered and renamed in the hierarchy as with Jerry's.

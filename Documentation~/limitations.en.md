@@ -14,10 +14,6 @@ Blendshapes Set grouping, toggles for face tracking, eyes, mouth, pupils and vis
 - What face shapes do when no tracking data arrives (see the section below)
 - Whether native Face Tracking needs "Tracking Control reapply" and "warning on shapes shared by FaceEmo and tracking" from FE-JsT Bridge. They will be considered after this is checked
 
-## Parameter names may change
-
-Parameter names (those starting with `KxNFTM/`) may change before 1.0. If they do, saved toggle values go back to their defaults.
-
 ## When no tracking data arrives
 
 Whether face shapes go back to 0 or stay at the last value when the tracker stops or VRCFaceTracking exits is decided by VRChat. This has not been checked on the VRChat client yet.

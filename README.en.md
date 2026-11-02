@@ -8,7 +8,6 @@ It also suppresses FaceEmo while face tracking is active. It does not integrate 
 
 > [!WARNING]
 > **This is an experimental release (0.x).** Native Face Tracking became stable in VRChat SDK 3.10.6, but this package stays experimental until version 1.0, which will follow checks on the VRChat client.
-> Parameter names (those starting with `KxNFTM/`) may change before 1.0. If they do, saved toggle values go back to their defaults.
 > What is still being checked on the VRChat client is listed in [Limitations of the experimental release](Documentation~/limitations.en.md).
 
 ## Requirements
