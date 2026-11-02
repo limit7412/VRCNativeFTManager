@@ -56,3 +56,11 @@ booth版は依存解決を通らず古いGeneratorが残ることがあるので
 ## EXメニューのアイコン
 
 EXメニューの既定アイコンは `Runtime/Icons/` の PNG（256x256、透過背景、白の線画）で、元の SVG は `docs/icons~/src/` にある。図柄を変えるときは SVG を直し、リポジトリのルートで `node docs/icons~/render.js` を実行して PNG を書き出す（Playwright の Chromium を使う）。PNG の `.meta` は書き換えない。GUID は `Editor/Infra/MenuIconAssets.cs` が持ち、利用者の Menu Item がこの GUID で画像を参照している。アイコンを足すときは、`.meta` を作って GUID を `MenuIconAssets` と `MenuIcon` に加える。
+
+## 実機確認用の道具
+
+issue #2 の実機確認に使う道具は `Tools~/` に置いている（[Tools~/README.md](../Tools~/README.md)）。
+フォルダ名の末尾の `~` で Unity の取り込みから外しており、配布物にも入らない。
+
+- `Tools~/ft-sender/`: VRCFT と同じ形式で `/tracking/face/v1` に固定値の顔データを送る Python スクリプト
+- `Tools~/test-write-layer/`: FT と同じシェイプへ固定値を書き続ける FX レイヤーを置くエディタ拡張。使うときは `Assets/` の下へコピーする
