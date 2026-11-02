@@ -155,11 +155,23 @@ msgstr "Found (Blendshapes Set output is off)"
 msgid "inspector.status.generator_set_write"
 msgstr "Found (Blendshapes Set output is on)"
 
-msgid "inspector.use_generator_component"
-msgstr "Use Generator Component"
+msgid "inspector.auto_set_shape_keys"
+msgstr "Auto-set Shape Keys"
 
-msgid "inspector.use_generator_component.tooltip"
-msgstr "Enables the Blendshapes Set output of the Kx VRC ARKit BlendShape Generator component on the avatar during the build only. The Generator settings in the scene are not changed"
+msgid "inspector.auto_set_shape_keys.tooltip"
+msgstr "Assigns the shape keys to a Blendshapes Set automatically at build time. When the avatar has a Kx VRC ARKit BlendShape Generator component, its Set output is enabled during the build only (the Generator settings in the scene are not changed). Otherwise, only when the Descriptor has no Set, a Set is built from the ARKit shapes of the face mesh with the Generator's mapping table"
+
+msgid "inspector.convert_arkit_to_ue"
+msgstr "Convert ARKit to UE"
+
+msgid "inspector.convert_arkit_to_ue.tooltip"
+msgstr "When the avatar has no Generator component, adds Unified Expressions shape keys converted from the ARKit shape keys of the face mesh during the build only, before the Set is built. Keys that UE splits into left/right or upper/lower, such as browInnerUp and cheekPuff, then move separately. The original mesh is not changed. When the avatar has a Generator component, its output naming setting is used instead"
+
+msgid "inspector.convert_arkit_to_ue.generator_component"
+msgstr "The avatar has a Generator component, so Convert ARKit to UE is not used. To output UE names, set the output naming of the Generator."
+
+msgid "inspector.convert_arkit_to_ue.outdated"
+msgstr "The Generator in the project is a version without the UE conversion, so Convert ARKit to UE has no effect. Update the Generator."
 
 msgid "inspector.section.toggles"
 msgstr "Toggles"
@@ -209,7 +221,7 @@ msgid "diag.E-03"
 msgstr "[KxNFTM-E-03] No Blendshapes Set"
 
 msgid "diag.E-03:description"
-msgstr "The Avatar Descriptor has no Blendshapes Set, so face tracking does nothing. With Kx VRC ARKit BlendShape Generator, turn on Use Generator Component; otherwise create a Set with the Descriptor's auto fill or by hand. When the avatar has no Generator component, this tool also tries to build a Set from the shapes of the Face Tracking Meshes (or the lip sync mesh when that list is empty) with the mapping table of the Generator in the project (0.2.2 or later), but no shape could be assigned."
+msgstr "The Avatar Descriptor has no Blendshapes Set, so face tracking does nothing. With Auto-set Shape Keys on, this tool uses the Set written by the Kx VRC ARKit BlendShape Generator component when the avatar has one, and otherwise builds a Set from the shapes of the Face Tracking Meshes (or the lip sync mesh when that list is empty) with the mapping table of the Generator in the project (0.2.2 or later). If it is off, turn it on. If this still appears with it on, no shape could be assigned, so create a Set with the Descriptor's auto fill or by hand."
 
 msgid "diag.E-04"
 msgstr "[KxNFTM-E-04] Jerry's Face Tracking Templates is still on the avatar"
@@ -233,7 +245,7 @@ msgid "diag.W-02"
 msgstr "[KxNFTM-W-02] Generator shapes are not used for face tracking"
 
 msgid "diag.W-02:description"
-msgstr "Use Generator Component is off and the Generator's Blendshapes Set output is off as well, so the generated shapes are not added to any Set. Turn on Use Generator Component."
+msgstr "Auto-set Shape Keys is off and the Generator's Blendshapes Set output is off as well, so the generated shapes are not added to any Set. Turn on Auto-set Shape Keys."
 
 msgid "diag.W-04"
 msgstr "[KxNFTM-W-04] Generator Set has too few keys"
@@ -755,7 +767,7 @@ msgid "diag.W-20"
 msgstr "[KxNFTM-W-20] ARKit BlendShape Generator is not installed in the project"
 
 msgid "diag.W-20:description"
-msgstr "Kx VRC ARKit BlendShape Generator was not found in the project, or it is an old version without the features this tool needs. The integration with the Generator is skipped, and only the existing Sets on the Descriptor are split. \"Use Generator Component\" has no effect, so it is grayed out. For the booth version, also import the VRCARKitBlendShapeGenerator unitypackage included in the zip. For the VCC version, resolve the project dependencies again in VCC."
+msgstr "Kx VRC ARKit BlendShape Generator was not found in the project, or it is an old version without the features this tool needs. The integration with the Generator is skipped, and only the existing Sets on the Descriptor are split. \"Auto-set Shape Keys\" and \"Convert ARKit to UE\" have no effect, so they are grayed out. For the booth version, also import the VRCARKitBlendShapeGenerator unitypackage included in the zip. For the VCC version, resolve the project dependencies again in VCC."
 
 msgid "diag.I-06"
 msgstr "[KxNFTM-I-06] Built a Blendshapes Set from the mesh shapes"

@@ -66,8 +66,9 @@ namespace NativeFTManager.UseCase
             var sets = FaceTrackingDescriptorAccess.ReadSets(descriptor);
 
             // ビルドと同じく、SetもGeneratorのコンポーネントも無ければメッシュのシェイプからSetを作れるか見る（仕様書5.1）。
-            // ビルド中に他のツールが加えるシェイプは、ここでは読めない
-            if (sets.Count == 0 && facts.Generator != GeneratorPresence.Present)
+            // ビルド中に他のツールが加えるシェイプは、ここでは読めない。
+            // 「ARKitをUEに変換」はメッシュを作るのでここではなぞらない。変換しても割り当たるキーの数は変わらない
+            if (sets.Count == 0 && facts.Generator != GeneratorPresence.Present && component.autoSetShapeKeys)
             {
                 var mapped = ShapeMappedSetReader.Read(descriptor);
                 if (mapped != null)
@@ -99,7 +100,7 @@ namespace NativeFTManager.UseCase
             report.GeneratorSetWriteEnabled = facts.GeneratorSetWriteEnabled;
 
             bool generatorWillWrite = facts.Generator == GeneratorPresence.Present
-                                      && (component.useGeneratorComponent
+                                      && (component.autoSetShapeKeys
                                           || facts.GeneratorSetWriteEnabled);
             if (sets.Count == 0 && !generatorWillWrite)
             {

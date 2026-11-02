@@ -10,7 +10,7 @@ namespace NativeFTManager.Tests
         {
             return new AvatarFacts
             {
-                UseGeneratorComponent = false,
+                AutoSetShapeKeys = false,
                 Generator = GeneratorPresence.None,
                 SetUseAllTrackingKeys = true,
                 DescriptorUseAllTrackingKeys = false,
@@ -78,7 +78,7 @@ namespace NativeFTManager.Tests
 
             Assert.That(Codes(facts), Is.EqualTo(new[] { DiagnosticCodes.GeneratorSetWriteOff }));
 
-            facts.UseGeneratorComponent = true;
+            facts.AutoSetShapeKeys = true;
             Assert.That(Codes(facts), Is.Empty);
         }
 

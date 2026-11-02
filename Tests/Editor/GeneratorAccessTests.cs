@@ -78,6 +78,44 @@ namespace NativeFTManager.Tests
             Assert.That(names[keys.IndexOf("TongueRoll")], Is.EqualTo(string.Empty));
         }
 
+        [Test]
+        public void ConvertToUnifiedExpressions_AddsUeShapes_WhenTheGeneratorPublishesTheConversion()
+        {
+            // UE変換の公開はGenerator 0.2.2系の#110から。CIが入れるGeneratorがそれより古いときは確かめられない
+            if (FindType(GeneratorAccess.ConversionTypeName) == null)
+            {
+                Assert.That(GeneratorAccess.CanConvertToUnifiedExpressions, Is.False);
+                Assert.That(GeneratorAccess.ConvertToUnifiedExpressions(null), Is.Null);
+                Assert.Ignore("The installed Generator does not publish UnifiedExpressionsConversion yet.");
+            }
+
+            Assert.That(GeneratorAccess.CanConvertToUnifiedExpressions, Is.True);
+            var mesh = new Mesh
+            {
+                vertices = new[] { new Vector3(-1f, 0f, 0f), new Vector3(1f, 0f, 0f), new Vector3(0f, 1f, 0f) },
+                triangles = new[] { 0, 1, 2 },
+            };
+            mesh.AddBlendShapeFrame("browInnerUp", 100f, new[] { Vector3.up, Vector3.up, Vector3.zero }, null, null);
+            var gameObject = new GameObject("Body");
+            try
+            {
+                var renderer = gameObject.AddComponent<SkinnedMeshRenderer>();
+                renderer.sharedMesh = mesh;
+
+                var converted = GeneratorAccess.ConvertToUnifiedExpressions(renderer);
+
+                Assert.That(converted, Is.EquivalentTo(new[] { "BrowInnerUpLeft", "BrowInnerUpRight" }));
+                Assert.That(renderer.sharedMesh, Is.Not.SameAs(mesh));
+                Assert.That(mesh.blendShapeCount, Is.EqualTo(1));
+                Object.DestroyImmediate(renderer.sharedMesh);
+            }
+            finally
+            {
+                Object.DestroyImmediate(gameObject);
+                Object.DestroyImmediate(mesh);
+            }
+        }
+
         private static Type FindType(string fullName)
         {
             return AppDomain.CurrentDomain.GetAssemblies()
@@ -103,6 +141,8 @@ namespace NativeFTManager.Tests
                 Assert.That(GeneratorAccess.SetName, Is.EqualTo(GeneratorAccess.DefaultSetName));
                 Assert.That(GeneratorAccess.CanMapShapes, Is.False);
                 Assert.That(GeneratorAccess.FindBlendShapeNames(new[] { "jawOpen" }), Is.Null);
+                Assert.That(GeneratorAccess.CanConvertToUnifiedExpressions, Is.False);
+                Assert.That(GeneratorAccess.ConvertToUnifiedExpressions(null), Is.Null);
             }
             finally
             {

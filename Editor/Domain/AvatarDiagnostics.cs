@@ -50,7 +50,7 @@ namespace NativeFTManager.Domain
     /// </summary>
     internal sealed class AvatarFacts
     {
-        public bool UseGeneratorComponent;
+        public bool AutoSetShapeKeys;
         public GeneratorPresence Generator;
         public bool GeneratorSetWriteEnabled;
         public IReadOnlyList<string> JerrysEvidence = new string[0];
@@ -126,7 +126,7 @@ namespace NativeFTManager.Domain
                     diagnostics.Add(new Diagnostic(DiagnosticCodes.GeneratorNotInstalled));
                     break;
                 case GeneratorPresence.Present:
-                    if (!facts.UseGeneratorComponent && !facts.GeneratorSetWriteEnabled)
+                    if (!facts.AutoSetShapeKeys && !facts.GeneratorSetWriteEnabled)
                     {
                         diagnostics.Add(new Diagnostic(DiagnosticCodes.GeneratorSetWriteOff));
                     }

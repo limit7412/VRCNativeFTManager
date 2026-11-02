@@ -43,6 +43,15 @@ namespace NativeFTManager.Infra
         internal const string GetKeyNamesMethodName = "GetKeyNames";
 
         /// <summary>
+        /// ARKit名のシェイプキーをUnified Expressions名へ変換する処理を公開する型名。Generator 0.2.2系の#110以降にある。
+        /// 「ARKitをUEに変換」で、アバターにGeneratorのコンポーネントが無いときに使う（仕様書5.1）
+        /// </summary>
+        internal const string ConversionTypeName = "ARKitBlendShapeGenerator.UnifiedExpressionsConversion";
+
+        /// <summary>変換の型の、レンダラーのメッシュへUE名のシェイプキーを書き足すメソッド名</summary>
+        internal const string ConvertArkitShapesMethodName = "ConvertArkitShapes";
+
+        /// <summary>
         /// GeneratorがDescriptorへ書くSetの名前の既定値。
         /// Generatorが無くても見積もりの判定に使うため、Generatorの<c>FaceTrackingSetNames.Generator</c>を複製して持つ。
         /// 一致はテストで確かめる
@@ -54,6 +63,7 @@ namespace NativeFTManager.Infra
         private static FieldInfo _setWriteField;
         private static string _setName = DefaultSetName;
         private static MethodInfo _findBlendShapeNames;
+        private static MethodInfo _convertArkitShapes;
 
         /// <summary>
         /// Generatorがプロジェクトに導入され、連携に使えるか。
@@ -105,6 +115,34 @@ namespace NativeFTManager.Infra
             }
 
             return _findBlendShapeNames.Invoke(null, new object[] { blendShapeNames }) as string[];
+        }
+
+        /// <summary>
+        /// GeneratorでARKit名のシェイプキーをUE名へ変換できるか。
+        /// Generatorが導入されていても、変換を公開する前の版ならfalse
+        /// </summary>
+        public static bool CanConvertToUnifiedExpressions
+        {
+            get
+            {
+                Resolve();
+                return _convertArkitShapes != null;
+            }
+        }
+
+        /// <summary>
+        /// レンダラーのメッシュにあるARKit名のシェイプキーから、UE名のシェイプキーを書き足す。
+        /// 書き足したときはメッシュの複製がレンダラーへ差し替わる。ビルド用の複製にだけ使う。
+        /// 戻り値は書き足したシェイプキー名で、使えないときはnull
+        /// </summary>
+        public static string[] ConvertToUnifiedExpressions(SkinnedMeshRenderer renderer)
+        {
+            if (!CanConvertToUnifiedExpressions || renderer == null)
+            {
+                return null;
+            }
+
+            return _convertArkitShapes.Invoke(null, new object[] { renderer }) as string[];
         }
 
         /// <summary>アバターにGeneratorのコンポーネントがあるか。Generatorが導入されていなければ常にfalse</summary>
@@ -175,6 +213,7 @@ namespace NativeFTManager.Infra
             }
 
             _findBlendShapeNames = ResolveSetMapping();
+            _convertArkitShapes = ResolveConversion();
         }
 
         /// <summary>
@@ -213,6 +252,19 @@ namespace NativeFTManager.Infra
             }
 
             return find;
+        }
+
+        /// <summary>UE変換の型を引き、引数と戻り値の型が合うときだけメソッドを返す</summary>
+        private static MethodInfo ResolveConversion()
+        {
+            var conversion = FindType(ConversionTypeName);
+            var convert = conversion?.GetMethod(
+                ConvertArkitShapesMethodName,
+                BindingFlags.Public | BindingFlags.Static,
+                null,
+                new[] { typeof(SkinnedMeshRenderer) },
+                null);
+            return convert != null && convert.ReturnType == typeof(string[]) ? convert : null;
         }
 
         private static Type FindType(string fullName)

@@ -155,11 +155,23 @@ msgstr "あり（Set書き込みはオフ）"
 msgid "inspector.status.generator_set_write"
 msgstr "あり（Set書き込みは有効）"
 
-msgid "inspector.use_generator_component"
-msgstr "Generatorコンポーネントを使う"
+msgid "inspector.auto_set_shape_keys"
+msgstr "シェイプキーを自動でセット"
 
-msgid "inspector.use_generator_component.tooltip"
-msgstr "アバターにあるKx VRC ARKit BlendShape Generatorのコンポーネントの、Set書き込みをビルド中だけ有効にします。シーンのGeneratorの設定は変わりません"
+msgid "inspector.auto_set_shape_keys.tooltip"
+msgstr "ビルド時にシェイプキーをBlendshapes Setへ自動で割り当てます。アバターにKx VRC ARKit BlendShape Generatorのコンポーネントがあれば、そのSet書き込みをビルド中だけ有効にします（シーンのGeneratorの設定は変わりません）。無ければ、DescriptorにSetが1つも無いときに限り、Generatorの対応表で顔のメッシュのARKitシェイプからSetを作ります"
+
+msgid "inspector.convert_arkit_to_ue"
+msgstr "ARKitをUEに変換"
+
+msgid "inspector.convert_arkit_to_ue.tooltip"
+msgstr "アバターにGeneratorのコンポーネントが無いとき、Setを作る前に、顔のメッシュのARKit名のシェイプキーからUnified Expressions名のシェイプキーをビルド中だけ書き足します。browInnerUpやcheekPuffなど、UEで左右や上下に分かれるキーがそれぞれ別に動きます。元のメッシュは変わりません。Generatorのコンポーネントがあるときは、そちらの出力名の設定に従います"
+
+msgid "inspector.convert_arkit_to_ue.generator_component"
+msgstr "アバターにGeneratorのコンポーネントがあるので、「ARKitをUEに変換」は使われません。UE名で出すときはGeneratorの出力名を設定してください。"
+
+msgid "inspector.convert_arkit_to_ue.outdated"
+msgstr "プロジェクトのGeneratorがUE変換に対応していない版なので、「ARKitをUEに変換」は効きません。Generatorを更新してください。"
 
 msgid "inspector.section.toggles"
 msgstr "トグル"
@@ -209,7 +221,7 @@ msgid "diag.E-03"
 msgstr "[KxNFTM-E-03] Blendshapes Setがありません"
 
 msgid "diag.E-03:description"
-msgstr "DescriptorにBlendshapes Setが1つも無いため、フェイストラッキングは動きません。Kx VRC ARKit BlendShape Generatorを使うときは「Generatorコンポーネントを使う」をオンに、使わないときはDescriptorのオートフィルか手入力でSetを作ってください。アバターにGeneratorのコンポーネントが無ければ、プロジェクトのGenerator（0.2.2以降）の対応表でFace Tracking Meshes（空ならリップシンクのメッシュ）のシェイプからもSetを作ろうとしますが、割り当てられるシェイプがありませんでした。"
+msgstr "DescriptorにBlendshapes Setが1つも無いため、フェイストラッキングは動きません。「シェイプキーを自動でセット」がオンなら、アバターにKx VRC ARKit BlendShape Generatorのコンポーネントがあればその書くSetを使い、無ければプロジェクトのGenerator（0.2.2以降）の対応表でFace Tracking Meshes（空ならリップシンクのメッシュ）のシェイプからSetを作ります。オフにしているならオンにしてください。オンでもこの表示が出るときは割り当てられるシェイプが無いので、Descriptorのオートフィルか手入力でSetを作ってください。"
 
 msgid "diag.E-04"
 msgstr "[KxNFTM-E-04] Jerry's Face Tracking Templatesが残っています"
@@ -233,7 +245,7 @@ msgid "diag.W-02"
 msgstr "[KxNFTM-W-02] GeneratorのシェイプがFTに使われません"
 
 msgid "diag.W-02:description"
-msgstr "「Generatorコンポーネントを使う」がオフで、GeneratorのSet書き込みもオフです。生成したシェイプがBlendshapes Setに入りません。「Generatorコンポーネントを使う」をオンにしてください。"
+msgstr "「シェイプキーを自動でセット」がオフで、GeneratorのSet書き込みもオフです。生成したシェイプがBlendshapes Setに入りません。「シェイプキーを自動でセット」をオンにしてください。"
 
 msgid "diag.W-04"
 msgstr "[KxNFTM-W-04] GeneratorのSetの割り当てが少なすぎます"
@@ -755,7 +767,7 @@ msgid "diag.W-20"
 msgstr "[KxNFTM-W-20] ARKit BlendShape Generatorがプロジェクトに導入されていません"
 
 msgid "diag.W-20:description"
-msgstr "Kx VRC ARKit BlendShape Generatorがプロジェクトに見つからないか、連携に必要な機能を持たない古い版です。Generatorとの連携を止めて、Descriptorにある既存のSetだけを分割します。「Generatorコンポーネントを使う」は効かないためグレーアウトしています。booth版は、zipに同梱したVRCARKitBlendShapeGeneratorのunitypackageも取り込んでください。VCC版は、VCCでプロジェクトの依存を解決し直してください。"
+msgstr "Kx VRC ARKit BlendShape Generatorがプロジェクトに見つからないか、連携に必要な機能を持たない古い版です。Generatorとの連携を止めて、Descriptorにある既存のSetだけを分割します。「シェイプキーを自動でセット」と「ARKitをUEに変換」は効かないためグレーアウトしています。booth版は、zipに同梱したVRCARKitBlendShapeGeneratorのunitypackageも取り込んでください。VCC版は、VCCでプロジェクトの依存を解決し直してください。"
 
 msgid "diag.I-06"
 msgstr "[KxNFTM-I-06] メッシュのシェイプからBlendshapes Setを作りました"

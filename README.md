@@ -51,11 +51,12 @@ Jerry'sとの違いは[Jerry'sからの移行](Documentation~/jerrys.md)に、�
 インスペクタの先頭には、DescriptorのBlendshapes Setの数と割り当てられたキーの数、Use All Tracking Keysの状態、Kx VRC ARKit BlendShape Generatorの有無とSet書き込みの状態が出ます。
 その下に、設定やアバターの構成に問題があるときのエラー・警告・案内が `KxNFTM-` で始まる番号付きで出ます。原因と対処はそれぞれのメッセージに書いてあり、同じものがビルド時にもNDMFのコンソールへ出ます。
 
-### Generatorコンポーネント
+### シェイプキーの自動セット
 
 | 項目 | 既定 | 意味 |
 | --- | --- | --- |
-| Generatorコンポーネントを使う | オン | アバターにあるKx VRC ARKit BlendShape Generatorのコンポーネントの、Set書き込みをビルド中だけ有効にする。シーンのGeneratorの設定は変わらない。アバターにGeneratorのコンポーネントが無ければ何もしない。プロジェクトにGeneratorが入っていなければグレーアウトし、警告（KxNFTM-W-20）を出す。0.1.0-test10までの「Generator連携」の Auto はオン、Off はオフとして読む |
+| シェイプキーを自動でセット | オン | ビルド時にシェイプキーをBlendshapes Setへ自動で割り当てる。アバターにKx VRC ARKit BlendShape Generatorのコンポーネントがあれば、そのSet書き込みをビルド中だけ有効にする（シーンのGeneratorの設定は変わらない）。無ければ、DescriptorにSetが1つも無いときに限り、Generatorの対応表で顔のメッシュのARKit名・UE名のシェイプからSetを作る。プロジェクトにGeneratorが入っていなければグレーアウトし、警告（KxNFTM-W-20）を出す。旧名の「Generatorコンポーネントを使う」と、0.1.0-test10までの「Generator連携」（Auto はオン、Off はオフ）の値を読む |
+| ARKitをUEに変換 | オン | アバターにGeneratorのコンポーネントが無いとき、Setを作る前に、顔のメッシュのARKit名のシェイプキーからUnified Expressions名のシェイプキーをビルド中だけ書き足す。browInnerUp・cheekPuff・mouthPress・mouthFunnel・mouthLeft/Right のように、UEで左右や上下に分かれるキーがそれぞれ別に動く。元のメッシュは変わらない。「シェイプキーを自動でセット」がオフのとき、Generatorが入っていないか変換に対応していない版のとき、アバターにGeneratorのコンポーネントがあるとき（Generatorの出力名の設定に従う）はグレーアウトする |
 
 ### 既定の設定
 

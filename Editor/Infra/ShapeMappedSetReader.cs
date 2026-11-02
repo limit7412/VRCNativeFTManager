@@ -64,6 +64,24 @@ namespace NativeFTManager.Infra
         }
 
         /// <summary>
+        /// Setを作るのと同じメッシュで、ARKit名のシェイプキーからUE名のシェイプキーを書き足す（仕様書5.1）。
+        /// 書き足したメッシュは複製に差し替わる。ビルド用の複製にだけ使う。
+        /// Generatorが変換を公開していない版なら何もしない
+        /// </summary>
+        public static void ConvertToUnifiedExpressions(VRCAvatarDescriptor descriptor)
+        {
+            if (descriptor == null || !GeneratorAccess.CanConvertToUnifiedExpressions)
+            {
+                return;
+            }
+
+            foreach (var renderer in GetSourceRenderers(descriptor))
+            {
+                GeneratorAccess.ConvertToUnifiedExpressions(renderer);
+            }
+        }
+
+        /// <summary>
         /// Setが動かすメッシュをDescriptorのFace Tracking Meshesへ加え、Face Trackingを有効にする。ビルド用の複製にだけ使う
         /// </summary>
         public static void AddToDescriptor(VRCAvatarDescriptor descriptor, ShapeMappedSetSource source)

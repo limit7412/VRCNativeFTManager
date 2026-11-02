@@ -52,11 +52,19 @@ namespace NativeFTManager
         [Range(0f, 1f)]
         public float visemeDampenAmount = 0.5f;
 
-        // 0.1.0-test10までは列挙体GeneratorIntegration（Off=0、Auto=1）で保存していた。
-        // シリアライズ上はどちらも0と1なので、旧名から読めばOffはfalse、Autoはtrueになる
-        [Tooltip("Enable the Blendshapes Set output of the Kx VRC ARKit BlendShape Generator component on the avatar at build time")]
+        // 「シェイプキーを自動でセット」。0.1.0-test10までは列挙体GeneratorIntegration（Off=0、Auto=1）、
+        // その後はuseGeneratorComponentの名前で保存していた。
+        // シリアライズ上はどれも0と1なので、旧名から読めばOffはfalse、Autoはtrueになる
+        [Tooltip("Assign the shape keys to a Blendshapes Set automatically at build time: through the Kx VRC ARKit BlendShape Generator component when the avatar has one, otherwise from the ARKit shapes of the face mesh")]
+        [FormerlySerializedAs("useGeneratorComponent")]
         [FormerlySerializedAs("generatorIntegration")]
-        public bool useGeneratorComponent = true;
+        public bool autoSetShapeKeys = true;
+
+        // 「ARKitをUEに変換」。アバターにGeneratorのコンポーネントが無いとき、Setを作る前に
+        // ARKit名のシェイプキーからUnified Expressions名のシェイプキーをビルド用の複製に書き足す。
+        // 追加前に保存したコンポーネントも、初期化子の値（オン）で読まれる
+        [Tooltip("When the avatar has no Generator component, add Unified Expressions shape keys converted from the ARKit shape keys to the face mesh at build time before making the Set")]
+        public bool convertArkitToUnifiedExpressions = true;
 
         // 表情補正（仕様書5.4、M2）。M1で保存したコンポーネントの挙動を変えないよう、初期化子は無効にしておく。
         // 追加したてのコンポーネントには、Resetで既定値（すべて有効）を入れる

@@ -51,11 +51,12 @@ The settings are listed in the order they appear in the inspector. The language 
 The top of the inspector shows the number of Blendshapes Sets on the Descriptor and the number of assigned keys, the state of Use All Tracking Keys, and whether Kx VRC ARKit BlendShape Generator is present and its Set output is enabled.
 Below that, errors, warnings and notices about the settings or the avatar appear with numbers starting with `KxNFTM-`. Each message states the cause and what to do, and the same messages appear in the NDMF console at build time.
 
-### Generator Component
+### Auto-set Shape Keys
 
 | Item | Default | Meaning |
 | --- | --- | --- |
-| Use Generator Component | On | Enables the Set output of the Kx VRC ARKit BlendShape Generator component on the avatar during the build only. The Generator's settings in the scene are not changed. Does nothing when the avatar has no Generator component. Grayed out with a warning (KxNFTM-W-20) when the Generator is not installed in the project. "Generator Integration" saved with 0.1.0-test10 or earlier is read as on for Auto and off for Off |
+| Auto-set Shape Keys | On | Assigns the shape keys to a Blendshapes Set automatically at build time. When the avatar has a Kx VRC ARKit BlendShape Generator component, its Set output is enabled during the build only (the Generator's settings in the scene are not changed). Otherwise, only when the Descriptor has no Set, a Set is built from the ARKit- or UE-named shapes of the face mesh with the Generator's mapping table. Grayed out with a warning (KxNFTM-W-20) when the Generator is not installed in the project. Values saved under the former names "Use Generator Component" and "Generator Integration" (0.1.0-test10 or earlier; Auto is on, Off is off) are read |
+| Convert ARKit to UE | On | When the avatar has no Generator component, adds Unified Expressions shape keys converted from the ARKit shape keys of the face mesh during the build only, before the Set is built. Keys that UE splits into left/right or upper/lower, such as browInnerUp, cheekPuff, mouthPress, mouthFunnel and mouthLeft/Right, then move separately. The original mesh is not changed. Grayed out when Auto-set Shape Keys is off, when the Generator is not installed or does not have the conversion, and when the avatar has a Generator component (its output naming setting is used) |
 
 ### Default Settings
 
