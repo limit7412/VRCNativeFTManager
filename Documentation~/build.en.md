@@ -3,7 +3,7 @@
 日本語: [build.md](build.md)
 
 During the NDMF build, this package adds the following to the build copy of the avatar. The avatar in the scene and its assets are not modified.
-The settings that turn each of these on are described in [Settings](../README.en.md#settings) in the README.
+The settings that turn each of these on are described in [Settings](settings.en.md).
 
 - The Blendshapes Sets on the Descriptor are split by tracking key into Eye / EyeClosed / Pupil / Brow / Lip / Other (`KxNFTM/Eye` and so on). The original Sets are removed, and the total number of key-to-shape assignments stays the same. Sets listed in "Sets not to split" and Sets referenced by name from existing Parameter Behaviors or State Behaviors (KxNFTM-W-10) are kept as they are
 - Each toggle shown in the menu gets a synced Bool parameter (and, when the menu is generated at build time, a menu entry; with Menu Items in the hierarchy, the default and saved settings are read from the Menu Item), and FX layers switch the Set weights between 0 and 1. The parameters are `KxNFTM/FaceTracking`, `KxNFTM/EyeTracking`, `KxNFTM/LipTracking`, `KxNFTM/Pupil`, `KxNFTM/Visemes`, `KxNFTM/Emulation`, `KxNFTM/Limits` and `KxNFTM/EyeSync`, 8 bits in total with the default settings
