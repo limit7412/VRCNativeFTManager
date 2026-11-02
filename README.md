@@ -204,7 +204,7 @@ Descriptorの今の値から、ビルドで作るものの量を計算して表�
 | 分割後のSet | グループに分けたあとのSetの数と、表情補正の切り替えに使う空のSet（ゲート）の数 |
 | Parameter Behaviors | 本製品が作る数と、既存の数 |
 | Custom式の命令数 | アバター全体の命令数と上限2048、そのうち本製品の分 |
-| Face Tracking Operations | SetとParameter Behaviors（既存を含む）から数えた操作の数。VRChatの数え方は細部が公開されていないので目安 |
+| Face Tracking Operations | SetとParameter Behaviors（既存を含む）から数えた操作の数。SDK 3.10.6の数え方に合わせているが、Custom以外の既存のParameter Behaviorの数え方は確かめていないので目安 |
 | 同期bit | アバター全体の同期bitと上限、そのうち本製品の分。超える見込みなら警告（KxNFTM-W-13） |
 | FXレイヤー | 本製品が作るFXのレイヤーの数 |
 

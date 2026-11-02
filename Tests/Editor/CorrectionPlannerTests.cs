@@ -217,5 +217,48 @@ namespace NativeFTManager.Tests
             int customOperations = corrections.Behaviors.Sum(b => CustomExpression.Analyze(b.Expression).Operations);
             Assert.That(estimate.Operations, Is.EqualTo(mappings + customOperations + 2 + 2));
         }
+
+        [Test]
+        public void Estimate_MultipliesOnlyShapeMappingsByRenderers()
+        {
+            // SDKの数え上げ（issue #39のB5）: Rendererが2つで43×2 + 102 = 188。Behaviorの演算はRendererの数で掛けない
+            var toggles = UeToggles(CorrectionFeatures.All);
+            var sets = new[] { FullSet() };
+            var corrections = CorrectionPlanner.Plan(sets, toggles, null, 0);
+            var gates = CorrectionPlanner.GetPossibleGates(toggles, new string[0]);
+            var controller = ToggleControllerPlanner.Build(toggles, gates);
+            var existing = new[]
+            {
+                new BuildEstimate.ExistingBehavior("JawOpen", 2, null),
+                new BuildEstimate.ExistingBehavior("JawOpen", 0, "JawOpen * (2 + 3)"),
+            };
+
+            var estimate = BuildEstimate.Calculate(sets, 0, corrections, existing, toggles, controller, _ => 2, 0);
+
+            int mappings = FaceTrackingGroupTable.KeyCount;
+            int customOperations = corrections.Behaviors.Sum(b => CustomExpression.Analyze(b.Expression).Operations);
+            Assert.That(estimate.Operations, Is.EqualTo(mappings * 2 + customOperations + 2 + 2));
+        }
+
+        [Test]
+        public void Estimate_DoesNotCountVisemeMappings()
+        {
+            // SDKはSetのビゼーム対応を数えない（issue #39のB5、ビゼーム対応2件で145のまま）
+            var toggles = UeToggles(CorrectionFeatures.None);
+            var plain = FullSet();
+            var withVisemes = FullSet();
+            withVisemes.VisemeBlendShapeNames[0] = "vrc.v_sil";
+            withVisemes.VisemeBlendShapeNames[1] = "vrc.v_pp";
+            var gates = CorrectionPlanner.GetPossibleGates(toggles, new string[0]);
+            var controller = ToggleControllerPlanner.Build(toggles, gates);
+            var none = new BuildEstimate.ExistingBehavior[0];
+
+            var expected = BuildEstimate.Calculate(
+                new[] { plain }, 0, CorrectionPlanner.Plan(new[] { plain }, toggles, null, 0), none, toggles, controller, _ => 1, 0);
+            var actual = BuildEstimate.Calculate(
+                new[] { withVisemes }, 0, CorrectionPlanner.Plan(new[] { withVisemes }, toggles, null, 0), none, toggles, controller, _ => 1, 0);
+
+            Assert.That(actual.Operations, Is.EqualTo(expected.Operations));
+        }
     }
 }

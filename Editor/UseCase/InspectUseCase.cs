@@ -151,7 +151,7 @@ namespace NativeFTManager.UseCase
                 existing,
                 toggles,
                 plan,
-                FaceTrackingDescriptorAccess.GetMeshCounter(descriptor),
+                FaceTrackingDescriptorAccess.GetRendererCounter(descriptor),
                 facts.OtherSyncedBits);
             report.Estimate.FxLayerCount += CountSuppressionLayers(component, facts);
 

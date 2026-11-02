@@ -191,16 +191,16 @@ namespace NativeFTManager.Infra
         }
 
         /// <summary>
-        /// シェイプ名を持つFace Tracking Meshの数を返す関数。見積もり（F-13）に使う。
-        /// Face Tracking Meshesが空のときは、メッシュの数を数えられないので1つとして扱う
+        /// シェイプ名を持つFace Tracking MeshのRendererの数を返す関数。見積もり（F-13）に使う。
+        /// SDKはRendererごとに数えるので、同じMeshを使うRendererもまとめない（issue #42）。
+        /// Face Tracking Meshesが空のときは、Rendererの数を数えられないので1つとして扱う
         /// </summary>
-        public static Func<string, int> GetMeshCounter(VRCAvatarDescriptor descriptor)
+        public static Func<string, int> GetRendererCounter(VRCAvatarDescriptor descriptor)
         {
             var meshes = descriptor != null && descriptor.faceTrackingMeshes != null
                 ? descriptor.faceTrackingMeshes
                     .Where(renderer => renderer != null && renderer.sharedMesh != null)
                     .Select(renderer => renderer.sharedMesh)
-                    .Distinct()
                     .ToArray()
                 : new Mesh[0];
             if (meshes.Length == 0)
