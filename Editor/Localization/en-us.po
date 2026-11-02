@@ -221,7 +221,7 @@ msgid "diag.E-03"
 msgstr "[KxNFTM-E-03] No Blendshapes Set"
 
 msgid "diag.E-03:description"
-msgstr "The Avatar Descriptor has no Blendshapes Set, so face tracking does nothing. With Auto-set Shape Keys on, this tool uses the Set written by the Kx VRC ARKit BlendShape Generator component when the avatar has one, and otherwise builds a Set from the shapes of the Face Tracking Meshes (or the lip sync mesh when that list is empty) with the mapping table of the Generator in the project (0.2.2 or later). If it is off, turn it on. If this still appears with it on, no shape could be assigned, so create a Set with the Descriptor's auto fill or by hand."
+msgstr "The Avatar Descriptor has no Blendshapes Set, so face tracking does nothing. With Auto-set Shape Keys on, this tool uses the Set written by the Kx VRC ARKit BlendShape Generator component when the avatar has one, and otherwise builds a Set from the shapes of the Face Tracking Meshes (or the lip sync mesh when that list is empty) with the mapping table of the Generator in the project (0.2.3 or later). If it is off, turn it on. If this still appears with it on, no shape could be assigned, so create a Set with the Descriptor's auto fill or by hand."
 
 msgid "diag.E-04"
 msgstr "[KxNFTM-E-04] Jerry's Face Tracking Templates is still on the avatar"

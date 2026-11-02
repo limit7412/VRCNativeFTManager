@@ -43,7 +43,7 @@ namespace NativeFTManager.Infra
         internal const string GetKeyNamesMethodName = "GetKeyNames";
 
         /// <summary>
-        /// ARKit名のシェイプキーをUnified Expressions名へ変換する処理を公開する型名。Generator 0.2.2系の#110以降にある。
+        /// ARKit名のシェイプキーをUnified Expressions名へ変換する処理を公開する型名。Generator 0.2.3以降にある。
         /// 「ARKitをUEに変換」で、アバターにGeneratorのコンポーネントが無いときに使う（仕様書5.1）
         /// </summary>
         internal const string ConversionTypeName = "ARKitBlendShapeGenerator.UnifiedExpressionsConversion";

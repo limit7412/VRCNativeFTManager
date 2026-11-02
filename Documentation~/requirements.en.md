@@ -8,13 +8,13 @@
 - VRChat SDK Avatars 3.10.6 or later
 - NDMF 1.6.0 or later
 - Modular Avatar 1.12.0 or later
-- Kx VRC ARKit BlendShape Generator 0.2.1 or later
+- Kx VRC ARKit BlendShape Generator 0.2.3 or later
 
 ## SDK version
 
 Native Face Tracking became stable in VRChat SDK 3.10.6. Use the stable SDK 3.10.6 or later. The 3.10.6 betas (3.10.6-beta.N) count as older than 3.10.6, so this package cannot be added with them.
 
-Kx VRC ARKit BlendShape Generator, which this package depends on, is supported from the stable 0.2.1, so you do not need to show pre-release packages. When you add this package, VCC/ALCOM installs the Generator together with it.
+Kx VRC ARKit BlendShape Generator, which this package depends on, is supported from the stable 0.2.3, so you do not need to show pre-release packages. When you add this package, VCC/ALCOM installs the Generator together with it.
 
 ## Kx VRC ARKit BlendShape Generator
 
@@ -27,7 +27,7 @@ In that case, it shows a warning (KxNFTM-W-20), grays out "Auto-set Shape Keys" 
 The Generator row of the status shows "Not installed".
 Once the Generator is imported, the integration works with the same settings.
 
-Even when the avatar has no Generator component, the mapping table of Generator 0.2.2 or later in the project is used.
+Even when the avatar has no Generator component, the mapping table of Generator 0.2.3 or later in the project is used.
 When the Descriptor has no Blendshapes Set, a Set that assigns the ARKit- or UE-named shapes of the Face Tracking Meshes (or the lip sync mesh when that list is empty) to the keys is built during the build and then split (information KxNFTM-I-06).
 This saves pressing Auto Fill on avatars that already have ARKit shapes.
 No Set is built when the Descriptor has any Set, when the avatar has a Generator component, or when "Auto-set Shape Keys" in the inspector is off.

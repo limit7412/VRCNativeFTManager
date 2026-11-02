@@ -17,7 +17,7 @@ English: [README.en.md](README.en.md)
 - VRChat SDK Avatars 3.10.6 以降
 - NDMF 1.6.0 以降
 - Modular Avatar 1.12.0 以降
-- Kx VRC ARKit BlendShape Generator 0.2.1 以降（VCC/ALCOMでは本製品と一緒に入る。booth版で取り込み忘れても本製品は動き、Generatorとの連携だけが止まる）
+- Kx VRC ARKit BlendShape Generator 0.2.3 以降（VCC/ALCOMでは本製品と一緒に入る。booth版で取り込み忘れても本製品は動き、Generatorとの連携だけが止まる）
 
 Generatorとの関係と、Avatar Optimizer（1.9.21以降）との併用の条件は[必要環境と併用するパッケージ](Documentation~/requirements.md)にあります。
 
@@ -34,7 +34,7 @@ zipからの手動インストールとbooth版（unitypackage）の手順、お
    - トグルはすべてメニューに出し、表情補正（エミュレーション・制限・Eye Sync）はすべて作る設定で始まる（下の「既定の設定」）
    - アバターにKx VRC ARKit BlendShape Generatorがあれば、GeneratorのSet書き込みはビルド中だけ有効になる
    - Generatorが無ければ、DescriptorのBlendshapes Setは、オートフィルか手入力で用意しておく
-   - DescriptorにSetが1つも無く、アバターにGeneratorのコンポーネントも無いときは、プロジェクトのGenerator（0.2.2以降）の対応表で、Face Tracking Meshes（空ならリップシンクのメッシュ）にあるARKit名・UE名のシェイプからビルド中にSetを作る（情報 KxNFTM-I-06）。元からARKitのシェイプを持つアバターなら、オートフィルを押さなくてよい
+   - DescriptorにSetが1つも無く、アバターにGeneratorのコンポーネントも無いときは、プロジェクトのGenerator（0.2.3以降）の対応表で、Face Tracking Meshes（空ならリップシンクのメッシュ）にあるARKit名・UE名のシェイプからビルド中にSetを作る（情報 KxNFTM-I-06）。元からARKitのシェイプを持つアバターなら、オートフィルを押さなくてよい
    - DescriptorのEye Lookが目のフェイストラッキングを使わない設定（Eye Gaze ModeがBone Rotationで目のボーンが無い、Eyelids TypeがBlendshapesなど）なら、ビルド中にFace Tracking向けに直す（情報 KxNFTM-I-07）。インスペクタの警告（KxNFTM-W-21）のボタンで、シーンのDescriptorも直せる
 2. 必要なら、下の「設定項目」に沿ってインスペクタとヒエラルキーのMenu Itemで個別に変える
 3. アップロードする。EXメニューの「Face Tracking」から、フェイストラッキング全体（Face Tracking）・目（Eye Tracking）・口（Lip Tracking）・瞳孔（Pupil）・ビゼーム（Visemes）を切り替える。表情補正の切り替え（Emulation・Limits・Eye Sync）は、その下の「Settings」にある。表示名はエディタの言語によらず英語で付き、自由に変えられる
