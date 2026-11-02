@@ -91,9 +91,6 @@ namespace NativeFTManager.UseCase
                 {
                     ShapeMappedSetReader.AddToDescriptor(descriptor, mapped);
                     sets.Add(mapped.Set);
-                    DiagnosticReporter.Report(
-                        new Diagnostic(DiagnosticCodes.SetMappedFromShapes, mapped.Set.AssignedKeyCount),
-                        primary);
                 }
             }
 

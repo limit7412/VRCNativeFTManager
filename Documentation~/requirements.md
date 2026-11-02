@@ -29,7 +29,7 @@ Generatorを取り込むと、設定はそのままで連携が有効になり�
 連携に必要なフィールドを持たない古い版のGeneratorも、入っていないものとして扱います。
 
 アバターにGeneratorのコンポーネントが無くても、プロジェクトにGenerator 0.2.2以降が入っていれば、その対応表を使います。
-DescriptorにBlendshapes Setが1つも無いとき、Face Tracking Meshes（空ならリップシンクのメッシュ）にあるARKit名・UE名のシェイプをキーへ割り当てたSetをビルド中に作り、分割します（情報 KxNFTM-I-06）。
+DescriptorにBlendshapes Setが1つも無いとき、Face Tracking Meshes（空ならリップシンクのメッシュ）にあるARKit名・UE名のシェイプをキーへ割り当てたSetをビルド中に作り、分割します。
 元からARKitのシェイプを持つアバターで、オートフィルを押す手間を省くためです。
 Setが1つでもあるとき、アバターにGeneratorのコンポーネントがあるとき、インスペクタの「シェイプキーを自動でセット」がオフのときは作りません。
 

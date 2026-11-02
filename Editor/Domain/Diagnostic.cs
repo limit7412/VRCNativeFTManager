@@ -121,11 +121,6 @@ namespace NativeFTManager.Domain
         public const string GeneratorNotInstalled = "W-20";
 
         /// <summary>
-        /// Setが無くGeneratorのコンポーネントも無いので、Generatorの対応表でメッシュのシェイプからSetを作った（仕様書5.1）
-        /// </summary>
-        public const string SetMappedFromShapes = "I-06";
-
-        /// <summary>
         /// SetにEyeLookやEyeClosedのキーがあるのに、DescriptorのEye LookがそれをFTで使わない設定だったので、
         /// ビルド用の複製でEye Gaze ModeやEyelids TypeをFace Trackingにした（仕様書5.7）
         /// </summary>
@@ -168,7 +163,6 @@ namespace NativeFTManager.Domain
                 { MenuItemsMissing, DiagnosticSeverity.Warning },
                 { MenuItemValueInvalid, DiagnosticSeverity.Warning },
                 { GeneratorNotInstalled, DiagnosticSeverity.Warning },
-                { SetMappedFromShapes, DiagnosticSeverity.Information },
                 { EyeLookCorrected, DiagnosticSeverity.Information },
                 { EyeLookNotFaceTracking, DiagnosticSeverity.Warning },
             };

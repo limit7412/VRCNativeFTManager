@@ -74,8 +74,6 @@ namespace NativeFTManager.UseCase
                 if (mapped != null)
                 {
                     sets.Add(mapped.Set);
-                    report.Diagnostics.Add(
-                        new Diagnostic(DiagnosticCodes.SetMappedFromShapes, mapped.Set.AssignedKeyCount));
                 }
             }
 
