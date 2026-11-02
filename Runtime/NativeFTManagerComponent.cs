@@ -86,6 +86,13 @@ namespace NativeFTManager
         [Tooltip("Keep FaceEmo from writing expressions while face tracking is active")]
         public FaceEmoSuppressionSettings faceEmoSuppression = new FaceEmoSuppressionSettings();
 
+        // Tracking Controlの再適用（仕様書10.3、F-22）。アバターのFXやFaceEmoがTracking Controlで目や口を
+        // Animationにすると、ネイティブFTの視線と口も止まる。FT中はTrackingへ周期的に戻す。
+        // 0.1.0までに保存したコンポーネントの挙動を変えないよう初期化子は無効にし、追加したてのものにはResetで入れる
+
+        [Tooltip("While face tracking is active, keep setting the eyes and mouth back to Tracking so that Tracking Controls in the avatar's FX or FaceEmo do not stop the face tracking")]
+        public bool enableTrackingReapply;
+
         // 感度（仕様書5.6、M4）。既定はどの系統も作らず、M3までに保存したコンポーネントの挙動を変えない
 
         [Tooltip("Radials in the Face Tracking menu that change the strength of the eye and mouth tracking")]
@@ -128,6 +135,7 @@ namespace NativeFTManager
             enableEmulation = true;
             enableLimits = true;
             enableEyeSync = true;
+            enableTrackingReapply = true;
             excludedRules = new List<string>();
         }
 

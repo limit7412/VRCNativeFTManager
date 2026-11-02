@@ -18,7 +18,8 @@ namespace NativeFTManager.Domain
             IReadOnlyDictionary<FaceTrackingGroup, float> defaultWeights,
             IReadOnlyDictionary<string, float> gateWeights = null,
             VisemeLayerPlan visemeLayer = null,
-            IReadOnlyList<FloatParameterPlan> floatParameters = null)
+            IReadOnlyList<FloatParameterPlan> floatParameters = null,
+            TrackingReapplyPlan trackingReapply = null)
         {
             Parameters = parameters;
             FloatParameters = floatParameters ?? new FloatParameterPlan[0];
@@ -26,6 +27,7 @@ namespace NativeFTManager.Domain
             DefaultWeights = defaultWeights;
             GateWeights = gateWeights ?? new Dictionary<string, float>();
             VisemeLayer = visemeLayer;
+            TrackingReapply = trackingReapply;
         }
 
         /// <summary>コントローラに宣言するBoolパラメーター</summary>
@@ -47,6 +49,12 @@ namespace NativeFTManager.Domain
 
         /// <summary>ビゼームを切り替えるレイヤー（仕様書5.5）。切り替えないならnull</summary>
         public VisemeLayerPlan VisemeLayer { get; }
+
+        /// <summary>Tracking Controlの再適用のレイヤー（仕様書10.3、F-22）。作らないならnull</summary>
+        public TrackingReapplyPlan TrackingReapply { get; }
+
+        /// <summary>コントローラを作る必要があるか（レイヤーが1つでもあるか）</summary>
+        public bool HasAnyLayer => Layers.Count > 0 || VisemeLayer != null || TrackingReapply != null;
 
         /// <summary>グループを受け持つレイヤー。トグルで変わらないグループはnull</summary>
         public ToggleLayerPlan FindLayer(FaceTrackingGroup group)
@@ -265,7 +273,11 @@ namespace NativeFTManager.Domain
     {
         /// <param name="toggles">トグル</param>
         /// <param name="gates">生成する可能性のあるゲート（CorrectionPlanner.GetPossibleGates）。使わなかったものはApplyで取り除く</param>
-        public static ToggleControllerPlan Build(ToggleSet toggles, IEnumerable<GateSlot> gates = null)
+        /// <param name="trackingReapply">Tracking Controlの再適用のレイヤーを作るか（コンポーネントのenableTrackingReapply）</param>
+        public static ToggleControllerPlan Build(
+            ToggleSet toggles,
+            IEnumerable<GateSlot> gates = null,
+            bool trackingReapply = false)
         {
             var parameters = toggles.Dynamic
                 .Select(toggle => new ToggleParameterPlan(toggle.ParameterName, toggle.DefaultValue))
@@ -342,7 +354,13 @@ namespace NativeFTManager.Domain
                 .ToArray();
 
             return new ToggleControllerPlan(
-                parameters, layers, defaultWeights, gateWeights, BuildVisemeLayer(toggles), floatParameters);
+                parameters,
+                layers,
+                defaultWeights,
+                gateWeights,
+                BuildVisemeLayer(toggles),
+                floatParameters,
+                trackingReapply ? TrackingReapplyPlanner.Build(toggles) : null);
         }
 
         private static string GetLayerName(IEnumerable<string> slots)

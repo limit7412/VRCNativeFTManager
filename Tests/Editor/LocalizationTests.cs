@@ -91,6 +91,7 @@ namespace NativeFTManager.Tests
             "inspector.undo.menu_item",
             "inspector.section.descriptor",
             "inspector.set_use_all_tracking_keys",
+            "inspector.tracking_reapply",
             "inspector.viseme_dampen",
             "inspector.viseme_dampen_amount",
             "inspector.section.details",

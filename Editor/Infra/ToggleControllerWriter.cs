@@ -19,6 +19,9 @@ namespace NativeFTManager.Infra
     {
         public const string ControllerName = NativeFTManagerParameterNames.ShortPrefix + " Generated";
 
+        /// <summary>空のクリップのカーブが指すパス。アバターに同名のオブジェクトが無い前提の名前にする</summary>
+        private const string EmptyClipBindingPath = "KxNFTM_EmptyClipBinding";
+
         /// <param name="plan">生成計画</param>
         /// <param name="saveAsset">
         /// 生成したアセットをビルドの一時アセットへ登録するコールバック。
@@ -69,6 +72,13 @@ namespace NativeFTManager.Infra
                 WriteVisemeLayer(plan.VisemeLayer, layers[layers.Length - 1].stateMachine, saveAsset);
             }
 
+            if (plan.TrackingReapply != null)
+            {
+                controller.AddLayer(TrackingReapplyPlan.LayerName);
+                var layers = controller.layers;
+                WriteTrackingReapplyLayer(plan.TrackingReapply, layers[layers.Length - 1].stateMachine, saveAsset);
+            }
+
             // AddLayerで作られるレイヤーの重みは0のため、明示的に1へ揃える。
             // layersはコピーを返すプロパティなので、書き戻すまで反映されない
             var allLayers = controller.layers;
@@ -101,14 +111,99 @@ namespace NativeFTManager.Infra
             AddMouthTrackingControl(states[ToggleLayerPlan.OffState], VRC_AnimatorTrackingControl.TrackingType.Animation, saveAsset);
         }
 
+        /// <summary>
+        /// Tracking Controlの再適用のレイヤー（仕様書10.3、F-22）。
+        /// Applyのステートは空のクリップを持ち、1周するとArmedへ戻って入り直す。
+        /// モーションの無いステートでは終了時間の長さが決まらないため、長さを持つ空のクリップを置く
+        /// </summary>
+        private static void WriteTrackingReapplyLayer(
+            TrackingReapplyPlan plan,
+            AnimatorStateMachine stateMachine,
+            Action<Object> saveAsset)
+        {
+            AnimationClip clip = null;
+            var states = new Dictionary<string, AnimatorState>();
+            for (int i = 0; i < plan.States.Count; i++)
+            {
+                var statePlan = plan.States[i];
+                var position = i == 0 ? new Vector3(250f, 0f) : new Vector3(500f, -120f + (i - 1) * 80f);
+                var state = AddState(stateMachine, statePlan.Name, position);
+                if (statePlan.Loops)
+                {
+                    if (clip == null)
+                    {
+                        clip = CreateEmptyClip(TrackingReapplyPlan.IntervalSeconds);
+                        saveAsset?.Invoke(clip);
+                    }
+
+                    state.motion = clip;
+                }
+
+                if (statePlan.HasTrackingControl)
+                {
+                    AddTrackingControl(
+                        state,
+                        statePlan.Eyes ? VRC_AnimatorTrackingControl.TrackingType.Tracking : VRC_AnimatorTrackingControl.TrackingType.NoChange,
+                        statePlan.Mouth ? VRC_AnimatorTrackingControl.TrackingType.Tracking : VRC_AnimatorTrackingControl.TrackingType.NoChange,
+                        saveAsset);
+                }
+
+                states[statePlan.Name] = state;
+            }
+
+            stateMachine.defaultState = states[TrackingReapplyPlan.ArmedState];
+
+            foreach (var transitionPlan in plan.Transitions)
+            {
+                var transition = states[transitionPlan.From].AddTransition(states[transitionPlan.To]);
+                transition.hasExitTime = transitionPlan.HasExitTime;
+                transition.exitTime = transitionPlan.ExitTime;
+                transition.hasFixedDuration = true;
+                transition.duration = 0f;
+                transition.offset = 0f;
+                transition.interruptionSource = TransitionInterruptionSource.None;
+                transition.canTransitionToSelf = false;
+
+                foreach (var condition in transitionPlan.Conditions)
+                {
+                    transition.AddCondition(GetConditionMode(condition), condition.Threshold, condition.Parameter);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 長さだけを持つ空のクリップ。アバターに無いパスのカーブを1本置いて長さを決める。
+        /// そのパスのオブジェクトが無い限り、実行時には何も動かさない
+        /// </summary>
+        private static AnimationClip CreateEmptyClip(float lengthSeconds)
+        {
+            var clip = new AnimationClip { name = ControllerName + " Empty " + lengthSeconds.ToString("0.###") + "s" };
+            clip.SetCurve(
+                EmptyClipBindingPath,
+                typeof(Transform),
+                "m_LocalPosition.x",
+                new AnimationCurve(new Keyframe(0f, 0f), new Keyframe(lengthSeconds, 0f)));
+            return clip;
+        }
+
         private static void AddMouthTrackingControl(
             AnimatorState state,
             VRC_AnimatorTrackingControl.TrackingType mouth,
             Action<Object> saveAsset)
         {
+            // 口以外は変えない。目やまぶたまで触ると、ほかのツールのTracking Controlと競合するため
+            AddTrackingControl(state, VRC_AnimatorTrackingControl.TrackingType.NoChange, mouth, saveAsset);
+        }
+
+        /// <summary>目と口だけを指定し、ほかの部位はNo ChangeにするTracking Controlを付ける</summary>
+        private static void AddTrackingControl(
+            AnimatorState state,
+            VRC_AnimatorTrackingControl.TrackingType eyes,
+            VRC_AnimatorTrackingControl.TrackingType mouth,
+            Action<Object> saveAsset)
+        {
             var control = state.AddStateMachineBehaviour<VRCAnimatorTrackingControl>();
 
-            // 口以外は変えない。目やまぶたまで触ると、ほかのツールのTracking Controlと競合するため
             control.trackingHead = VRC_AnimatorTrackingControl.TrackingType.NoChange;
             control.trackingLeftHand = VRC_AnimatorTrackingControl.TrackingType.NoChange;
             control.trackingRightHand = VRC_AnimatorTrackingControl.TrackingType.NoChange;
@@ -117,7 +212,7 @@ namespace NativeFTManager.Infra
             control.trackingRightFoot = VRC_AnimatorTrackingControl.TrackingType.NoChange;
             control.trackingLeftFingers = VRC_AnimatorTrackingControl.TrackingType.NoChange;
             control.trackingRightFingers = VRC_AnimatorTrackingControl.TrackingType.NoChange;
-            control.trackingEyes = VRC_AnimatorTrackingControl.TrackingType.NoChange;
+            control.trackingEyes = eyes;
             control.trackingMouth = mouth;
 
             if (!UnityEditor.EditorUtility.IsPersistent(control))

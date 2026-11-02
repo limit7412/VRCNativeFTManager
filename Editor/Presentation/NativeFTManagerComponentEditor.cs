@@ -31,6 +31,7 @@ namespace NativeFTManager.Presentation
         private SerializedProperty _lerpSpeed;
         private SerializedProperty _excludedSetNames;
         private SerializedProperty _setUseAllTrackingKeys;
+        private SerializedProperty _enableTrackingReapply;
         private SerializedProperty _visemeDampenOverride;
         private SerializedProperty _visemeDampenAmount;
         private SerializedProperty _autoSetShapeKeys;
@@ -58,6 +59,7 @@ namespace NativeFTManager.Presentation
             _lerpSpeed = serializedObject.FindProperty(nameof(NativeFTManagerComponent.lerpSpeed));
             _excludedSetNames = serializedObject.FindProperty(nameof(NativeFTManagerComponent.excludedSetNames));
             _setUseAllTrackingKeys = serializedObject.FindProperty(nameof(NativeFTManagerComponent.setUseAllTrackingKeys));
+            _enableTrackingReapply = serializedObject.FindProperty(nameof(NativeFTManagerComponent.enableTrackingReapply));
             _visemeDampenOverride = serializedObject.FindProperty(nameof(NativeFTManagerComponent.visemeDampenOverride));
             _visemeDampenAmount = serializedObject.FindProperty(nameof(NativeFTManagerComponent.visemeDampenAmount));
             _autoSetShapeKeys = serializedObject.FindProperty(nameof(NativeFTManagerComponent.autoSetShapeKeys));
@@ -109,6 +111,7 @@ namespace NativeFTManager.Presentation
 
             EditorGUILayout.Space();
             DrawToggles();
+            EditorGUILayout.PropertyField(_enableTrackingReapply, G("inspector.tracking_reapply"));
 
             EditorGUILayout.Space();
             DrawCorrections();

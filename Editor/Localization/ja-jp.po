@@ -179,6 +179,12 @@ msgstr "トグル"
 msgid "inspector.section.descriptor"
 msgstr "Descriptorの設定（ビルド時）"
 
+msgid "inspector.tracking_reapply"
+msgstr "FT中は目と口のトラッキングを戻す"
+
+msgid "inspector.tracking_reapply.tooltip"
+msgstr "フェイストラッキングがオンの間、目と口を0.5秒ごとにTrackingへ戻します。アバターのFXやFaceEmoのTracking ControlがAnimationに切り替えると、フェイストラッキングの視線と口が止まるためです"
+
 msgid "inspector.set_use_all_tracking_keys"
 msgstr "Use All Tracking Keysを有効にする"
 
