@@ -8,13 +8,13 @@ English: [requirements.en.md](requirements.en.md)
 - VRChat SDK Avatars 3.10.6 以降
 - NDMF 1.6.0 以降
 - Modular Avatar 1.12.0 以降
-- Kx VRC ARKit BlendShape Generator 0.2.1 以降
+- Kx VRC ARKit BlendShape Generator 0.2.3 以降
 
 ## SDKの版
 
 ネイティブFace TrackingはVRChat SDK 3.10.6で正式版になりました。SDKは安定版の3.10.6以降を入れてください。3.10.6のベータ版（3.10.6-beta.N）は3.10.6より前の版として扱われ、本製品を追加できません。
 
-本製品が依存に持つKx VRC ARKit BlendShape Generatorも安定版の0.2.1以降が対応しているので、プレリリースの表示を有効にする必要はありません。本製品を追加すると、VCC/ALCOMがGeneratorも一緒に入れます。
+本製品が依存に持つKx VRC ARKit BlendShape Generatorも安定版の0.2.3以降が対応しているので、プレリリースの表示を有効にする必要はありません。本製品を追加すると、VCC/ALCOMがGeneratorも一緒に入れます。
 
 ## Kx VRC ARKit BlendShape Generator
 
