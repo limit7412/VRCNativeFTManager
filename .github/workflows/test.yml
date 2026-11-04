@@ -192,7 +192,7 @@ jobs:
       GH_TOKEN: ${{ github.token }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@v7.0.1
 
       # 既存の`.meta`のGUIDが変わっていないことを、変更前の内容と突き合わせて確かめる。
       # 配布済みのGUIDは利用者のアバターから参照されており、振り直すわけにはいかない。
@@ -334,7 +334,7 @@ jobs:
 
       - name: Checkout package
         if: env.RUN_TESTS == 'true'
-        uses: actions/checkout@v7
+        uses: actions/checkout@v7.0.1
         with:
           # テスト用プロジェクトのPackages配下へ直接チェックアウトする
           path: TestProject/Packages/${{ env.PACKAGE_NAME }}
@@ -434,7 +434,7 @@ jobs:
 
       - name: Cache Library
         if: env.RUN_TESTS == 'true'
-        uses: actions/cache@v6
+        uses: actions/cache@v6.1.0
         with:
           path: TestProject/Library
           # Generatorの有無で構成を分ける。前方一致の復元で、もう一方の構成のLibraryを拾わないため
@@ -473,7 +473,7 @@ jobs:
       # 認証する
       - name: Run EditMode tests
         if: env.RUN_TESTS == 'true'
-        uses: game-ci/unity-test-runner@v4
+        uses: game-ci/unity-test-runner@v4.4.0
         env:
           UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
@@ -489,7 +489,7 @@ jobs:
 
       - name: Upload test results
         if: always() && env.RUN_TESTS == 'true'
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v7.0.2
         with:
           name: ${{ matrix.generator && 'editmode-test-results' || 'editmode-test-results-without-generator' }}
           path: artifacts
