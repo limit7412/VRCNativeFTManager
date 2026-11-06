@@ -173,6 +173,15 @@ msgstr "アバターにGeneratorのコンポーネントがあるので、「ARK
 msgid "inspector.convert_arkit_to_ue.outdated"
 msgstr "プロジェクトのGeneratorがUE変換に対応していない版なので、「ARKitをUEに変換」は効きません。Generatorを更新してください。"
 
+msgid "inspector.attach_generator"
+msgstr "MMDのシェイプキーからシェイプキーを作る（プラグインをアタッチ）"
+
+msgid "inspector.attach_generator.tooltip"
+msgstr "アバターのルートにKx VRC ARKit BlendShape Generatorのコンポーネントを付けます。ビルド時にGeneratorがMMDのシェイプキーからARKitのシェイプキーを作り、「シェイプキーを自動でセット」がオンならそのシェイプキーをBlendshapes Setへ割り当てます。元からARKitのシェイプキーを持たないアバターで使います"
+
+msgid "inspector.undo.attach_generator"
+msgstr "ARKit BlendShape Generatorを付ける"
+
 msgid "inspector.section.toggles"
 msgstr "トグル"
 
