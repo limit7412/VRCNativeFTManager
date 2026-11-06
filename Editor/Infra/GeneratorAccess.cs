@@ -64,6 +64,13 @@ namespace NativeFTManager.Infra
         /// <summary>出力名の列挙体で、ARKit名とUnified Expressions名の両方を出す値の名前</summary>
         internal const string OutputNamingBoth = "Both";
 
+        /// <summary>Generatorのアセンブリ名。型が見つからない古い版でも、取り込み済みかどうかはこれで分かる</summary>
+        internal static readonly string[] AssemblyNames =
+        {
+            "ARKitBlendShapeGenerator.Runtime",
+            "ARKitBlendShapeGenerator.Editor",
+        };
+
         /// <summary>
         /// GeneratorがDescriptorへ書くSetの名前の既定値。
         /// Generatorが無くても見積もりの判定に使うため、Generatorの<c>FaceTrackingSetNames.Generator</c>を複製して持つ。
@@ -72,6 +79,7 @@ namespace NativeFTManager.Infra
         internal const string DefaultSetName = "Kx VRC ARKit BlendShape Generator";
 
         private static bool _resolved;
+        private static bool _imported;
         private static Type _componentType;
         private static FieldInfo _setWriteField;
         private static string _setName = DefaultSetName;
@@ -89,6 +97,19 @@ namespace NativeFTManager.Infra
             {
                 Resolve();
                 return _componentType != null && _setWriteField != null;
+            }
+        }
+
+        /// <summary>
+        /// Generatorがプロジェクトに取り込まれているか。連携に使えない古い版でも真になる。
+        /// booth版でGeneratorを取得するボタンを出すかの判定に使う
+        /// </summary>
+        public static bool IsImported
+        {
+            get
+            {
+                Resolve();
+                return _imported;
             }
         }
 
@@ -263,6 +284,8 @@ namespace NativeFTManager.Infra
             }
 
             _resolved = true;
+            _imported = AppDomain.CurrentDomain.GetAssemblies()
+                .Any(assembly => AssemblyNames.Contains(assembly.GetName().Name));
             _componentType = FindType(ComponentTypeName);
             if (_componentType == null || !typeof(Component).IsAssignableFrom(_componentType))
             {

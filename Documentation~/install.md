@@ -33,6 +33,7 @@ booth版はVCC/ALCOMの依存解決を通らないので、Generatorのunitypack
 
 Generatorを取り込み忘れても、本製品はコンパイルが通り動きます。
 そのときは警告（KxNFTM-W-20）が出て、Generatorとの連携だけが止まります（[必要環境と併用するパッケージ](requirements.md)）。
+あとから取り込むときは、インスペクタの「VRC ARKit BlendShape GeneratorをDL&インポートする」ボタンも使えます。GitHubのリリースからGeneratorの最新の安定版を取得し、GitHubが示すダイジェスト（sha256）と照合してから `Assets/AtelierKairox/VRCARKitBlendShapeGenerator/` へ取り込みます。ボタンはbooth版で、Generatorがまだ取り込まれていないときだけ出ます。
 
 Generatorをすでに入れている場合は、Generatorのunitypackageは取り込まなくて構いません。
 GeneratorをVCC/ALCOMで入れている場合は、Generatorのunitypackageを取り込まないでください。Generatorが二組になり、コンパイルが通らなくなります。

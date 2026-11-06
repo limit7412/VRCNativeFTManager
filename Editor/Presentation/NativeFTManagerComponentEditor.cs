@@ -100,6 +100,8 @@ namespace NativeFTManager.Presentation
             }
 
             EditorGUILayout.Space();
+            DrawInstallGeneratorButton();
+
             // Generatorが導入されていなければ、連携の設定は効かないのでグレーアウトする（W-20で案内する）。
             // 値は書き換えない。後からGeneratorを取り込めば、そのまま連携が有効になる
             using (new EditorGUI.DisabledScope(!GeneratorAccess.IsInstalled))
@@ -186,6 +188,42 @@ namespace NativeFTManager.Presentation
                 // Generatorが無いときはW-20で案内するので、ここでは古い版のときだけ出す
                 EditorGUILayout.HelpBox(S("inspector.convert_arkit_to_ue.outdated"), MessageType.None);
             }
+        }
+
+        /// <summary>
+        /// 「VRC ARKit BlendShape GeneratorをDL&amp;インポートする」。
+        /// booth版で、Generatorがまだ取り込まれていないときだけ出す。取得中はグレーアウトする
+        /// </summary>
+        private static void DrawInstallGeneratorButton()
+        {
+            if (!GeneratorInstaller.IsOffered)
+            {
+                return;
+            }
+
+            using (new EditorGUI.DisabledScope(GeneratorInstaller.IsRunning))
+            {
+                var label = GeneratorInstaller.IsRunning
+                    ? new GUIContent(S("inspector.install_generator.running"))
+                    : G("inspector.install_generator");
+                if (!GUILayout.Button(label))
+                {
+                    return;
+                }
+            }
+
+            // 取り込みはUndoできず、プロジェクトのファイルが増えるので、先に同意を取る
+            if (EditorUtility.DisplayDialog(
+                    S("dialog.title"),
+                    S("inspector.install_generator.confirm", GeneratorInstallPlan.InstallRoot),
+                    S("common.ok"),
+                    S("common.cancel")))
+            {
+                GeneratorInstaller.Run();
+            }
+
+            // ダイアログで描画が途切れたので、この回は打ち切る
+            GUIUtility.ExitGUI();
         }
 
         /// <summary>

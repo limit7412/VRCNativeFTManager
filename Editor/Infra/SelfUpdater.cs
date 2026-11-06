@@ -470,7 +470,7 @@ namespace NativeFTManager.Infra
         /// 応答がダイジェストを持たない場合は照合できないが、取得はHTTPSで行っており、
         /// 照合できないことを理由に更新を止めるほどではない
         /// </summary>
-        private static bool TryVerifyDigest(string archivePath, string digest)
+        internal static bool TryVerifyDigest(string archivePath, string digest)
         {
             if (string.IsNullOrEmpty(digest) || !digest.StartsWith(DigestPrefix, StringComparison.OrdinalIgnoreCase))
             {
@@ -568,7 +568,7 @@ namespace NativeFTManager.Infra
             }
         }
 
-        private static bool IsFileFailure(Exception exception)
+        internal static bool IsFileFailure(Exception exception)
         {
             return exception is IOException
                 || exception is UnauthorizedAccessException
