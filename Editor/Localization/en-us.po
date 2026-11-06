@@ -155,6 +155,42 @@ msgstr "Found (Blendshapes Set output is off)"
 msgid "inspector.status.generator_set_write"
 msgstr "Found (Blendshapes Set output is on)"
 
+msgid "inspector.install_generator"
+msgstr "Download & Import VRC ARKit BlendShape Generator"
+
+msgid "inspector.install_generator.tooltip"
+msgstr "Downloads the latest stable release of Kx VRC ARKit BlendShape Generator from GitHub and imports it into the project. Shown only in the booth version when the Generator is not imported"
+
+msgid "inspector.install_generator.running"
+msgstr "Downloading VRC ARKit BlendShape Generator..."
+
+msgid "inspector.install_generator.confirm"
+msgstr "The latest stable release of Kx VRC ARKit BlendShape Generator will be downloaded from GitHub and imported into {0}. The import cannot be undone. Continue?"
+
+msgid "generator_install.completed"
+msgstr "Imported Kx VRC ARKit BlendShape Generator."
+
+msgid "generator_install.error.release_missing"
+msgstr "Could not get the latest release of Kx VRC ARKit BlendShape Generator."
+
+msgid "generator_install.error.too_old"
+msgstr "The latest release of Kx VRC ARKit BlendShape Generator, {0}, is older than the required version {1}, so the import was stopped."
+
+msgid "generator_install.error.digest"
+msgstr "The downloaded file does not match the digest shown by GitHub, so the import was stopped."
+
+msgid "generator_install.error.contents"
+msgstr "The downloaded package is not Kx VRC ARKit BlendShape Generator, so the import was stopped."
+
+msgid "generator_install.error.playing"
+msgstr "Cannot import while playing. Stop play mode and try again."
+
+msgid "generator_install.error.import"
+msgstr "The import failed: {0}"
+
+msgid "generator_install.error.import_cancelled"
+msgstr "The import was cancelled."
+
 msgid "inspector.auto_set_shape_keys"
 msgstr "Auto-set Shape Keys"
 
@@ -782,7 +818,7 @@ msgid "diag.W-20"
 msgstr "[KxNFTM-W-20] ARKit BlendShape Generator is not installed in the project"
 
 msgid "diag.W-20:description"
-msgstr "Kx VRC ARKit BlendShape Generator was not found in the project, or it is an old version without the features this tool needs. The integration with the Generator is skipped, and only the existing Sets on the Descriptor are split. \"Auto-set Shape Keys\" and \"Convert ARKit to UE\" have no effect, so they are grayed out. For the booth version, also import the VRCARKitBlendShapeGenerator unitypackage included in the zip. For the VCC version, resolve the project dependencies again in VCC."
+msgstr "Kx VRC ARKit BlendShape Generator was not found in the project, or it is an old version without the features this tool needs. The integration with the Generator is skipped, and only the existing Sets on the Descriptor are split. \"Auto-set Shape Keys\" and \"Convert ARKit to UE\" have no effect, so they are grayed out. For the booth version, import the VRCARKitBlendShapeGenerator unitypackage included in the zip, or press Download & Import VRC ARKit BlendShape Generator in the inspector. For the VCC version, resolve the project dependencies again in VCC."
 
 msgid "diag.I-07"
 msgstr "[KxNFTM-I-07] Eye settings were switched to face tracking"

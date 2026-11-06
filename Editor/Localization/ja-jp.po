@@ -155,6 +155,42 @@ msgstr "あり（Set書き込みはオフ）"
 msgid "inspector.status.generator_set_write"
 msgstr "あり（Set書き込みは有効）"
 
+msgid "inspector.install_generator"
+msgstr "VRC ARKit BlendShape GeneratorをDL&インポートする"
+
+msgid "inspector.install_generator.tooltip"
+msgstr "GitHubのリリースからKx VRC ARKit BlendShape Generatorの最新の安定版を取得し、プロジェクトへ取り込みます。booth版でGeneratorが取り込まれていないときだけ出ます"
+
+msgid "inspector.install_generator.running"
+msgstr "VRC ARKit BlendShape Generatorを取得しています…"
+
+msgid "inspector.install_generator.confirm"
+msgstr "GitHubのリリースからKx VRC ARKit BlendShape Generatorの最新の安定版を取得し、{0} へ取り込みます。取り込みは元に戻せません。続けますか？"
+
+msgid "generator_install.completed"
+msgstr "Kx VRC ARKit BlendShape Generatorを取り込みました。"
+
+msgid "generator_install.error.release_missing"
+msgstr "Kx VRC ARKit BlendShape Generatorの最新のリリースを取得できませんでした。"
+
+msgid "generator_install.error.too_old"
+msgstr "Kx VRC ARKit BlendShape Generatorの最新のリリース {0} が、必要な版 {1} より古いため中止しました。"
+
+msgid "generator_install.error.digest"
+msgstr "ダウンロードしたファイルがGitHubの示すダイジェストと一致しないため、取り込みを中止しました。"
+
+msgid "generator_install.error.contents"
+msgstr "ダウンロードしたパッケージの中身がKx VRC ARKit BlendShape Generatorのものと違うため、取り込みを中止しました。"
+
+msgid "generator_install.error.playing"
+msgstr "再生中は取り込めません。再生を止めてからやり直してください。"
+
+msgid "generator_install.error.import"
+msgstr "取り込みに失敗しました: {0}"
+
+msgid "generator_install.error.import_cancelled"
+msgstr "取り込みが中止されました。"
+
 msgid "inspector.auto_set_shape_keys"
 msgstr "シェイプキーを自動でセット"
 
@@ -782,7 +818,7 @@ msgid "diag.W-20"
 msgstr "[KxNFTM-W-20] ARKit BlendShape Generatorがプロジェクトに導入されていません"
 
 msgid "diag.W-20:description"
-msgstr "Kx VRC ARKit BlendShape Generatorがプロジェクトに見つからないか、連携に必要な機能を持たない古い版です。Generatorとの連携を止めて、Descriptorにある既存のSetだけを分割します。「シェイプキーを自動でセット」と「ARKitをUEに変換」は効かないためグレーアウトしています。booth版は、zipに同梱したVRCARKitBlendShapeGeneratorのunitypackageも取り込んでください。VCC版は、VCCでプロジェクトの依存を解決し直してください。"
+msgstr "Kx VRC ARKit BlendShape Generatorがプロジェクトに見つからないか、連携に必要な機能を持たない古い版です。Generatorとの連携を止めて、Descriptorにある既存のSetだけを分割します。「シェイプキーを自動でセット」と「ARKitをUEに変換」は効かないためグレーアウトしています。booth版は、zipに同梱したVRCARKitBlendShapeGeneratorのunitypackageを取り込むか、インスペクタの「VRC ARKit BlendShape GeneratorをDL&インポートする」を押してください。VCC版は、VCCでプロジェクトの依存を解決し直してください。"
 
 msgid "diag.I-07"
 msgstr "[KxNFTM-I-07] 目の設定をフェイストラッキング向けにしました"
