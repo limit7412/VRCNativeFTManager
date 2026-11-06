@@ -73,6 +73,8 @@ namespace NativeFTManager.Tests
             "inspector.status.generator_set_write",
             "inspector.auto_set_shape_keys",
             "inspector.convert_arkit_to_ue",
+            "inspector.attach_generator",
+            "inspector.undo.attach_generator",
             "inspector.convert_arkit_to_ue.generator_component",
             "inspector.convert_arkit_to_ue.outdated",
             "inspector.section.toggles",

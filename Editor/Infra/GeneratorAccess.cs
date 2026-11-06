@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using UnityEditor;
 using UnityEngine;
 using NativeFTManager.Domain;
 
@@ -166,6 +167,23 @@ namespace NativeFTManager.Infra
             {
                 _setWriteField.SetValue(generator, true);
             }
+        }
+
+        /// <summary>
+        /// アバターのルートにGeneratorのコンポーネントをUndo付きで付ける。
+        /// Generatorは対象のメッシュが空のとき、直下のBody・Face・Headを優先して顔のメッシュを選ぶので、ルートに付ければ設定せずに使える。
+        /// Generatorが導入されていないか、すでに付いているときは何もせずnullを返す
+        /// </summary>
+        public static Component Attach(GameObject avatarRoot, string undoName)
+        {
+            if (avatarRoot == null || !IsInstalled || IsPresent(avatarRoot))
+            {
+                return null;
+            }
+
+            var generator = Undo.AddComponent(avatarRoot, _componentType);
+            Undo.SetCurrentGroupName(undoName);
+            return generator;
         }
 
         /// <summary>

@@ -108,6 +108,7 @@ namespace NativeFTManager.Presentation
             }
 
             DrawConvertArkitToUnifiedExpressions();
+            DrawAttachGeneratorButton();
 
             EditorGUILayout.Space();
             DrawToggles();
@@ -182,6 +183,39 @@ namespace NativeFTManager.Presentation
             {
                 // Generatorが無いときはW-20で案内するので、ここでは古い版のときだけ出す
                 EditorGUILayout.HelpBox(S("inspector.convert_arkit_to_ue.outdated"), MessageType.None);
+            }
+        }
+
+        /// <summary>
+        /// 「MMDのシェイプキーからシェイプキーを作る（プラグインをアタッチ）」。
+        /// アバターのルートにGeneratorのコンポーネントを付け、ARKitのシェイプを持たないアバターでもSetを作れるようにする。
+        /// 付いた後は、自動セットがGeneratorのSet書き込みをビルド中だけ有効にする。
+        /// アバターの外、複数選択中、すでにGeneratorが付いているときは出さない。Generatorが導入されていなければグレーアウトする
+        /// </summary>
+        private void DrawAttachGeneratorButton()
+        {
+            if (_report == null || !_report.HasAvatar || _report.Descriptor == null
+                || _report.Generator == GeneratorPresence.Present)
+            {
+                return;
+            }
+
+            using (new EditorGUI.DisabledScope(!GeneratorAccess.IsInstalled))
+            {
+                if (GUILayout.Button(G("inspector.attach_generator")))
+                {
+                    // Managerがアバターのルートにあると、付けたコンポーネントで同じインスペクタの並びが変わる。
+                    // 保留中の変更を書き戻してから付け、この回の描画は打ち切る
+                    serializedObject.ApplyModifiedProperties();
+                    var generator = GeneratorAccess.Attach(
+                        _report.Descriptor.gameObject, S("inspector.undo.attach_generator"));
+                    if (generator != null)
+                    {
+                        EditorGUIUtility.PingObject(generator);
+                    }
+
+                    GUIUtility.ExitGUI();
+                }
             }
         }
 

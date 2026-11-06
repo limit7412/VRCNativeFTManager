@@ -173,6 +173,15 @@ msgstr "The avatar has a Generator component, so Convert ARKit to UE is not used
 msgid "inspector.convert_arkit_to_ue.outdated"
 msgstr "The Generator in the project is a version without the UE conversion, so Convert ARKit to UE has no effect. Update the Generator."
 
+msgid "inspector.attach_generator"
+msgstr "Create Shape Keys from MMD Shape Keys (Attach Plugin)"
+
+msgid "inspector.attach_generator.tooltip"
+msgstr "Adds a Kx VRC ARKit BlendShape Generator component to the avatar root. At build time the Generator creates ARKit shape keys from the MMD shape keys, and when Auto-set Shape Keys is on, those shape keys are assigned to a Blendshapes Set. Use this for avatars without ARKit shape keys"
+
+msgid "inspector.undo.attach_generator"
+msgstr "Attach ARKit BlendShape Generator"
+
 msgid "inspector.section.toggles"
 msgstr "Toggles"
 
