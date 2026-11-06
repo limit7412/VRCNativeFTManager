@@ -156,15 +156,17 @@ namespace NativeFTManager.Presentation
 
         /// <summary>
         /// 「ARKitをUEに変換」。自動セットの下位の設定なので字下げして置く。
-        /// 自動セットがオフ、Generatorが無い、または変換を公開していない版のときはグレーアウトする。
-        /// アバターにGeneratorのコンポーネントがあるときは使われないので、グレーアウトして理由を出す。
+        /// 自動セットがオフ、Generatorが無い、または変換に必要な処理を持たない版のときはグレーアウトする。
+        /// アバターにGeneratorのコンポーネントがあるときは、変換の代わりにGeneratorの出力名を切り替えるので、そのことを出す。
         /// どの場合も値は書き換えない
         /// </summary>
         private void DrawConvertArkitToUnifiedExpressions()
         {
             bool generatorComponent = _report != null && _report.Generator == GeneratorPresence.Present;
-            bool usable = GeneratorAccess.CanConvertToUnifiedExpressions
-                          && !generatorComponent
+            bool supported = generatorComponent
+                ? GeneratorAccess.CanSetOutputNaming
+                : GeneratorAccess.CanConvertToUnifiedExpressions;
+            bool usable = supported
                           && (_autoSetShapeKeys.hasMultipleDifferentValues || _autoSetShapeKeys.boolValue);
 
             EditorGUI.indentLevel++;
@@ -175,11 +177,11 @@ namespace NativeFTManager.Presentation
 
             EditorGUI.indentLevel--;
 
-            if (generatorComponent)
+            if (generatorComponent && supported)
             {
                 EditorGUILayout.HelpBox(S("inspector.convert_arkit_to_ue.generator_component"), MessageType.None);
             }
-            else if (GeneratorAccess.IsInstalled && !GeneratorAccess.CanConvertToUnifiedExpressions)
+            else if (GeneratorAccess.IsInstalled && !supported)
             {
                 // Generatorが無いときはW-20で案内するので、ここでは古い版のときだけ出す
                 EditorGUILayout.HelpBox(S("inspector.convert_arkit_to_ue.outdated"), MessageType.None);

@@ -35,6 +35,7 @@ No Set is built when the Descriptor has any Set, when the avatar has a Generator
 When "Convert ARKit to UE" in the inspector is on (the default), Unified Expressions shape keys converted from the ARKit shape keys of the same meshes are added to the build copy before the Set is built.
 The conversion is the same as the Generator's UE output naming, so keys that UE splits into left/right or upper/lower, such as browInnerUp and cheekPuff, each get their own split shape.
 It needs a Generator version that publishes the conversion. With an older version, nothing is converted and the ARKit-named shapes are assigned as they are.
+When the avatar has a Generator component, the output naming of the Generator is switched from ARKit to Both on the build copy. The Generator then outputs both the shape keys it makes from the MMD shape keys and the existing ARKit-named shape keys under UE names as well, and writes the Set preferring the UE names. The ARKit names are kept so that animations and other tools driven by ARKit names keep working. When the output naming of the Generator is UE or Both, that setting is used. The Generator settings in the scene are not changed.
 An old Generator that lacks the field needed for the integration is treated as not installed.
 
 Whether to use the Generator is up to each avatar.

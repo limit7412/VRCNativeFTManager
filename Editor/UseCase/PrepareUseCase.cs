@@ -50,6 +50,13 @@ namespace NativeFTManager.UseCase
                 {
                     // ビルド用の複製の上だけで有効にする。シーンの設定は変えない（仕様書10.1）
                     GeneratorAccess.EnableSetWrite(avatarRoot);
+
+                    // 「ARKitをUEに変換」がオンなら、Generatorの出力名もビルド用の複製の上だけでUE名を含むものにする。
+                    // GeneratorはTransforming Phaseで動くので、Generating Phaseのここで切り替えれば間に合う
+                    if (primary.convertArkitToUnifiedExpressions)
+                    {
+                        GeneratorAccess.EnableUnifiedExpressionsOutput(avatarRoot);
+                    }
                 }
 
                 state.GeneratorSetExpected = GeneratorAccess.IsSetWriteEnabled(avatarRoot);

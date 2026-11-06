@@ -165,10 +165,10 @@ msgid "inspector.convert_arkit_to_ue"
 msgstr "ARKitをUEに変換"
 
 msgid "inspector.convert_arkit_to_ue.tooltip"
-msgstr "アバターにGeneratorのコンポーネントが無いとき、Setを作る前に、顔のメッシュのARKit名のシェイプキーからUnified Expressions名のシェイプキーをビルド中だけ書き足します。browInnerUpやcheekPuffなど、UEで左右や上下に分かれるキーがそれぞれ別に動きます。元のメッシュは変わりません。Generatorのコンポーネントがあるときは、そちらの出力名の設定に従います"
+msgstr "Setを作る前に、顔のメッシュのARKit名のシェイプキーからUnified Expressions名のシェイプキーをビルド中だけ書き足します。browInnerUpやcheekPuffなど、UEで左右や上下に分かれるキーがそれぞれ別に動きます。元のメッシュは変わりません。アバターにGeneratorのコンポーネントがあるときは、ビルド中だけGeneratorの出力名をARKitから「両方」に切り替え、GeneratorにUE名のシェイプキーとSetを作らせます（シーンのGeneratorの設定は変わりません）"
 
 msgid "inspector.convert_arkit_to_ue.generator_component"
-msgstr "アバターにGeneratorのコンポーネントがあるので、「ARKitをUEに変換」は使われません。UE名で出すときはGeneratorの出力名を設定してください。"
+msgstr "アバターにGeneratorのコンポーネントがあるので、オンのときはビルド中だけGeneratorの出力名をARKitから「両方」に切り替えます。Generatorの出力名がARKit以外なら、その設定に従います。"
 
 msgid "inspector.convert_arkit_to_ue.outdated"
 msgstr "プロジェクトのGeneratorがUE変換に対応していない版なので、「ARKitをUEに変換」は効きません。Generatorを更新してください。"

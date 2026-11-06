@@ -53,6 +53,18 @@ namespace NativeFTManager.Infra
         internal const string ConvertArkitShapesMethodName = "ConvertArkitShapes";
 
         /// <summary>
+        /// 生成するシェイプキーの出力名のフィールド名。
+        /// 「ARKitをUEに変換」で、アバターにGeneratorのコンポーネントがあるときに使う（仕様書5.1）
+        /// </summary>
+        internal const string OutputNamingFieldName = "outputNaming";
+
+        /// <summary>出力名の列挙体で、ARKit名だけを出す値の名前</summary>
+        internal const string OutputNamingArkit = "ARKit";
+
+        /// <summary>出力名の列挙体で、ARKit名とUnified Expressions名の両方を出す値の名前</summary>
+        internal const string OutputNamingBoth = "Both";
+
+        /// <summary>
         /// GeneratorがDescriptorへ書くSetの名前の既定値。
         /// Generatorが無くても見積もりの判定に使うため、Generatorの<c>FaceTrackingSetNames.Generator</c>を複製して持つ。
         /// 一致はテストで確かめる
@@ -65,6 +77,7 @@ namespace NativeFTManager.Infra
         private static string _setName = DefaultSetName;
         private static MethodInfo _findBlendShapeNames;
         private static MethodInfo _convertArkitShapes;
+        private static FieldInfo _outputNamingField;
 
         /// <summary>
         /// Generatorがプロジェクトに導入され、連携に使えるか。
@@ -144,6 +157,44 @@ namespace NativeFTManager.Infra
             }
 
             return _convertArkitShapes.Invoke(null, new object[] { renderer }) as string[];
+        }
+
+        /// <summary>
+        /// Generatorのコンポーネントの出力名を切り替えられるか。
+        /// 出力名のフィールドを持たない版や、列挙体にARKitと「両方」の値が無い版ならfalse
+        /// </summary>
+        public static bool CanSetOutputNaming
+        {
+            get
+            {
+                Resolve();
+                return IsInstalled && _outputNamingField != null;
+            }
+        }
+
+        /// <summary>
+        /// アバターのGeneratorの出力名がARKit名だけなら、ARKit名とUE名の「両方」にする。ビルド用の複製にだけ使う。
+        /// Generatorは出力名がARKit以外のとき、メッシュに元からあるARKit名のシェイプキーもUE名へ変換し、
+        /// 書くSetではUE名を優先する。「両方」にするのは、ARKit名で動かすアニメーションや他のツールを壊さないためである。
+        /// 利用者がUE名か「両方」を選んでいれば、その設定に従う。
+        /// 戻り値は切り替えたか
+        /// </summary>
+        public static bool EnableUnifiedExpressionsOutput(GameObject avatarRoot)
+        {
+            var generator = Find(avatarRoot);
+            if (generator == null || !CanSetOutputNaming)
+            {
+                return false;
+            }
+
+            var current = _outputNamingField.GetValue(generator);
+            if (current.ToString() != OutputNamingArkit)
+            {
+                return false;
+            }
+
+            _outputNamingField.SetValue(generator, Enum.Parse(_outputNamingField.FieldType, OutputNamingBoth));
+            return true;
         }
 
         /// <summary>アバターにGeneratorのコンポーネントがあるか。Generatorが導入されていなければ常にfalse</summary>
@@ -232,6 +283,20 @@ namespace NativeFTManager.Infra
 
             _findBlendShapeNames = ResolveSetMapping();
             _convertArkitShapes = ResolveConversion();
+            _outputNamingField = ResolveOutputNaming();
+        }
+
+        /// <summary>出力名のフィールドを引き、列挙体にARKitと「両方」の値があるときだけ返す</summary>
+        private static FieldInfo ResolveOutputNaming()
+        {
+            var field = _componentType.GetField(OutputNamingFieldName, BindingFlags.Public | BindingFlags.Instance);
+            if (field == null || !field.FieldType.IsEnum)
+            {
+                return null;
+            }
+
+            var names = Enum.GetNames(field.FieldType);
+            return names.Contains(OutputNamingArkit) && names.Contains(OutputNamingBoth) ? field : null;
         }
 
         /// <summary>

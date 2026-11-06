@@ -14,7 +14,7 @@ Kx NativeFT Managerのインスペクタの項目を、上から順に説明し�
 | 項目 | 既定 | 意味 |
 | --- | --- | --- |
 | シェイプキーを自動でセット | オン | ビルド時にシェイプキーをBlendshapes Setへ自動で割り当てる。アバターにKx VRC ARKit BlendShape Generatorのコンポーネントがあれば、そのSet書き込みをビルド中だけ有効にする（シーンのGeneratorの設定は変わらない）。無ければ、DescriptorにSetが1つも無いときに限り、Generatorの対応表で顔のメッシュのARKit名・UE名のシェイプからSetを作る。プロジェクトにGeneratorが入っていなければグレーアウトし、警告（KxNFTM-W-20）を出す |
-| ARKitをUEに変換 | オン | アバターにGeneratorのコンポーネントが無いとき、Setを作る前に、顔のメッシュのARKit名のシェイプキーからUnified Expressions名のシェイプキーをビルド中だけ書き足す。browInnerUp・cheekPuff・mouthPress・mouthFunnel・mouthLeft/Right のように、UEで左右や上下に分かれるキーがそれぞれ別に動く。元のメッシュは変わらない。「シェイプキーを自動でセット」がオフのとき、Generatorが入っていないか変換に対応していない版のとき、アバターにGeneratorのコンポーネントがあるとき（Generatorの出力名の設定に従う）はグレーアウトする |
+| ARKitをUEに変換 | オン | アバターにGeneratorのコンポーネントが無いとき、Setを作る前に、顔のメッシュのARKit名のシェイプキーからUnified Expressions名のシェイプキーをビルド中だけ書き足す。browInnerUp・cheekPuff・mouthPress・mouthFunnel・mouthLeft/Right のように、UEで左右や上下に分かれるキーがそれぞれ別に動く。元のメッシュは変わらない。アバターにGeneratorのコンポーネントがあるときは、ビルド中だけGeneratorの出力名をARKitから「両方」に切り替え、UE名のシェイプキーとSetをGeneratorに作らせる（シーンのGeneratorの設定は変わらず、出力名がARKit以外ならその設定に従う）。「シェイプキーを自動でセット」がオフのとき、Generatorが入っていないか変換に対応していない版のときはグレーアウトする |
 
 元からARKitのシェイプキーを持たないアバターでは、「MMDのシェイプキーからシェイプキーを作る（プラグインをアタッチ）」ボタンを押します。アバターのルートにGeneratorのコンポーネントが付き、ビルド時にGeneratorがMMDのシェイプキーからARKitのシェイプキーを作ります。作られたシェイプキーは「シェイプキーを自動でセット」でSetへ割り当てられます。ボタンはアバターにGeneratorのコンポーネントがあるあいだは出ず、プロジェクトにGeneratorが入っていなければグレーアウトします。Generatorの細かい設定は、付いたコンポーネントのインスペクタで変えます。
 

@@ -165,10 +165,10 @@ msgid "inspector.convert_arkit_to_ue"
 msgstr "Convert ARKit to UE"
 
 msgid "inspector.convert_arkit_to_ue.tooltip"
-msgstr "When the avatar has no Generator component, adds Unified Expressions shape keys converted from the ARKit shape keys of the face mesh during the build only, before the Set is built. Keys that UE splits into left/right or upper/lower, such as browInnerUp and cheekPuff, then move separately. The original mesh is not changed. When the avatar has a Generator component, its output naming setting is used instead"
+msgstr "Adds Unified Expressions shape keys converted from the ARKit shape keys of the face mesh during the build only, before the Set is built. Keys that UE splits into left/right or upper/lower, such as browInnerUp and cheekPuff, then move separately. The original mesh is not changed. When the avatar has a Generator component, the output naming of the Generator is switched from ARKit to Both during the build only, so that the Generator makes the UE shape keys and the Set (the Generator settings in the scene are not changed)"
 
 msgid "inspector.convert_arkit_to_ue.generator_component"
-msgstr "The avatar has a Generator component, so Convert ARKit to UE is not used. To output UE names, set the output naming of the Generator."
+msgstr "The avatar has a Generator component, so when this is on, the output naming of the Generator is switched from ARKit to Both during the build only. When the output naming of the Generator is not ARKit, that setting is used."
 
 msgid "inspector.convert_arkit_to_ue.outdated"
 msgstr "The Generator in the project is a version without the UE conversion, so Convert ARKit to UE has no effect. Update the Generator."
