@@ -16,13 +16,14 @@ namespace NativeFTManager.Tests
     {
         private const string Root = GeneratorInstallPlan.InstallRoot;
 
-        [TestCase(InstallLocation.Booth, false, true)]
-        [TestCase(InstallLocation.Booth, true, false)]
-        [TestCase(InstallLocation.Vpm, false, false)]
-        [TestCase(InstallLocation.Unknown, false, false)]
-        public void ShouldOffer_OnlyForBoothWithoutTheGenerator(InstallLocation location, bool imported, bool expected)
+        // InstallLocationはinternalなので、publicなテストメソッドの引数には取れない。1つのテストの中で並べる
+        [Test]
+        public void ShouldOffer_OnlyForBoothWithoutTheGenerator()
         {
-            Assert.That(GeneratorInstallPlan.ShouldOffer(location, imported), Is.EqualTo(expected));
+            Assert.That(GeneratorInstallPlan.ShouldOffer(InstallLocation.Booth, false), Is.True);
+            Assert.That(GeneratorInstallPlan.ShouldOffer(InstallLocation.Booth, true), Is.False);
+            Assert.That(GeneratorInstallPlan.ShouldOffer(InstallLocation.Vpm, false), Is.False);
+            Assert.That(GeneratorInstallPlan.ShouldOffer(InstallLocation.Unknown, false), Is.False);
         }
 
         [TestCase("v0.2.5")]
