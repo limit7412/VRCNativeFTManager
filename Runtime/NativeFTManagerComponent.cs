@@ -60,10 +60,10 @@ namespace NativeFTManager
         [FormerlySerializedAs("generatorIntegration")]
         public bool autoSetShapeKeys = true;
 
-        // 「ARKitをUEに変換」。アバターにGeneratorのコンポーネントが無いとき、Setを作る前に
-        // ARKit名のシェイプキーからUnified Expressions名のシェイプキーをビルド用の複製に書き足す。
+        // 「ARKitをUEに変換」。Setを作る前にARKit名のシェイプキーからUnified Expressions名のシェイプキーをビルド用の複製に書き足す。
+        // アバターにGeneratorのコンポーネントがあるときは、ビルド用の複製の上でGeneratorの出力名をARKitから「両方」にする。
         // 追加前に保存したコンポーネントも、初期化子の値（オン）で読まれる
-        [Tooltip("When the avatar has no Generator component, add Unified Expressions shape keys converted from the ARKit shape keys to the face mesh at build time before making the Set")]
+        [Tooltip("Add Unified Expressions shape keys converted from the ARKit shape keys to the face mesh at build time before making the Set. When the avatar has a Generator component, its output naming is switched from ARKit to Both at build time instead")]
         public bool convertArkitToUnifiedExpressions = true;
 
         // 表情補正（仕様書5.4、M2）。M1で保存したコンポーネントの挙動を変えないよう、初期化子は無効にしておく。

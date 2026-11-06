@@ -104,6 +104,46 @@ namespace NativeFTManager.Tests
             }
         }
 
+        [Test]
+        public void EnableUnifiedExpressionsOutput_SwitchesArkitToBoth()
+        {
+            var root = new GameObject("Avatar");
+            try
+            {
+                var generator = root.AddComponent(FindType(GeneratorAccess.ComponentTypeName));
+                var field = generator.GetType().GetField(GeneratorAccess.OutputNamingFieldName);
+
+                Assert.That(GeneratorAccess.CanSetOutputNaming, Is.True);
+                Assert.That(field.GetValue(generator).ToString(), Is.EqualTo(GeneratorAccess.OutputNamingArkit));
+
+                Assert.That(GeneratorAccess.EnableUnifiedExpressionsOutput(root), Is.True);
+                Assert.That(field.GetValue(generator).ToString(), Is.EqualTo(GeneratorAccess.OutputNamingBoth));
+            }
+            finally
+            {
+                Object.DestroyImmediate(root);
+            }
+        }
+
+        [Test]
+        public void EnableUnifiedExpressionsOutput_KeepsANonArkitNaming()
+        {
+            var root = new GameObject("Avatar");
+            try
+            {
+                var generator = root.AddComponent(FindType(GeneratorAccess.ComponentTypeName));
+                var field = generator.GetType().GetField(GeneratorAccess.OutputNamingFieldName);
+                field.SetValue(generator, Enum.Parse(field.FieldType, "UnifiedExpressions"));
+
+                Assert.That(GeneratorAccess.EnableUnifiedExpressionsOutput(root), Is.False);
+                Assert.That(field.GetValue(generator).ToString(), Is.EqualTo("UnifiedExpressions"));
+            }
+            finally
+            {
+                Object.DestroyImmediate(root);
+            }
+        }
+
         private static Type FindType(string fullName)
         {
             return AppDomain.CurrentDomain.GetAssemblies()
@@ -131,6 +171,8 @@ namespace NativeFTManager.Tests
                 Assert.That(GeneratorAccess.FindBlendShapeNames(new[] { "jawOpen" }), Is.Null);
                 Assert.That(GeneratorAccess.CanConvertToUnifiedExpressions, Is.False);
                 Assert.That(GeneratorAccess.ConvertToUnifiedExpressions(null), Is.Null);
+                Assert.That(GeneratorAccess.CanSetOutputNaming, Is.False);
+                Assert.That(GeneratorAccess.EnableUnifiedExpressionsOutput(root), Is.False);
             }
             finally
             {

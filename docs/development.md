@@ -45,6 +45,7 @@ asmdefの `versionDefines` は `Packages/` のパッケージにしか効かず�
 Set名の定数 `FaceTrackingSetNames.Generator` は `GeneratorAccess.DefaultSetName` に複製してある。Generatorを入れた構成のテスト（`GeneratorAccessTests`）が一致を確かめる。
 アバターにGeneratorのコンポーネントが無くSetも無いときは、Generator 0.2.2以降が公開する `ARKitBlendShapeGenerator.FaceTrackingSetMapping` を同じくリフレクションで呼び、メッシュのシェイプ名からSetを作る（`Editor/Infra/ShapeMappedSetReader.cs`、仕様書10.1のF-20）。`GetKeyNames()` の並びが `FaceTrackingGroupTable` と一致しないときは使わない。
 「ARKitをUEに変換」がオンなら、Setを作る前に `ARKitBlendShapeGenerator.UnifiedExpressionsConversion.ConvertArkitShapes(SkinnedMeshRenderer)` を同じくリフレクションで呼び、同じメッシュへUE名のシェイプキーを書き足す（`GeneratorAccess.ConvertToUnifiedExpressions`）。変換はGenerator 0.2.3から公開されており、それより古い版では何もしない。
+アバターにGeneratorのコンポーネントがあるときは、この変換を呼ばない。代わりにPrepareで、Generatorのフィールド `outputNaming` がARKitなら「両方」（`Both`）へ書き換える（`GeneratorAccess.EnableUnifiedExpressionsOutput`）。GeneratorはTransforming PhaseでManagerのApplyより先に動き、出力名がARKit以外なら元からあるARKit名のシェイプキーもUE名へ変換し、UE名を優先してSetを書くためである。
 CIの `EditMode tests` はGeneratorを入れた構成と入れない構成の両方で回す。テストのasmdefは `versionDefines` で `KX_TEST_GENERATOR_INSTALLED` を立て、構成ごとに検証を切り替える。
 かつてGeneratorは任意依存で、連携の処理はGeneratorが入っているときだけコンパイルする `NativeFTManager.Editor.GeneratorCompat` に置いていた。本体へ統合したあと、そのGUIDは `booth_package.py` の `RETIRED_GUIDS` に載せた。
 
