@@ -144,6 +144,48 @@ namespace NativeFTManager.Tests
             }
         }
 
+        [Test]
+        public void Attach_AddsGeneratorUnderTheAvatar_AccordingToTheGeneratorVersion()
+        {
+            var root = new GameObject("Avatar");
+            try
+            {
+                var generator = GeneratorAccess.Attach(root, "Attach");
+
+                Assert.That(generator, Is.Not.Null);
+                Assert.That(GeneratorAccess.IsPresent(root), Is.True);
+                if (GeneratorAccess.CanAttachToChild)
+                {
+                    // 子のオブジェクトに付けられる版では、ルートの子に作ったオブジェクトへ付ける
+                    Assert.That(generator.gameObject, Is.Not.SameAs(root));
+                    Assert.That(generator.transform.parent, Is.SameAs(root.transform));
+                    Assert.That(generator.gameObject.name, Is.EqualTo(GeneratorAccess.GeneratorObjectName));
+                }
+                else
+                {
+                    Assert.That(generator.gameObject, Is.SameAs(root));
+                }
+
+                // すでに付いていれば何もしない
+                Assert.That(GeneratorAccess.Attach(root, "Attach"), Is.Null);
+            }
+            finally
+            {
+                Object.DestroyImmediate(root);
+            }
+        }
+
+        [Test]
+        public void CanAttachToChild_MatchesTheResolverMethod()
+        {
+            var resolver = FindType(GeneratorAccess.RendererResolverTypeName);
+            var method = resolver?.GetMethod(
+                GeneratorAccess.GetSearchRootsMethodName,
+                System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
+
+            Assert.That(GeneratorAccess.CanAttachToChild, Is.EqualTo(method != null));
+        }
+
         private static Type FindType(string fullName)
         {
             return AppDomain.CurrentDomain.GetAssemblies()
@@ -173,6 +215,8 @@ namespace NativeFTManager.Tests
                 Assert.That(GeneratorAccess.ConvertToUnifiedExpressions(null), Is.Null);
                 Assert.That(GeneratorAccess.CanSetOutputNaming, Is.False);
                 Assert.That(GeneratorAccess.EnableUnifiedExpressionsOutput(root), Is.False);
+                Assert.That(GeneratorAccess.CanAttachToChild, Is.False);
+                Assert.That(GeneratorAccess.Attach(root, "Attach"), Is.Null);
             }
             finally
             {

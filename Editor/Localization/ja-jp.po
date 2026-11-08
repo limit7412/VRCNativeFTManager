@@ -213,7 +213,7 @@ msgid "inspector.attach_generator"
 msgstr "MMDのシェイプキーからシェイプキーを作る（プラグインをアタッチ）"
 
 msgid "inspector.attach_generator.tooltip"
-msgstr "アバターのルートにKx VRC ARKit BlendShape Generatorのコンポーネントを付けます。ビルド時にGeneratorがMMDのシェイプキーからARKitのシェイプキーを作り、「シェイプキーを自動でセット」がオンならそのシェイプキーをBlendshapes Setへ割り当てます。元からARKitのシェイプキーを持たないアバターで使います"
+msgstr "アバターのルートの子に「Kx ARKit BlendShape Generator」オブジェクトを作り、Kx VRC ARKit BlendShape Generatorのコンポーネントを付けます（アバタールート以外に付けられない古い版のGeneratorでは、ルートに直接付けます）。作ったオブジェクトはアバターの中で好きな場所へ移せます。ビルド時にGeneratorがMMDのシェイプキーからARKitのシェイプキーを作り、「シェイプキーを自動でセット」がオンならそのシェイプキーをBlendshapes Setへ割り当てます。元からARKitのシェイプキーを持たないアバターで使います"
 
 msgid "inspector.undo.attach_generator"
 msgstr "ARKit BlendShape Generatorを付ける"

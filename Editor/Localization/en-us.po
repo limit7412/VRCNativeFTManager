@@ -213,7 +213,7 @@ msgid "inspector.attach_generator"
 msgstr "Create Shape Keys from MMD Shape Keys (Attach Plugin)"
 
 msgid "inspector.attach_generator.tooltip"
-msgstr "Adds a Kx VRC ARKit BlendShape Generator component to the avatar root. At build time the Generator creates ARKit shape keys from the MMD shape keys, and when Auto-set Shape Keys is on, those shape keys are assigned to a Blendshapes Set. Use this for avatars without ARKit shape keys"
+msgstr "Creates a \"Kx ARKit BlendShape Generator\" object under the avatar root and adds a Kx VRC ARKit BlendShape Generator component to it (with an older Generator that only works on the avatar root, the component is added to the root itself). The object can be moved anywhere inside the avatar. At build time the Generator creates ARKit shape keys from the MMD shape keys, and when Auto-set Shape Keys is on, those shape keys are assigned to a Blendshapes Set. Use this for avatars without ARKit shape keys"
 
 msgid "inspector.undo.attach_generator"
 msgstr "Attach ARKit BlendShape Generator"

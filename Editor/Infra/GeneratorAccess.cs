@@ -58,6 +58,22 @@ namespace NativeFTManager.Infra
         /// </summary>
         internal const string OutputNamingFieldName = "outputNaming";
 
+        /// <summary>
+        /// Generatorの、対象のメッシュを解決する型名。
+        /// アバタールート以外のオブジェクトに付けても、アバタールートの配下から顔のメッシュを探す版は、
+        /// この型に<see cref="GetSearchRootsMethodName"/>を持つ
+        /// </summary>
+        internal const string RendererResolverTypeName = "ARKitBlendShapeGenerator.TargetRendererResolver";
+
+        /// <summary>メッシュを探す起点を返すメソッド名。これがあれば、Generatorを子のオブジェクトに付けられる</summary>
+        internal const string GetSearchRootsMethodName = "GetSearchRoots";
+
+        /// <summary>
+        /// Generatorを子のオブジェクトに付けるときの、オブジェクトの名前。
+        /// Generatorの右クリックのメニューが作るオブジェクトの名前と揃える
+        /// </summary>
+        internal const string GeneratorObjectName = "Kx ARKit BlendShape Generator";
+
         /// <summary>出力名の列挙体で、ARKit名だけを出す値の名前</summary>
         internal const string OutputNamingArkit = "ARKit";
 
@@ -86,6 +102,7 @@ namespace NativeFTManager.Infra
         private static MethodInfo _findBlendShapeNames;
         private static MethodInfo _convertArkitShapes;
         private static FieldInfo _outputNamingField;
+        private static bool _canAttachToChild;
 
         /// <summary>
         /// Generatorがプロジェクトに導入され、連携に使えるか。
@@ -181,6 +198,20 @@ namespace NativeFTManager.Infra
         }
 
         /// <summary>
+        /// Generatorを、アバタールートの子に作ったオブジェクトへ付けられるか。
+        /// アバタールート以外に付けたときにアバタールートの配下から顔のメッシュを探す版ならtrue。
+        /// それより前の版は、付けたオブジェクトの配下しか探さないので、ルートに付ける
+        /// </summary>
+        public static bool CanAttachToChild
+        {
+            get
+            {
+                Resolve();
+                return IsInstalled && _canAttachToChild;
+            }
+        }
+
+        /// <summary>
         /// Generatorのコンポーネントの出力名を切り替えられるか。
         /// 出力名のフィールドを持たない版や、列挙体にARKitと「両方」の値が無い版ならfalse
         /// </summary>
@@ -242,8 +273,14 @@ namespace NativeFTManager.Infra
         }
 
         /// <summary>
-        /// アバターのルートにGeneratorのコンポーネントをUndo付きで付ける。
-        /// Generatorは対象のメッシュが空のとき、直下のBody・Face・Headを優先して顔のメッシュを選ぶので、ルートに付ければ設定せずに使える。
+        /// アバターにGeneratorのコンポーネントをUndo付きで付ける。
+        ///
+        /// <see cref="CanAttachToChild"/>なら、アバタールートの子にオブジェクトを作って付ける。
+        /// Generatorの右クリックのメニューで作ったときと同じ形になり、ルートのコンポーネントの並びを変えない。
+        /// Generatorは対象のメッシュが空のとき、付けたオブジェクトの配下に無ければアバタールート直下のBody・Face・Headを優先して選ぶので、
+        /// 子のオブジェクトに付けても設定せずに使える。
+        /// それより前の版ではルートに直接付ける。
+        ///
         /// Generatorが導入されていないか、すでに付いているときは何もせずnullを返す
         /// </summary>
         public static Component Attach(GameObject avatarRoot, string undoName)
@@ -253,8 +290,19 @@ namespace NativeFTManager.Infra
                 return null;
             }
 
-            var generator = Undo.AddComponent(avatarRoot, _componentType);
+            var group = Undo.GetCurrentGroup();
+            var target = avatarRoot;
+            if (CanAttachToChild)
+            {
+                target = new GameObject(GeneratorObjectName);
+                GameObjectUtility.SetParentAndAlign(target, avatarRoot);
+                Undo.RegisterCreatedObjectUndo(target, undoName);
+            }
+
+            // 親を決めてから付ける。付けたときのResetが、アバタールートを見て対象のメッシュを決めるため
+            var generator = Undo.AddComponent(target, _componentType);
             Undo.SetCurrentGroupName(undoName);
+            Undo.CollapseUndoOperations(group);
             return generator;
         }
 
@@ -307,6 +355,12 @@ namespace NativeFTManager.Infra
             _findBlendShapeNames = ResolveSetMapping();
             _convertArkitShapes = ResolveConversion();
             _outputNamingField = ResolveOutputNaming();
+            _canAttachToChild = FindType(RendererResolverTypeName)?.GetMethod(
+                GetSearchRootsMethodName,
+                BindingFlags.Public | BindingFlags.Static,
+                null,
+                new[] { typeof(Transform) },
+                null) != null;
         }
 
         /// <summary>出力名のフィールドを引き、列挙体にARKitと「両方」の値があるときだけ返す</summary>
