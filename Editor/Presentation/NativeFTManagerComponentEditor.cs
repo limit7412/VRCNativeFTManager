@@ -228,7 +228,8 @@ namespace NativeFTManager.Presentation
 
         /// <summary>
         /// 「MMDのシェイプキーからシェイプキーを作る（プラグインをアタッチ）」。
-        /// アバターのルートにGeneratorのコンポーネントを付け、ARKitのシェイプを持たないアバターでもSetを作れるようにする。
+        /// アバターにGeneratorのコンポーネントを付け、ARKitのシェイプを持たないアバターでもSetを作れるようにする。
+        /// 付け先は、対応するGeneratorならアバタールートの子に作るオブジェクト、古い版ならアバタールート（GeneratorAccess.Attach）。
         /// 付いた後は、自動セットがGeneratorのSet書き込みをビルド中だけ有効にする。
         /// アバターの外、複数選択中、すでにGeneratorが付いているときは出さない。Generatorが導入されていなければグレーアウトする
         /// </summary>
@@ -244,7 +245,8 @@ namespace NativeFTManager.Presentation
             {
                 if (GUILayout.Button(G("inspector.attach_generator")))
                 {
-                    // Managerがアバターのルートにあると、付けたコンポーネントで同じインスペクタの並びが変わる。
+                    // 古い版のGeneratorはルートに付けるので、Managerがルートにあると同じインスペクタの並びが変わる。
+                    // 子のオブジェクトに付ける場合も、選択中のオブジェクトの構成が変わり得るので、
                     // 保留中の変更を書き戻してから付け、この回の描画は打ち切る
                     serializedObject.ApplyModifiedProperties();
                     var generator = GeneratorAccess.Attach(
