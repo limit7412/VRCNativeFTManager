@@ -106,6 +106,34 @@ The corrections in the FX of Jerry's 7.0.5 are generated as Parameter Behaviors 
 
 When the avatar-wide Custom expression instructions would exceed the limit of 2048, the rules with the lowest priority are dropped with a warning (KxNFTM-W-12).
 
+### Custom corrections
+
+A face mesh can have blend shapes that cannot be assigned to a tracking key one to one: a corrective shape that fixes the clipping when the tongue is out with the mouth open, or shapes that are raised in steps as the tongue comes out.
+A Blendshapes Set only ties one blend shape to one key, so a Set cannot drive these shapes.
+When you write a blend shape name and a Custom expression in the custom corrections list, a Parameter Behavior that drives the blend shape with the expression is generated at build time.
+
+| Item | Meaning |
+| --- | --- |
+| Checkbox | Unchecked entries are not generated |
+| Blend shape | Name of the blend shape to drive. Write the exact, case-sensitive name of a blend shape on a Face Tracking Mesh |
+| Mode | "Write value" writes the result of the expression to the blend shape as it is. "Limit maximum" and "Limit minimum" bound the final value a Set produced with the result of the expression. Use "Write value" for a blend shape that no Set drives |
+| Expression | Custom expression of a Parameter Behavior. Inputs are Unified Expressions key names (`JawOpen`, `TongueOut`, and so on), `Voice`, and visemes (`Viseme_aa`, and so on). The operators are `+` `-` `*` `/` and parentheses, and the functions are `abs` `min` `max` `clamp`. A result of 0 to 1 corresponds to 0 to 100 on the blend shape |
+
+Expressions can be built by combining the following forms.
+
+| Purpose | Example | Behavior |
+| --- | --- | --- |
+| Raise a shape only while two keys are active together | `JawOpen * clamp(TongueOut * 5 - 1, 0, 1)` | Rises while the tongue moves from 0.2 to 0.4, then follows how far the mouth is open |
+| Raise a shape from the middle of one key | `clamp(TongueOut * 2 - 1, 0, 1)` | Starts when the tongue is halfway out and reaches 1 when it is fully out |
+| Make a shape rise quickly | `clamp(TongueOut * 5 - 1.5, 0, 1)` | Goes from 0 to 1 while the tongue moves from 0.3 to 0.5 |
+
+Under each entry, the inspector shows the instruction count of the expression, or the reason the entry is not generated.
+Entries with an empty blend shape name or an invalid expression are not generated, with a warning (KxNFTM-W-23). Entries whose blend shape is not on a Face Tracking Mesh at build time are not generated either, with a warning (KxNFTM-W-22).
+
+A custom correction stops while the Face Tracking toggle is off. When the expression reads eye or mouth keys, it also stops while the toggle of that side (Eye Tracking, Pupil, Lip Tracking) is off. It does not follow the Emulation, Limits, or Eye Sync toggles.
+
+When the Custom expression instructions would exceed the limit, the custom corrections are kept and the built-in rules are dropped first.
+
 ## Sensitivity
 
 Adds "Sensitivity" under "Face Tracking" in the Expressions Menu, with Radials that change how strongly the eyes and the mouth move.

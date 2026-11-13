@@ -65,7 +65,10 @@ namespace NativeFTManager.UseCase
 
             // ゲートSetのレイヤーも、グループと同じくここで作る。どのゲートが要るかはSetの中身で決まるので、
             // 使う可能性のあるものをすべて作り、使わなかったものはApplyで取り除く
-            var gates = CorrectionPlanner.GetPossibleGates(toggles, ComponentSettings.GetExcludedRules(primary));
+            var gates = CorrectionPlanner.GetPossibleGates(
+                toggles,
+                ComponentSettings.GetExcludedRules(primary),
+                ComponentSettings.GetCustomCorrections(primary).Rules);
             var plan = ToggleControllerPlanner.Build(toggles, gates, primary.enableTrackingReapply);
             state.Plan = plan;
             state.Toggles = toggles;

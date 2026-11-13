@@ -377,6 +377,60 @@ msgstr "Rules (uncheck to skip)"
 msgid "inspector.corrections.no_shape"
 msgstr "No target shape"
 
+msgid "inspector.custom_corrections"
+msgstr "Custom corrections"
+
+msgid "inspector.custom_corrections.help"
+msgstr "Drives blend shapes that cannot be assigned to a tracking key (corrective shapes for a combination of keys, or shapes raised in steps) with the result of a custom expression.\nInputs are Unified Expressions key names (JawOpen, TongueOut, and so on), and the functions abs, min, max and clamp are available.\nExample: raise a corrective shape only while the tongue is out with the mouth open → JawOpen * clamp(TongueOut * 5 - 1, 0, 1)\nA rule stops while the Face Tracking toggle, or the toggle of a side (Eye, Lip) whose keys the expression reads, is off."
+
+msgid "inspector.custom_corrections.multi_edit"
+msgstr "Custom corrections cannot be edited while multiple components are selected. Select only one."
+
+msgid "inspector.custom_corrections.status.disabled"
+msgstr "Disabled (not generated)"
+
+msgid "inspector.custom_corrections.status.empty_shape"
+msgstr "Not generated: the blend shape name is empty"
+
+msgid "inspector.custom_corrections.status.invalid"
+msgstr "Not generated: the expression is invalid ({0})"
+
+msgid "inspector.custom_corrections.status.no_shape"
+msgstr "The face mesh in the scene has no such blend shape (not generated unless it is added during the build)"
+
+msgid "inspector.custom_corrections.status.dropped"
+msgstr "Not generated: the custom expressions exceed the instruction limit"
+
+msgid "inspector.custom_corrections.status.ok"
+msgstr "Instructions: {0}"
+
+msgid "prop.custom_correction.shape"
+msgstr "Blend shape"
+
+msgid "prop.custom_correction.shape.tooltip"
+msgstr "Name of the blend shape to drive. Write the exact, case-sensitive name of a blend shape on a Face Tracking Mesh"
+
+msgid "prop.custom_correction.mode"
+msgstr "Mode"
+
+msgid "prop.custom_correction.mode.tooltip"
+msgstr "How the result of the expression is applied to the blend shape. Use Write value for a blend shape that no Set drives"
+
+msgid "prop.custom_correction.mode.apply"
+msgstr "Write value"
+
+msgid "prop.custom_correction.mode.limit_max"
+msgstr "Limit maximum"
+
+msgid "prop.custom_correction.mode.limit_min"
+msgstr "Limit minimum"
+
+msgid "prop.custom_correction.expression"
+msgstr "Expression"
+
+msgid "prop.custom_correction.expression.tooltip"
+msgstr "Custom expression of a Parameter Behavior. A result of 0 to 1 corresponds to 0 to 100 on the blend shape"
+
 msgid "inspector.section.estimate"
 msgstr "Estimate (before build)"
 
@@ -831,6 +885,18 @@ msgstr "[KxNFTM-W-21] Eye Look does not use eye face tracking"
 
 msgid "diag.W-21:description"
 msgstr "The Blendshapes Sets assign eye keys (EyeLook, EyeClosed), but Eye Look on the Descriptor is set up not to drive them with face tracking, so gaze and blinking would not move. At build time the build copy is changed as follows ({0}). The button below applies the same values to the Descriptor in the scene."
+
+msgid "diag.W-22"
+msgstr "[KxNFTM-W-22] A custom correction targets a missing blend shape"
+
+msgid "diag.W-22:description"
+msgstr "The following custom corrections were not generated because no Face Tracking Mesh has the target blend shape: {0}. Check the spelling of the blend shape name, and that the mesh with the blend shape is in Face Tracking Meshes."
+
+msgid "diag.W-23"
+msgstr "[KxNFTM-W-23] A custom correction is invalid"
+
+msgid "diag.W-23:description"
+msgstr "The following custom corrections were not generated because the blend shape name is empty or the expression is invalid: {0}."
 
 msgid "inspector.eye_look.apply"
 msgstr "Set Eye Look on the Descriptor up for face tracking"

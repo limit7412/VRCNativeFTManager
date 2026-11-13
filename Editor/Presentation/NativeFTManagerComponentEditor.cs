@@ -28,6 +28,14 @@ namespace NativeFTManager.Presentation
             "prop.face_emo_trigger.lip_only",
         };
 
+        /// <summary>並びはCustomCorrectionModeの宣言順に一致させる (enumValueIndexで引くため)</summary>
+        internal static readonly IReadOnlyList<string> CustomCorrectionModeLabelKeys = new[]
+        {
+            "prop.custom_correction.mode.apply",
+            "prop.custom_correction.mode.limit_max",
+            "prop.custom_correction.mode.limit_min",
+        };
+
         private SerializedProperty _lerpSpeed;
         private SerializedProperty _excludedSetNames;
         private SerializedProperty _setUseAllTrackingKeys;
@@ -39,12 +47,16 @@ namespace NativeFTManager.Presentation
         private SerializedProperty _enableEmulation;
         private SerializedProperty _enableLimits;
         private SerializedProperty _enableEyeSync;
+        private SerializedProperty _customCorrections;
         private SerializedProperty _faceEmoSuppression;
         private SerializedProperty _sensitivity;
         private SerializedProperty _menuMode;
 
         /// <summary>追加パラメーターの一覧。追加の操作を差し替えるため、標準の配列表示の代わりに使う</summary>
         private ReorderableList _extraParameterList;
+
+        /// <summary>カスタム補正の一覧。項目ごとに式の検証結果を並べて出すため、標準の配列表示の代わりに使う</summary>
+        private ReorderableList _customCorrectionList;
 
         private bool _showDetails;
         private bool _showRules;
@@ -68,6 +80,7 @@ namespace NativeFTManager.Presentation
             _enableEmulation = serializedObject.FindProperty(nameof(NativeFTManagerComponent.enableEmulation));
             _enableLimits = serializedObject.FindProperty(nameof(NativeFTManagerComponent.enableLimits));
             _enableEyeSync = serializedObject.FindProperty(nameof(NativeFTManagerComponent.enableEyeSync));
+            _customCorrections = serializedObject.FindProperty(nameof(NativeFTManagerComponent.customCorrections));
             _faceEmoSuppression = serializedObject.FindProperty(nameof(NativeFTManagerComponent.faceEmoSuppression));
             _sensitivity = serializedObject.FindProperty(nameof(NativeFTManagerComponent.sensitivity));
             _menuMode = serializedObject.FindProperty(nameof(NativeFTManagerComponent.menuMode));
@@ -77,6 +90,7 @@ namespace NativeFTManager.Presentation
         {
             UpdateCheck.ResultChanged -= Repaint;
             _extraParameterList = null;
+            _customCorrectionList = null;
         }
 
         public override void OnInspectorGUI()
@@ -118,6 +132,7 @@ namespace NativeFTManager.Presentation
 
             EditorGUILayout.Space();
             DrawCorrections();
+            DrawCustomCorrections();
 
             EditorGUILayout.Space();
             DrawSensitivity();
@@ -316,6 +331,144 @@ namespace NativeFTManager.Presentation
         }
 
         /// <summary>
+        /// カスタム補正の一覧。トラッキングキーに割り当てられないシェイプを、利用者が書いたCustom式で動かす
+        /// </summary>
+        private void DrawCustomCorrections()
+        {
+            EditorGUILayout.Space();
+
+            // 追加パラメーターの一覧と同じ理由で、複数選択中は編集させない
+            if (serializedObject.isEditingMultipleObjects)
+            {
+                EditorGUILayout.LabelField(G("inspector.custom_corrections"));
+                EditorGUILayout.HelpBox(S("inspector.custom_corrections.multi_edit"), MessageType.Info);
+            }
+            else
+            {
+                int indent = EditorGUI.indentLevel;
+                EditorGUI.indentLevel = 0;
+                GetCustomCorrectionList().DoLayoutList();
+                EditorGUI.indentLevel = indent;
+            }
+
+            EditorGUILayout.HelpBox(S("inspector.custom_corrections.help"), MessageType.Info);
+        }
+
+        private ReorderableList GetCustomCorrectionList()
+        {
+            if (_customCorrectionList != null)
+            {
+                return _customCorrectionList;
+            }
+
+            var property = _customCorrections;
+            var list = new ReorderableList(serializedObject, property, true, true, true, true);
+            float line = EditorGUIUtility.singleLineHeight;
+            float spacing = EditorGUIUtility.standardVerticalSpacing;
+
+            list.drawHeaderCallback = rect => EditorGUI.LabelField(rect, G("inspector.custom_corrections"));
+
+            // シェイプ、反映方法、式、状態の4行
+            list.elementHeightCallback = index => (line + spacing) * 4 + spacing;
+
+            list.drawElementCallback = (rect, index, isActive, isFocused) =>
+            {
+                var element = property.GetArrayElementAtIndex(index);
+                var enabled = element.FindPropertyRelative(nameof(CustomCorrectionRule.enabled));
+                var blendShape = element.FindPropertyRelative(nameof(CustomCorrectionRule.blendShape));
+                var mode = element.FindPropertyRelative(nameof(CustomCorrectionRule.mode));
+                var expression = element.FindPropertyRelative(nameof(CustomCorrectionRule.expression));
+
+                float labelWidth = EditorGUIUtility.labelWidth;
+                EditorGUIUtility.labelWidth = 90f;
+
+                const float toggleWidth = 18f;
+                var row = new Rect(rect.x, rect.y + spacing, rect.width, line);
+                enabled.boolValue = EditorGUI.Toggle(
+                    new Rect(row.x, row.y, toggleWidth, line), enabled.boolValue);
+                EditorGUI.PropertyField(
+                    new Rect(row.x + toggleWidth, row.y, row.width - toggleWidth, line),
+                    blendShape,
+                    G("prop.custom_correction.shape"));
+
+                using (new EditorGUI.DisabledScope(!enabled.boolValue))
+                {
+                    var inner = new Rect(row.x + toggleWidth, row.y, row.width - toggleWidth, line);
+                    inner.y += line + spacing;
+                    DrawLocalizedEnumPopup(inner, mode, "prop.custom_correction.mode", CustomCorrectionModeLabelKeys);
+
+                    inner.y += line + spacing;
+                    EditorGUI.PropertyField(inner, expression, G("prop.custom_correction.expression"));
+
+                    inner.y += line + spacing;
+                    EditorGUI.LabelField(
+                        inner,
+                        GetCustomCorrectionStatus(index, enabled.boolValue, blendShape.stringValue, expression.stringValue),
+                        EditorStyles.miniLabel);
+                }
+
+                EditorGUIUtility.labelWidth = labelWidth;
+            };
+
+            // 標準の「+」は末尾の項目を複製する。同じシェイプを動かす項目が黙って増えないよう、空の項目を足す
+            list.onAddCallback = reorderable =>
+            {
+                var index = property.arraySize;
+                property.arraySize++;
+
+                var element = property.GetArrayElementAtIndex(index);
+                element.FindPropertyRelative(nameof(CustomCorrectionRule.enabled)).boolValue = true;
+                element.FindPropertyRelative(nameof(CustomCorrectionRule.blendShape)).stringValue = string.Empty;
+                element.FindPropertyRelative(nameof(CustomCorrectionRule.mode)).enumValueIndex = 0;
+                element.FindPropertyRelative(nameof(CustomCorrectionRule.expression)).stringValue = string.Empty;
+
+                reorderable.index = index;
+            };
+
+            _customCorrectionList = list;
+            return list;
+        }
+
+        /// <summary>
+        /// カスタム補正1件の状態。生成されない理由があればそれを、無ければ式の命令数を出す
+        /// </summary>
+        private string GetCustomCorrectionStatus(int index, bool enabled, string blendShape, string expression)
+        {
+            if (!enabled)
+            {
+                return S("inspector.custom_corrections.status.disabled");
+            }
+
+            // 見積もりを待たずに、入力中の誤りをその場で出す
+            if (string.IsNullOrWhiteSpace(blendShape))
+            {
+                return S("inspector.custom_corrections.status.empty_shape");
+            }
+
+            var info = CustomExpression.Analyze(expression);
+            if (!info.IsValid)
+            {
+                return S("inspector.custom_corrections.status.invalid", info.Error);
+            }
+
+            if (_report != null)
+            {
+                var id = CustomCorrections.GetId(index, blendShape.Trim());
+                if (_report.Corrections.MissingShapes.Contains(id))
+                {
+                    return S("inspector.custom_corrections.status.no_shape");
+                }
+
+                if (_report.Corrections.DroppedRules.Contains(id))
+                {
+                    return S("inspector.custom_corrections.status.dropped");
+                }
+            }
+
+            return S("inspector.custom_corrections.status.ok", info.Instructions);
+        }
+
+        /// <summary>
         /// 感度（仕様書5.6）。どの系統も無効のあいだは上限の倍率を出さない
         /// </summary>
         private void DrawSensitivity()
@@ -477,13 +630,21 @@ namespace NativeFTManager.Presentation
         private static void DrawLocalizedEnumPopup(
             SerializedProperty property, string labelKey, IReadOnlyList<string> optionKeys)
         {
+            DrawLocalizedEnumPopup(EditorGUILayout.GetControlRect(), property, labelKey, optionKeys);
+        }
+
+        /// <summary>
+        /// 一覧の項目の中など、位置が決まっている場所に訳語を当てたenumのポップアップを描く
+        /// </summary>
+        private static void DrawLocalizedEnumPopup(
+            Rect rect, SerializedProperty property, string labelKey, IReadOnlyList<string> optionKeys)
+        {
             var options = new GUIContent[optionKeys.Count];
             for (var i = 0; i < options.Length; i++)
             {
                 options[i] = G(optionKeys[i]);
             }
 
-            var rect = EditorGUILayout.GetControlRect();
             var label = EditorGUI.BeginProperty(rect, G(labelKey), property);
 
             EditorGUI.BeginChangeCheck();

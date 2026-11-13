@@ -81,6 +81,12 @@ namespace NativeFTManager
         [Tooltip("Ids of the emulation and limit rules that are not generated")]
         public List<string> excludedRules = new List<string>();
 
+        // カスタム補正。トラッキングキーに割り当てられないシェイプを、Custom式で動かす。
+        // 空の一覧は何も生成しないので、追加前に保存したコンポーネントの挙動は変わらない
+
+        [Tooltip("Rules that drive blend shapes not assigned to any tracking key with custom expressions")]
+        public List<CustomCorrectionRule> customCorrections = new List<CustomCorrectionRule>();
+
         // FaceEmoの抑制（仕様書10.3、M3）。既定は無効で、M2までに保存したコンポーネントの挙動を変えない
 
         [Tooltip("Keep FaceEmo from writing expressions while face tracking is active")]
@@ -137,6 +143,7 @@ namespace NativeFTManager
             enableEyeSync = true;
             enableTrackingReapply = true;
             excludedRules = new List<string>();
+            customCorrections = new List<CustomCorrectionRule>();
         }
 
         private void OnValidate()

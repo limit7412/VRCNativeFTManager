@@ -377,6 +377,60 @@ msgstr "規則の一覧（チェックを外すと生成しません）"
 msgid "inspector.corrections.no_shape"
 msgstr "対象のシェイプなし"
 
+msgid "inspector.custom_corrections"
+msgstr "カスタム補正"
+
+msgid "inspector.custom_corrections.help"
+msgstr "トラッキングキーに割り当てられないシェイプ（組み合わせ補正用や段階用のシェイプ）を、Custom式の結果で動かします。\n式の入力にはUnified Expressionsのキー名（JawOpen、TongueOutなど）を書き、関数はabs・min・max・clampが使えます。\n例: 口を開けたまま舌を出したときだけ補正シェイプを立てる → JawOpen * clamp(TongueOut * 5 - 1, 0, 1)\nフェイストラッキングのトグルと、式が読むキーの側（Eye・Lip）のトグルがオフのあいだは止まります。"
+
+msgid "inspector.custom_corrections.multi_edit"
+msgstr "複数のコンポーネントを選択している間は編集できません。1つだけ選択してください。"
+
+msgid "inspector.custom_corrections.status.disabled"
+msgstr "無効（生成しません）"
+
+msgid "inspector.custom_corrections.status.empty_shape"
+msgstr "生成しません: シェイプ名が空です"
+
+msgid "inspector.custom_corrections.status.invalid"
+msgstr "生成しません: 式に誤りがあります（{0}）"
+
+msgid "inspector.custom_corrections.status.no_shape"
+msgstr "シーンの顔メッシュにこのシェイプがありません（ビルド中に加わらなければ生成しません）"
+
+msgid "inspector.custom_corrections.status.dropped"
+msgstr "生成しません: Custom式の命令数が上限を超えます"
+
+msgid "inspector.custom_corrections.status.ok"
+msgstr "命令数: {0}"
+
+msgid "prop.custom_correction.shape"
+msgstr "シェイプ"
+
+msgid "prop.custom_correction.shape.tooltip"
+msgstr "動かすシェイプの名前。Face Tracking Meshにあるシェイプを、大文字と小文字も含めて正確に書きます"
+
+msgid "prop.custom_correction.mode"
+msgstr "反映方法"
+
+msgid "prop.custom_correction.mode.tooltip"
+msgstr "式の結果をシェイプへどう反映するか。Setが動かしていないシェイプには「値を書く」を使います"
+
+msgid "prop.custom_correction.mode.apply"
+msgstr "値を書く"
+
+msgid "prop.custom_correction.mode.limit_max"
+msgstr "上限にする"
+
+msgid "prop.custom_correction.mode.limit_min"
+msgstr "下限にする"
+
+msgid "prop.custom_correction.expression"
+msgstr "式"
+
+msgid "prop.custom_correction.expression.tooltip"
+msgstr "Parameter BehaviorのCustom式。結果は0〜1がシェイプの0〜100に当たります"
+
 msgid "inspector.section.estimate"
 msgstr "見積もり（ビルド前の目安）"
 
@@ -831,6 +885,18 @@ msgstr "[KxNFTM-W-21] Eye Lookが目のフェイストラッキングを使わ�
 
 msgid "diag.W-21:description"
 msgstr "Blendshapes Setに目（EyeLook・EyeClosed）のキーがありますが、DescriptorのEye Lookがそれをフェイストラッキングで使わない設定なので、このままでは視線やまばたきが動きません。ビルド時にはビルド用の複製で次のように変えます（{0}）。下のボタンで、シーンのDescriptorも同じ値にできます。"
+
+msgid "diag.W-22"
+msgstr "[KxNFTM-W-22] カスタム補正の対象のシェイプがありません"
+
+msgid "diag.W-22:description"
+msgstr "Face Tracking Meshに対象のシェイプが無いため、次のカスタム補正を生成しませんでした: {0}。シェイプ名の綴りと、そのシェイプを持つメッシュがFace Tracking Meshesに入っているかを確かめてください。"
+
+msgid "diag.W-23"
+msgstr "[KxNFTM-W-23] カスタム補正に誤りがあります"
+
+msgid "diag.W-23:description"
+msgstr "シェイプ名が空か、式に誤りがあるため、次のカスタム補正を生成しませんでした: {0}。"
 
 msgid "inspector.eye_look.apply"
 msgstr "DescriptorのEye Lookをフェイストラッキング向けにする"

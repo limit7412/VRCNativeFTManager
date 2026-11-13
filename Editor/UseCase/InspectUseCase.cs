@@ -31,6 +31,9 @@ namespace NativeFTManager.UseCase
             /// <summary>表情補正の計画。見積もりと規則の一覧の表示に使う</summary>
             public CorrectionPlan Corrections = CorrectionPlan.Empty;
 
+            /// <summary>カスタム補正を規則にした結果。一覧の各項目に状態を出すのに使う</summary>
+            public CustomCorrectionSet CustomCorrections = CustomCorrectionSet.Empty;
+
             /// <summary>GeneratorのSetがビルド中にしか無く、見積もりに入っていないか</summary>
             public bool EstimateExcludesGenerator;
 
@@ -124,8 +127,12 @@ namespace NativeFTManager.UseCase
             AvatarFacts facts)
         {
             var excludedRules = ComponentSettings.GetExcludedRules(component);
+            var custom = ComponentSettings.GetCustomCorrections(component);
+            report.CustomCorrections = custom;
             var plan = ToggleControllerPlanner.Build(
-                toggles, CorrectionPlanner.GetPossibleGates(toggles, excludedRules), component.enableTrackingReapply);
+                toggles,
+                CorrectionPlanner.GetPossibleGates(toggles, excludedRules, custom.Rules),
+                component.enableTrackingReapply);
 
             var referenced = FaceTrackingDescriptorAccess.GetSetNamesReferencedByBehaviors(descriptor);
             referenced.UnionWith(FaceTrackingStateBehaviorWriter.CollectReferencedSetNames(
@@ -149,7 +156,9 @@ namespace NativeFTManager.UseCase
                 excludedRules,
                 existingInstructions,
                 FaceTrackingDescriptorAccess.ReadLipSyncVisemeShapes(descriptor),
-                split.Sets);
+                split.Sets,
+                custom.Rules,
+                FaceTrackingDescriptorAccess.ReadFaceTrackingShapeNames(descriptor));
             report.Estimate = BuildEstimate.Calculate(
                 split.Sets,
                 split.Created.Count,
@@ -161,6 +170,15 @@ namespace NativeFTManager.UseCase
                 facts.OtherSyncedBits);
             report.Estimate.FxLayerCount += CountSuppressionLayers(component, facts);
 
+            if (custom.Problems.Count > 0)
+            {
+                report.Diagnostics.Add(new Diagnostic(
+                    DiagnosticCodes.CustomCorrectionInvalid,
+                    string.Join(", ", custom.Problems.Select(problem => problem.Describe()))));
+            }
+
+            // シーンのメッシュに無いシェイプは、MAのマージやGeneratorがビルド中に足すこともある。
+            // ここでは一覧の各項目に印を出すだけにし、警告はビルドで実際に無かったときに出す
             if (report.Corrections.DroppedRules.Count > 0)
             {
                 report.Diagnostics.Add(new Diagnostic(
