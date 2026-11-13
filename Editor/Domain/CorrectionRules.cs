@@ -12,6 +12,12 @@ namespace NativeFTManager.Domain
         Emulation,
         Limits,
         EyeSync,
+
+        /// <summary>
+        /// 利用者がコンポーネントに書いたカスタム補正。対応するメニューのトグルを持たず、
+        /// フェイストラッキングと、式が読むキーの側のトグルだけで止まる
+        /// </summary>
+        Custom,
     }
 
     /// <summary>
@@ -30,18 +36,32 @@ namespace NativeFTManager.Domain
     }
 
     /// <summary>
-    /// 規則が書き込む先1つ。シェイプ名はビルド時にSetから引く
+    /// 規則が書き込む先1つ。組み込みの規則はUEキーで指し、シェイプ名はビルド時にSetから引く。
+    /// カスタム補正はトラッキングキーに割り当てられないシェイプを動かすので、シェイプ名で直接指す
     /// </summary>
     internal sealed class CorrectionTarget
     {
+        /// <summary>シェイプ名で指す対象の<see cref="Key"/></summary>
+        public const int NoKey = -1;
+
         public CorrectionTarget(int key, string expression)
         {
             Key = key;
             Expression = expression;
         }
 
-        /// <summary>対象のUEキーの番号</summary>
+        public CorrectionTarget(string shape, string expression)
+        {
+            Key = NoKey;
+            Shape = shape;
+            Expression = expression;
+        }
+
+        /// <summary>対象のUEキーの番号。シェイプ名で指す対象では<see cref="NoKey"/></summary>
         public int Key { get; }
+
+        /// <summary>対象のシェイプ名。UEキーで指す対象ではnull</summary>
+        public string Shape { get; }
 
         /// <summary>Custom式。入力はUEキーの名前で書く</summary>
         public string Expression { get; }
@@ -73,7 +93,7 @@ namespace NativeFTManager.Domain
 
         public CorrectionMode Mode { get; }
 
-        /// <summary>移植元（Jerry's 7.0.5のブレンドツリー名）。インスペクタとドキュメントで出典を示す</summary>
+        /// <summary>移植元（Jerry's 7.0.5のブレンドツリー名）。インスペクタとドキュメントで出典を示す。カスタム補正では空</summary>
         public string Source { get; }
 
         public IReadOnlyList<CorrectionTarget> Targets { get; }

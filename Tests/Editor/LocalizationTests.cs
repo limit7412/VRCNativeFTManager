@@ -117,6 +117,18 @@ namespace NativeFTManager.Tests
             "inspector.enable_eye_sync",
             "inspector.corrections.rules",
             "inspector.corrections.no_shape",
+            "inspector.custom_corrections",
+            "inspector.custom_corrections.help",
+            "inspector.custom_corrections.multi_edit",
+            "inspector.custom_corrections.status.disabled",
+            "inspector.custom_corrections.status.empty_shape",
+            "inspector.custom_corrections.status.invalid",
+            "inspector.custom_corrections.status.no_shape",
+            "inspector.custom_corrections.status.dropped",
+            "inspector.custom_corrections.status.ok",
+            "prop.custom_correction.shape",
+            "prop.custom_correction.mode",
+            "prop.custom_correction.expression",
             "inspector.section.estimate",
             "inspector.estimate.sets",
             "inspector.estimate.sets_value",
@@ -177,6 +189,7 @@ namespace NativeFTManager.Tests
         /// </summary>
         private static IEnumerable<string> EnumLabelKeys =>
             Presentation.NativeFTManagerComponentEditor.TriggerLabelKeys
+                .Concat(Presentation.NativeFTManagerComponentEditor.CustomCorrectionModeLabelKeys)
                 .Concat(Presentation.ExtraParameterEntryDrawer.SourceLabelKeys)
                 .Concat(Presentation.ExtraParameterEntryDrawer.ToggleStateLabelKeys)
                 .Concat(Presentation.ExtraParameterEntryDrawer.ReleaseModeLabelKeys)

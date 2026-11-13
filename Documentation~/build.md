@@ -17,6 +17,7 @@ English: [build.en.md](build.en.md)
   - Eye Sync: 左右のまばたきを平均して両目へ書く
   - 補正の切り替えには、対応を持たない空のSet（`KxNFTM/Gate/...`）の重みを使う。規則が読み書きするキーの側のトグル（目・瞳孔・口）を切ったときも、その規則は止まる
   - 対象のシェイプがSetに無い規則は作らない（KxNFTM-I-01）。Custom式の命令数がアバター全体の上限2048を超えるときは、優先度の低い規則から落とす（KxNFTM-W-12）
+  - カスタム補正: インスペクタの一覧に書いたシェイプ名とCustom式から、同じくParameter Behaviorを作る。組み込みの規則より前に並べるので、命令数が上限を超えるときも先には落ちない。シェイプ名や式に誤りのある項目（KxNFTM-W-23）と、対象のシェイプがFace Tracking Meshに無い項目（KxNFTM-W-22）は作らない
 - FaceEmoの抑制を有効にしたときは、FaceEmoと追加で書き込むパラメーターを制御するFXレイヤーを作り、「取り除くFXレイヤー」に挙げたレイヤーをFXから取り除く
 - DescriptorのFace Trackingを有効にする。Use All Tracking KeysとViseme Dampenは、インスペクタの「Descriptorの設定」に従って書く
 - Setに目（EyeLook・EyeClosed）のキーがあるのに、DescriptorのEye LookがそれをFTで使わない設定なら、Eye LookをFT向けにする（KxNFTM-I-07）。Eye Gaze ModeがBone Rotationで目のボーンが割り当てられていなければFace Trackingに、Eyelids TypeがNoneかBlendshapesならFace Trackingにし、Eye Lookが無効なら有効にする。目のボーンがあるときのEye Gaze Modeと、Eyelids TypeのBonesは変えない。インスペクタにも警告（KxNFTM-W-21）が出て、ボタンでシーンのDescriptorを同じ値にできる

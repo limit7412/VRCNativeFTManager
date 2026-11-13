@@ -132,6 +132,12 @@ namespace NativeFTManager.Domain
         /// </summary>
         public const string EyeLookNotFaceTracking = "W-21";
 
+        /// <summary>カスタム補正の対象のシェイプがFace Tracking Meshに無く、生成しなかった</summary>
+        public const string CustomCorrectionShapeMissing = "W-22";
+
+        /// <summary>カスタム補正のシェイプ名が空、または式に誤りがあり、生成しなかった</summary>
+        public const string CustomCorrectionInvalid = "W-23";
+
         /// <summary>W-04の判定に使う、割り当てキー数の下限</summary>
         public const int GeneratorSetMinimumKeys = 10;
 
@@ -165,6 +171,8 @@ namespace NativeFTManager.Domain
                 { GeneratorNotInstalled, DiagnosticSeverity.Warning },
                 { EyeLookCorrected, DiagnosticSeverity.Information },
                 { EyeLookNotFaceTracking, DiagnosticSeverity.Warning },
+                { CustomCorrectionShapeMissing, DiagnosticSeverity.Warning },
+                { CustomCorrectionInvalid, DiagnosticSeverity.Warning },
             };
 
         public static IEnumerable<string> All => Severities.Keys;

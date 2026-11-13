@@ -62,13 +62,15 @@ namespace NativeFTManager.Domain
             IReadOnlyList<GateSlot> gates,
             IReadOnlyList<string> missingTargets,
             IReadOnlyList<string> droppedRules,
-            int instructions)
+            int instructions,
+            IReadOnlyList<string> missingShapes = null)
         {
             Behaviors = behaviors;
             Gates = gates;
             MissingTargets = missingTargets;
             DroppedRules = droppedRules;
             Instructions = instructions;
+            MissingShapes = missingShapes ?? new string[0];
         }
 
         public IReadOnlyList<CorrectionBehaviorPlan> Behaviors { get; }
@@ -78,6 +80,9 @@ namespace NativeFTManager.Domain
 
         /// <summary>対象キーのシェイプがSetに無く、生成しなかった規則のid（I-01）</summary>
         public IReadOnlyList<string> MissingTargets { get; }
+
+        /// <summary>対象のシェイプがFace Tracking Meshに無く、生成しなかったカスタム補正のid（W-22）</summary>
+        public IReadOnlyList<string> MissingShapes { get; }
 
         /// <summary>Custom式の命令数の上限を超えるので落とした規則のid（W-12）</summary>
         public IReadOnlyList<string> DroppedRules { get; }
@@ -108,7 +113,10 @@ namespace NativeFTManager.Domain
     ///
     /// ゲートの条件は FT ∧ 機能のトグル に、規則が読み書きするキーの側のトグルを足したものにする。
     /// 式の入力はSetの重みの影響を受けないので、例えば口から眉を動かす規則は、
-    /// 目と口のどちらが無効でも止めないと、無効にした側の表情が残るためである
+    /// 目と口のどちらが無効でも止めないと、無効にした側の表情が残るためである。
+    ///
+    /// カスタム補正は機能のトグルを持たないので、条件は FT ∧ 式が読むキーの側のトグル になる。
+    /// 命令数の予算が足りないときに組み込みの規則から先に落ちるよう、カスタム補正を規則表より前に並べる
     /// </summary>
     internal static class CorrectionPlanner
     {
@@ -116,10 +124,13 @@ namespace NativeFTManager.Domain
         /// 生成する可能性のあるゲート。Setの中身が決まる前（Generating）にFXのレイヤーを作るのに使う。
         /// 常に偽または常に真になるゲートは含めない
         /// </summary>
-        public static IReadOnlyList<GateSlot> GetPossibleGates(ToggleSet toggles, ICollection<string> excludedRules)
+        public static IReadOnlyList<GateSlot> GetPossibleGates(
+            ToggleSet toggles,
+            ICollection<string> excludedRules,
+            IReadOnlyList<CorrectionRule> customRules = null)
         {
             var gates = new List<GateSlot>();
-            foreach (var rule in SelectRules(toggles, excludedRules))
+            foreach (var rule in SelectRules(toggles, excludedRules, customRules))
             {
                 var gate = GetGate(rule, toggles);
                 if (gate != null && gates.All(existing => existing.Key != gate.Key))
@@ -146,22 +157,29 @@ namespace NativeFTManager.Domain
         /// Descriptorへ書くSetの全体（分割しなかったSetを含む）。Visemesのトグルは、ここのビゼーム対応を対象にし、
         /// ここのFTのキーに割り当てたシェイプを対象から外す。nullならsetsを使う
         /// </param>
+        /// <param name="customRules">カスタム補正の規則。規則表より前に並べる</param>
+        /// <param name="knownShapes">
+        /// Face Tracking Meshにあるシェイプ名。カスタム補正の対象がここに無ければ生成しない。nullなら確かめない
+        /// </param>
         public static CorrectionPlan Plan(
             IReadOnlyList<FaceTrackingSetData> sets,
             ToggleSet toggles,
             ICollection<string> excludedRules,
             int existingInstructions,
             IEnumerable<string> lipSyncShapes = null,
-            IReadOnlyList<FaceTrackingSetData> allSets = null)
+            IReadOnlyList<FaceTrackingSetData> allSets = null,
+            IReadOnlyList<CorrectionRule> customRules = null,
+            ICollection<string> knownShapes = null)
         {
             var behaviors = new List<CorrectionBehaviorPlan>();
             var gates = new List<GateSlot>();
             var missing = new List<string>();
+            var missingShapes = new List<string>();
             var dropped = new List<string>();
             int budget = CustomExpression.AvatarInstructionLimit - Math.Max(0, existingInstructions);
             int instructions = 0;
 
-            foreach (var rule in SelectRules(toggles, excludedRules))
+            foreach (var rule in SelectRules(toggles, excludedRules, customRules))
             {
                 var ruleBehaviors = new List<CorrectionBehaviorPlan>();
                 int ruleInstructions = 0;
@@ -169,7 +187,7 @@ namespace NativeFTManager.Domain
 
                 foreach (var target in rule.Targets)
                 {
-                    foreach (var (shape, multiplier) in GetShapes(sets, target.Key))
+                    foreach (var (shape, multiplier) in GetShapes(sets, target, knownShapes))
                     {
                         var expression = GetExpression(rule, target, multiplier);
                         var info = CustomExpression.Analyze(expression);
@@ -193,7 +211,7 @@ namespace NativeFTManager.Domain
 
                 if (ruleBehaviors.Count == 0)
                 {
-                    missing.Add(rule.Id);
+                    (rule.Feature == CorrectionFeature.Custom ? missingShapes : missing).Add(rule.Id);
                     continue;
                 }
 
@@ -213,7 +231,7 @@ namespace NativeFTManager.Domain
 
             PlanVisemeSuppression(allSets ?? sets, toggles, lipSyncShapes, budget, behaviors, gates, dropped, ref instructions);
 
-            return new CorrectionPlan(behaviors, gates, missing, dropped, instructions);
+            return new CorrectionPlan(behaviors, gates, missing, dropped, instructions, missingShapes);
         }
 
         /// <summary>
@@ -263,11 +281,14 @@ namespace NativeFTManager.Domain
         }
 
         /// <summary>
-        /// 機能が有効で、個別に外されておらず、ゲートの条件が常に偽でない規則（表の順）
+        /// 機能が有効で、個別に外されておらず、ゲートの条件が常に偽でない規則。カスタム補正、規則表の順に並べる
         /// </summary>
-        public static IEnumerable<CorrectionRule> SelectRules(ToggleSet toggles, ICollection<string> excludedRules)
+        public static IEnumerable<CorrectionRule> SelectRules(
+            ToggleSet toggles,
+            ICollection<string> excludedRules,
+            IReadOnlyList<CorrectionRule> customRules = null)
         {
-            foreach (var rule in CorrectionRuleTable.All)
+            foreach (var rule in (customRules ?? new CorrectionRule[0]).Concat(CorrectionRuleTable.All))
             {
                 if (!IsFeatureEnabled(toggles.Features, rule.Feature))
                 {
@@ -289,11 +310,17 @@ namespace NativeFTManager.Domain
         }
 
         /// <summary>
-        /// 規則の効く条件。FT ∧ 機能のトグル ∧ 規則が読み書きするキーの側のトグル
+        /// 規則の効く条件。FT ∧ 機能のトグル ∧ 規則が読み書きするキーの側のトグル。
+        /// カスタム補正には機能のトグルが無い
         /// </summary>
         public static GroupCondition GetCondition(CorrectionRule rule)
         {
-            var toggles = new List<NativeFTToggle> { NativeFTToggle.FaceTracking, GetFeatureToggle(rule.Feature) };
+            var toggles = new List<NativeFTToggle> { NativeFTToggle.FaceTracking };
+            if (rule.Feature != CorrectionFeature.Custom)
+            {
+                toggles.Add(GetFeatureToggle(rule.Feature));
+            }
+
             foreach (var requirement in GetRequirements(rule))
             {
                 toggles.Add(requirement);
@@ -326,7 +353,11 @@ namespace NativeFTManager.Domain
             var keys = new HashSet<int>();
             foreach (var target in rule.Targets)
             {
-                keys.Add(target.Key);
+                if (target.Key != CorrectionTarget.NoKey)
+                {
+                    keys.Add(target.Key);
+                }
+
                 foreach (var input in CustomExpression.Analyze(target.Expression).Inputs)
                 {
                     int index = IndexOfKey(input);
@@ -406,7 +437,8 @@ namespace NativeFTManager.Domain
 
         private static bool IsFeatureEnabled(CorrectionFeatures features, CorrectionFeature feature)
         {
-            return features.IsEnabled(GetFeatureToggle(feature));
+            // カスタム補正は、コンポーネントの一覧で1件ずつ有効・無効を持つ
+            return feature == CorrectionFeature.Custom || features.IsEnabled(GetFeatureToggle(feature));
         }
 
         /// <summary>
@@ -422,6 +454,24 @@ namespace NativeFTManager.Domain
 
             return "(" + target.Expression + ") * "
                    + multiplier.ToString("0.####", System.Globalization.CultureInfo.InvariantCulture);
+        }
+
+        /// <summary>
+        /// 対象のシェイプと、式に掛ける倍率。シェイプ名で指す対象は、利用者が書いた式をそのまま使うので等倍にする
+        /// </summary>
+        private static IEnumerable<(string Shape, float Multiplier)> GetShapes(
+            IReadOnlyList<FaceTrackingSetData> sets,
+            CorrectionTarget target,
+            ICollection<string> knownShapes)
+        {
+            if (target.Shape == null)
+            {
+                return GetShapes(sets, target.Key);
+            }
+
+            return knownShapes == null || knownShapes.Contains(target.Shape)
+                ? new[] { (target.Shape, 1f) }
+                : new (string, float)[0];
         }
 
         /// <summary>

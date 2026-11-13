@@ -209,6 +209,44 @@ namespace NativeFTManager.Infra
         }
 
         /// <summary>
+        /// Face Tracking Meshesにあるシェイプ名。カスタム補正の対象があるかを確かめるのに使う。
+        /// Face Tracking Meshesが空ならリップシンクのメッシュを読む。「シェイプキーを自動でセット」が
+        /// ビルド時にSetを作るときに読むメッシュと同じ選び方である。どちらも無ければ確かめようがないのでnullを返す
+        /// </summary>
+        public static HashSet<string> ReadFaceTrackingShapeNames(VRCAvatarDescriptor descriptor)
+        {
+            if (descriptor == null)
+            {
+                return null;
+            }
+
+            var meshes = (descriptor.faceTrackingMeshes ?? new List<SkinnedMeshRenderer>())
+                .Where(renderer => renderer != null && renderer.sharedMesh != null)
+                .Select(renderer => renderer.sharedMesh)
+                .ToList();
+            if (meshes.Count == 0 && descriptor.VisemeSkinnedMesh != null && descriptor.VisemeSkinnedMesh.sharedMesh != null)
+            {
+                meshes.Add(descriptor.VisemeSkinnedMesh.sharedMesh);
+            }
+
+            if (meshes.Count == 0)
+            {
+                return null;
+            }
+
+            var names = new HashSet<string>();
+            foreach (var mesh in meshes.Distinct())
+            {
+                for (int i = 0; i < mesh.blendShapeCount; i++)
+                {
+                    names.Add(mesh.GetBlendShapeName(i));
+                }
+            }
+
+            return names;
+        }
+
+        /// <summary>
         /// シェイプ名を持つFace Tracking MeshのRendererの数を返す関数。見積もり（F-13）に使う。
         /// SDKはRendererごとに数えるので、同じMeshを使うRendererもまとめない（issue #42）。
         /// Face Tracking Meshesが空のときは、Rendererの数を数えられないので1つとして扱う

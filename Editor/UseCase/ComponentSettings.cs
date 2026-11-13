@@ -97,5 +97,34 @@ namespace NativeFTManager.UseCase
         {
             return new HashSet<string>(component.excludedRules ?? new List<string>());
         }
+
+        /// <summary>
+        /// カスタム補正を規則にする。誤りのある項目は規則にならず、結果のProblemsに入る
+        /// </summary>
+        public static CustomCorrectionSet GetCustomCorrections(NativeFTManagerComponent component)
+        {
+            var sources = new List<CustomCorrectionSource>();
+            foreach (var rule in component.customCorrections ?? new List<CustomCorrectionRule>())
+            {
+                sources.Add(rule == null
+                    ? null
+                    : new CustomCorrectionSource(rule.enabled, rule.blendShape, ToCorrectionMode(rule.mode), rule.expression));
+            }
+
+            return CustomCorrections.Build(sources);
+        }
+
+        private static CorrectionMode ToCorrectionMode(CustomCorrectionMode mode)
+        {
+            switch (mode)
+            {
+                case CustomCorrectionMode.LimitMax:
+                    return CorrectionMode.LimitMax;
+                case CustomCorrectionMode.LimitMin:
+                    return CorrectionMode.LimitMin;
+                default:
+                    return CorrectionMode.ApplyToBlendshape;
+            }
+        }
     }
 }

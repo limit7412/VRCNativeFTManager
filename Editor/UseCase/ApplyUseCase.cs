@@ -200,13 +200,35 @@ namespace NativeFTManager.UseCase
                 .Where(info => info.IsValid)
                 .Sum(info => info.Instructions);
 
+            var custom = ComponentSettings.GetCustomCorrections(primary);
             var corrections = CorrectionPlanner.Plan(
                 result.CorrectionSources,
                 toggles,
                 ComponentSettings.GetExcludedRules(primary),
                 existingInstructions,
                 FaceTrackingDescriptorAccess.ReadLipSyncVisemeShapes(descriptor),
-                result.Sets);
+                result.Sets,
+                custom.Rules,
+                // MAのマージとGeneratorの後なので、ビルド中に加わったシェイプも対象にできる
+                FaceTrackingDescriptorAccess.ReadFaceTrackingShapeNames(descriptor));
+
+            if (custom.Problems.Count > 0)
+            {
+                DiagnosticReporter.Report(
+                    new Diagnostic(
+                        DiagnosticCodes.CustomCorrectionInvalid,
+                        string.Join(", ", custom.Problems.Select(problem => problem.Describe()))),
+                    primary);
+            }
+
+            if (corrections.MissingShapes.Count > 0)
+            {
+                DiagnosticReporter.Report(
+                    new Diagnostic(
+                        DiagnosticCodes.CustomCorrectionShapeMissing,
+                        string.Join(", ", corrections.MissingShapes)),
+                    primary);
+            }
 
             if (corrections.MissingTargets.Count > 0)
             {
